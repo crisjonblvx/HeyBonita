@@ -70,7 +70,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     });
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -209,7 +209,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               placeholder={t('askBonita')}
               className="pr-12 typewriter"
               disabled={sendMessageMutation.isPending}
