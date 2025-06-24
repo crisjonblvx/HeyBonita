@@ -104,6 +104,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 24, 2025. Integrated custom Bonita avatar images to replace placeholder images throughout the application
 - June 24, 2025. Added text-to-speech functionality with automatic speech for new messages and manual speech controls for existing messages
 - June 24, 2025. Added multilingual speech-to-speech capability allowing voice input and automatic spoken responses
+- June 24, 2025. Integrated ElevenLabs Conversational AI for high-quality, emotionally expressive voice synthesis with personality-based voice modulation
 
 ## User Preferences
 

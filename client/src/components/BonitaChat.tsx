@@ -26,6 +26,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechToSpeechMode, setSpeechToSpeechMode] = useState(false);
+  const [isUsingElevenLabs, setIsUsingElevenLabs] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { language, t } = useLanguage();
   const { toast } = useToast();
@@ -48,7 +49,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/chat', userId] });
       setMessage('');
-      // Automatically speak Bonita's response
+      // Automatically speak Bonita's response with ElevenLabs
       if (data && data.content) {
         setTimeout(() => speakMessage(data.content), 500); // Small delay for better UX
       }
@@ -148,41 +149,80 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     recognition.start();
   };
 
-  // Text-to-speech functionality
-  const speakMessage = (text: string) => {
+  // ElevenLabs speech functionality with fallback to browser TTS
+  const speakMessage = async (text: string) => {
+    setIsSpeaking(true);
+    
+    try {
+      // Try ElevenLabs first for high-quality speech
+      const response = await fetch('/api/speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          toneMode,
+          language,
+        }),
+      });
+
+      if (response.ok) {
+        setIsUsingElevenLabs(true);
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        audio.onended = () => {
+          setIsSpeaking(false);
+          setIsUsingElevenLabs(false);
+          URL.revokeObjectURL(audioUrl);
+        };
+        
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          setIsUsingElevenLabs(false);
+          URL.revokeObjectURL(audioUrl);
+          // Fallback to browser TTS
+          fallbackToWebSpeech(text);
+        };
+
+        await audio.play();
+      } else {
+        // Fallback to browser TTS if ElevenLabs fails
+        fallbackToWebSpeech(text);
+      }
+    } catch (error) {
+      console.error('ElevenLabs speech error:', error);
+      // Fallback to browser TTS
+      fallbackToWebSpeech(text);
+    }
+  };
+
+  // Fallback to browser TTS
+  const fallbackToWebSpeech = (text: string) => {
     if (!('speechSynthesis' in window)) {
+      setIsSpeaking(false);
       toast({
-        title: "Not Supported",
-        description: "Text-to-speech is not supported in your browser.",
+        title: "Speech Not Available",
+        description: "Speech synthesis is not supported in your browser.",
         variant: "destructive",
       });
       return;
     }
 
+    setIsUsingElevenLabs(false);
+    
     // Stop any current speech
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
     
     // Configure voice for Bonita's personality
-    utterance.rate = 0.85; // Slightly slower for authenticity
-    utterance.pitch = 0.9; // Slightly lower pitch
+    utterance.rate = 0.85;
+    utterance.pitch = 0.9;
     utterance.volume = 0.8;
     
-    // Try to use a female voice if available
-    const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find(voice => 
-      voice.name.toLowerCase().includes('female') || 
-      voice.name.toLowerCase().includes('woman') ||
-      voice.name.toLowerCase().includes('samantha') ||
-      voice.name.toLowerCase().includes('karen') ||
-      voice.gender === 'female'
-    );
-    
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
-    }
-
     // Set language based on current language setting
     const speechLang = language === 'es' ? 'es-ES' : 
                       language === 'pt' ? 'pt-BR' :
@@ -204,8 +244,17 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   };
 
   const stopSpeaking = () => {
+    // Stop ElevenLabs audio if playing
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
+    
+    // Stop browser TTS as fallback
     window.speechSynthesis.cancel();
     setIsSpeaking(false);
+    setIsUsingElevenLabs(false);
   };
 
   const clearHistoryMutation = useMutation({
@@ -256,6 +305,12 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
                 <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                   <MessageCircle className="w-3 h-3 mr-1" />
                   {t('speechToSpeechMode')}
+                </span>
+              )}
+              {isSpeaking && (
+                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <Volume2 className="w-3 h-3 mr-1" />
+                  {isUsingElevenLabs ? t('elevenLabsVoice') : t('browserVoice')}
                 </span>
               )}
             </p>

@@ -68,7 +68,9 @@ export const translations = {
     speechToSpeechMode: "Speech-to-Speech Mode",
     voiceChat: "Voice Chat",
     speakMessage: "Speak this message",
-    stopSpeaking: "Stop speaking"
+    stopSpeaking: "Stop speaking",
+    elevenLabsVoice: "ElevenLabs AI Voice",
+    browserVoice: "Browser Voice"
   },
   es: {
     // Navigation
@@ -139,7 +141,9 @@ export const translations = {
     speechToSpeechMode: "Modo Voz a Voz",
     voiceChat: "Chat de Voz",
     speakMessage: "Hablar este mensaje",
-    stopSpeaking: "Dejar de hablar"
+    stopSpeaking: "Dejar de hablar",
+    elevenLabsVoice: "Voz IA ElevenLabs",
+    browserVoice: "Voz del Navegador"
   },
   pt: {
     // Navigation
@@ -210,7 +214,9 @@ export const translations = {
     speechToSpeechMode: "Modo Voz para Voz",
     voiceChat: "Bate-papo por Voz",
     speakMessage: "Falar esta mensagem",
-    stopSpeaking: "Parar de falar"
+    stopSpeaking: "Parar de falar",
+    elevenLabsVoice: "Voz IA ElevenLabs",
+    browserVoice: "Voz do Navegador"
   },
   fr: {
     // Navigation
@@ -281,7 +287,9 @@ export const translations = {
     speechToSpeechMode: "Mode Voix à Voix",
     voiceChat: "Chat Vocal",
     speakMessage: "Dire ce message",
-    stopSpeaking: "Arrêter de parler"
+    stopSpeaking: "Arrêter de parler",
+    elevenLabsVoice: "Voix IA ElevenLabs",
+    browserVoice: "Voix du Navigateur"
   }
 };
 

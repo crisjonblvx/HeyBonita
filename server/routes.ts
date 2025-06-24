@@ -8,6 +8,7 @@ import {
   transcribeAudio,
   type BonitaPersonality 
 } from "./openai";
+import { generateSpeechWithElevenLabs } from "./elevenlabs";
 import { 
   insertChatMessageSchema, 
   insertGeneratedImageSchema, 
@@ -124,6 +125,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Clear history error:", error);
       res.status(500).json({ error: "Failed to clear chat history" });
+    }
+  });
+
+  // Generate speech with ElevenLabs
+  app.post("/api/speech", async (req, res) => {
+    try {
+      const { text, toneMode, language } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ error: "Text is required" });
+      }
+
+      const audioBuffer = await generateSpeechWithElevenLabs(
+        text,
+        toneMode || 'sweet-nurturing',
+        language || 'en'
+      );
+
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': audioBuffer.length,
+      });
+
+      res.send(audioBuffer);
+    } catch (error) {
+      console.error("Speech generation error:", error);
+      res.status(500).json({ error: "Failed to generate speech" });
     }
   });
 
