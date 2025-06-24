@@ -410,9 +410,8 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full p-6">
-          <div className="space-y-4">
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="space-y-4">
             {/* Welcome message */}
             <div className="flex items-start space-x-3">
               <Avatar className="w-10 h-10">
@@ -473,9 +472,8 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                 )}
               </div>
             ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Chat Input */}

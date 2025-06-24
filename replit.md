@@ -120,6 +120,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 24, 2025. Added dedicated voice control toggles for Text-to-Speech and Speech-to-Speech modes with persistent user preferences
 - June 24, 2025. Simplified voice controls to single toggle between Text-to-Speech and Speech-to-Speech modes, improved scrolling behavior
 - June 24, 2025. Redesigned control panel with clean icons, hover hints, and actual toggle switches for better UX
+- June 24, 2025. Cleaned up Video Scripts design with consistent layout and fixed scrolling issues across all components
 
 ## User Preferences
 

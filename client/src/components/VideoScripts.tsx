@@ -4,19 +4,9 @@ import { apiRequest } from '@/lib/queryClient';
 import { useLanguage } from './LanguageProvider';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Play, 
-  Download, 
-  Copy, 
-  Wand2, 
-  Video, 
-  Youtube, 
-  Instagram,
-  FileText
-} from 'lucide-react';
+import { Copy, Wand2, Video, Play, Youtube, Instagram, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface VideoScript {
