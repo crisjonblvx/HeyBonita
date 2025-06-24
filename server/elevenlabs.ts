@@ -18,7 +18,7 @@ export interface ElevenLabsConfig {
 export const BONITA_VOICES = {
   'sweet-nurturing': {
     en: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC', // User's chosen voice - clean, soulful
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd', // New voice selection - clean, soulful
       modelId: 'eleven_turbo_v2_5',
       stability: 0.6, // Higher for clean enunciation like Lauryn Hill
       similarityBoost: 0.8, // Balanced for full-bodied, clear sound
@@ -26,7 +26,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: false // Clean sound, no bass boost
     },
     es: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice for consistency
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd', // Same voice for consistency
       modelId: 'eleven_turbo_v2_5',
       stability: 0.5,
       similarityBoost: 0.75,
@@ -34,7 +34,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: false
     },
     pt: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC',
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.5,
       similarityBoost: 0.75,
@@ -42,7 +42,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: false
     },
     fr: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC',
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.5,
       similarityBoost: 0.75,
@@ -52,7 +52,7 @@ export const BONITA_VOICES = {
   },
   'tough-love': {
     en: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice, MC Lyte confidence
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd', // Same voice, MC Lyte confidence
       modelId: 'eleven_turbo_v2_5',
       stability: 0.5, // Balanced for confident, clear delivery
       similarityBoost: 0.85, // Higher for strong dynamic range
@@ -60,7 +60,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: false // Clean, powerful delivery
     },
     es: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC',
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.4,
       similarityBoost: 0.7,
@@ -68,7 +68,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: false
     },
     pt: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC',
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.4,
       similarityBoost: 0.7,
@@ -76,7 +76,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: false
     },
     fr: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC',
+      voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.4,
       similarityBoost: 0.7,
