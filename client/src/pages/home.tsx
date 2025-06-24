@@ -21,7 +21,13 @@ import {
   Volume2,
   Download,
   Trash2,
-  Mail
+  Mail,
+  MessageSquare,
+  Zap,
+  Heart,
+  Headphones,
+  Play,
+  Square
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -242,14 +248,8 @@ export default function Home() {
             <Button size="icon" variant="ghost" onClick={() => setShowHelp(true)} title="Help">
               <HelpCircle className="h-5 w-5" />
             </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleVoiceToggle}
-              className={isListening ? "animate-pulse" : ""}
-              title={`Voice: ${voiceMode === 'speech-to-speech' ? 'Speech-to-Speech' : 'Text-to-Speech'}`}
-            >
-              {voiceMode === 'speech-to-speech' ? <MessageSquare className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+            <Button size="icon" variant="ghost" onClick={toggleTheme} title="Toggle Theme">
+              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
           </div>
         </div>
