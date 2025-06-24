@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Mic, Send, History, Volume2, VolumeX, MessageCircle, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { playAudio, stopAudio, isAudioPlaying } from '@/lib/audioController';
 
 interface ChatMessage {
   id: number;
@@ -303,12 +304,8 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   };
 
   const stopSpeaking = () => {
-    // Stop ElevenLabs audio if playing
-    const audioElements = document.querySelectorAll('audio');
-    audioElements.forEach(audio => {
-      audio.pause();
-      audio.currentTime = 0;
-    });
+    // Stop global audio controller
+    stopAudio();
     
     // Stop browser TTS as fallback
     window.speechSynthesis.cancel();

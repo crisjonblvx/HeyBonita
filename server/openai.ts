@@ -164,8 +164,8 @@ export async function chatWithBonita(
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
-      max_tokens: 500,
-      temperature: 0.8,
+      max_tokens: 350, // Reduced for faster responses
+      temperature: 0.7, // Slightly lower for more focused responses
     });
 
     return response.choices[0].message.content || "I'm sorry, I couldn't process that right now.";

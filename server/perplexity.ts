@@ -45,7 +45,9 @@ async function searchWithGNews(query: string): Promise<string> {
   }
 
   try {
-    const searchQuery = encodeURIComponent(query);
+    // Clean query for GNews API - remove special characters that cause syntax errors
+    const cleanQuery = query.replace(/[^\w\s]/g, ' ').trim().replace(/\s+/g, ' ');
+    const searchQuery = encodeURIComponent(cleanQuery);
     const response = await fetch(`https://gnews.io/api/v4/search?q=${searchQuery}&lang=en&country=us&max=3&apikey=${apiKey}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; Bonita-AI/1.0)'
@@ -107,8 +109,8 @@ async function searchWithPerplexity(query: string): Promise<string> {
             content: enhancedQuery
           }
         ],
-        max_tokens: 300,
-        temperature: 0.2,
+        max_tokens: 200, // Reduced for faster responses
+        temperature: 0.1, // Lower for more precise, faster responses
         top_p: 0.9,
         return_related_questions: false,
         search_recency_filter: 'week', // More recent for trending topics
