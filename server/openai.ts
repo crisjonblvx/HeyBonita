@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { searchCurrentInfo, needsCurrentInfo } from "./perplexity";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ 
@@ -129,6 +130,16 @@ export async function chatWithBonita(
   chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
 ): Promise<string> {
   try {
+    let enhancedMessage = message;
+    
+    // Check if the message needs current information
+    if (needsCurrentInfo(message)) {
+      const currentInfo = await searchCurrentInfo(message);
+      if (currentInfo) {
+        enhancedMessage = `User question: ${message}\n\nCurrent information: ${currentInfo}\n\nPlease respond as Bonita using this current information.`;
+      }
+    }
+    
     const systemPrompt = getBonitaSystemPrompt(personality);
     
     // Ensure all messages have proper content structure for OpenAI API
@@ -146,10 +157,8 @@ export async function chatWithBonita(
     const messages = [
       { role: "system" as const, content: systemPrompt },
       ...formattedHistory,
-      { role: "user" as const, content: message }
+      { role: "user" as const, content: enhancedMessage }
     ];
-
-    // Debug log to check message structure (removed for production)
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",

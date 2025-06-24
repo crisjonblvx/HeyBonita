@@ -111,6 +111,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 24, 2025. Added current date/time awareness and real-world context to Bonita's knowledge base for timely, relevant conversations
 - June 24, 2025. Implemented response cancellation feature allowing users to stop Bonita's text generation mid-response
 - June 24, 2025. Fixed stop button functionality with proper abort controller integration and 2025 date awareness updates
+- June 24, 2025. Integrated Perplexity API for real-time news and current events access, enabling accurate responses about current politics and world events
 
 ## User Preferences
 
