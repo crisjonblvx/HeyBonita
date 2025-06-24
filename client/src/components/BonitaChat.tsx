@@ -30,9 +30,11 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   const queryClient = useQueryClient();
 
   // Fetch chat history
-  const { data: messages = [], isLoading } = useQuery({
+  const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['/api/chat', userId],
+    queryFn: () => fetch(`/api/chat/${userId}`).then(res => res.json()),
     enabled: !!userId,
+    staleTime: 0 // Always refetch to keep messages fresh
   });
 
   // Send message mutation
@@ -123,6 +125,8 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
       description: "Chat history has been cleared.",
     });
   };
+
+
 
   if (isLoading) {
     return (
