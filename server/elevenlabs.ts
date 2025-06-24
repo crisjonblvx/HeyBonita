@@ -17,49 +17,49 @@ export interface ElevenLabsConfig {
 export const BONITA_VOICES = {
   'sweet-nurturing': {
     en: {
-      voiceId: 'XrExE9yKIg1WjnnlVkGX', // Matilda - warmer, more natural female voice
+      voiceId: 'XpYJVdFNVAV7rVr2CReC', // User's chosen voice - sweet and upbeat
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.2, // Very low for maximum expressiveness
-      similarityBoost: 0.8, // Balanced for natural delivery
-      style: 0.5, // Moderate style for authentic feel
+      stability: 0.3, // Slightly higher for sweeter delivery
+      similarityBoost: 0.85, // Balanced for natural delivery
+      style: 0.6, // Higher for more upbeat and expressive
       useSpeakerBoost: true
     },
     es: {
-      voiceId: '21m00Tcm4TlvDq8ikWAM', // Same voice for consistency
+      voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice for consistency
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4,
+      stability: 0.35,
       similarityBoost: 0.8,
-      style: 0.55,
+      style: 0.65,
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: '21m00Tcm4TlvDq8ikWAM',
+      voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4,
+      stability: 0.35,
       similarityBoost: 0.8,
-      style: 0.55,
+      style: 0.65,
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: '21m00Tcm4TlvDq8ikWAM',
+      voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4,
+      stability: 0.35,
       similarityBoost: 0.8,
-      style: 0.55,
+      style: 0.65,
       useSpeakerBoost: true
     }
   },
   'tough-love': {
     en: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL', // Bella - more assertive delivery
+      voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice, adjusted settings for more assertive tone
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.2, // Very low for maximum dynamic expression
+      stability: 0.2, // Lower for more dynamic expression
       similarityBoost: 0.9, // High for character consistency
       style: 0.75, // High style for attitude and inflection
       useSpeakerBoost: true
     },
     es: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.25,
       similarityBoost: 0.85,
@@ -67,7 +67,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.25,
       similarityBoost: 0.85,
@@ -75,7 +75,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.25,
       similarityBoost: 0.85,
