@@ -76,11 +76,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "User ID and message are required" });
       }
 
+      // Extract just the message text if it's wrapped in an object
+      const messageText = typeof message === 'string' ? message : message.message || JSON.stringify(message);
+
       // Save user message
       await storage.createChatMessage({
         userId,
         role: 'user',
-        content: message,
+        content: messageText,
         language,
         toneMode
       });
