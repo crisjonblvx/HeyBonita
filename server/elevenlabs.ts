@@ -17,11 +17,11 @@ export interface ElevenLabsConfig {
 export const BONITA_VOICES = {
   'sweet-nurturing': {
     en: {
-      voiceId: '21m00Tcm4TlvDq8ikWAM', // Rachel - natural female voice
+      voiceId: 'XrExE9yKIg1WjnnlVkGX', // Matilda - warmer, more natural female voice
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.3, // Lower for more dynamic expression
-      similarityBoost: 0.85, // Balanced for natural delivery
-      style: 0.6, // Moderate style for authentic feel
+      stability: 0.2, // Very low for maximum expressiveness
+      similarityBoost: 0.8, // Balanced for natural delivery
+      style: 0.5, // Moderate style for authentic feel
       useSpeakerBoost: true
     },
     es: {
@@ -91,18 +91,10 @@ function preprocessTextForBonita(text: string, toneMode: 'sweet-nurturing' | 'to
   
   // Clean up any existing voice directions that might confuse the AI
   processedText = processedText.replace(/\*[^*]*\*/g, '');
+  processedText = processedText.replace(/\[[^\]]*\]/g, '');
   
   // Add natural pauses for more expressive delivery
   processedText = processedText.replace(/\.\.\./g, '...');
-  
-  // Add voice direction for authentic African-American female delivery
-  if (toneMode === 'sweet-nurturing') {
-    // Warm but real auntie energy
-    processedText = `[Voice: Warm but direct African-American woman from the Bronx, speaking with authentic caring and natural rhythm] ${processedText}`;
-  } else {
-    // Strong, challenging auntie energy
-    processedText = `[Voice: Confident, challenging African-American woman from the Bronx, speaking with authority and realness] ${processedText}`;
-  }
   
   return processedText;
 }
