@@ -1,0 +1,107 @@
+# replit.md
+
+## Overview
+
+Bonita AI is a full-stack web application built with React/TypeScript frontend and Express.js backend. The app features a multilingual AI assistant called Bonita, a "Digital Bronx Auntie" who provides chat support, image generation, and video script creation. The application supports four languages (English, Spanish, Portuguese, French) and offers customizable themes and tone modes.
+
+## System Architecture
+
+### Frontend Architecture
+- **React 18 + TypeScript**: Modern React with full TypeScript support
+- **Vite**: Fast build tool and development server
+- **shadcn/ui + Radix UI**: Component library built on unstyled, accessible primitives
+- **TailwindCSS**: Utility-first CSS framework with custom theming
+- **Wouter**: Lightweight client-side routing
+- **TanStack Query**: Server state management and caching
+- **React Hook Form + Zod**: Form handling with schema validation
+
+### Backend Architecture
+- **Express.js + TypeScript**: RESTful API server with ES modules
+- **OpenAI Integration**: GPT-4o model for chat, DALL-E 3 for images
+- **Multer**: File upload handling for audio transcription
+- **Session Management**: Express sessions with PostgreSQL storage
+
+### Database Architecture
+- **PostgreSQL**: Primary database (configured for Neon serverless)
+- **Drizzle ORM**: Type-safe database interactions
+- **Schema Design**: Users, chat messages, generated images, and video scripts with multilingual support
+
+## Key Components
+
+### AI Personality System
+- **Bonita Character**: Digital Bronx Auntie with cultural authenticity
+- **Tone Modes**: Sweet-nurturing vs tough-love personality variants
+- **Multilingual Support**: Context-aware responses in 4 languages
+- **Cultural Context**: Code-switching and culturally appropriate expressions
+
+### Language System
+- **React Context**: Centralized language state management
+- **Translation Engine**: Type-safe translation keys with JSON storage
+- **Persistence**: LocalStorage for user preferences
+- **Dynamic Content**: Real-time language switching without page reload
+
+### Theme System
+- **CSS Variables**: Custom properties for dynamic theming
+- **Color Schemes**: Multiple accent color options (red, blue, green, etc.)
+- **Dark/Light Mode**: Automatic system preference detection
+- **Component Variants**: Theme-aware UI components
+
+### File Upload System
+- **Audio Transcription**: Speech-to-text using OpenAI Whisper
+- **Image Generation**: DALL-E 3 integration with preset prompts
+- **File Validation**: Type and size restrictions for uploads
+
+## Data Flow
+
+1. **User Interaction**: Frontend captures user input (text, voice, settings)
+2. **API Requests**: TanStack Query manages server communication
+3. **Server Processing**: Express routes handle business logic
+4. **AI Integration**: OpenAI API calls for chat, images, transcription
+5. **Database Operations**: Drizzle ORM manages data persistence
+6. **Response Handling**: Frontend updates UI with real-time feedback
+
+## External Dependencies
+
+### OpenAI Services
+- **GPT-4o**: Primary chat model (latest available)
+- **DALL-E 3**: Image generation from text prompts
+- **Whisper**: Audio transcription service
+- **API Key**: Required environment variable (OPENAI_API_KEY)
+
+### Database
+- **Neon PostgreSQL**: Serverless PostgreSQL provider
+- **Connection**: DATABASE_URL environment variable required
+- **WebSocket Support**: For real-time features
+
+### UI Libraries
+- **Radix UI**: Accessible component primitives
+- **Lucide React**: Icon library
+- **React Hook Form**: Form state management
+- **Date-fns**: Date manipulation utilities
+
+## Deployment Strategy
+
+### Development Environment
+- **Replit Integration**: Optimized for Replit development workflow
+- **Hot Reload**: Vite dev server with instant updates
+- **Error Overlay**: Runtime error modal for debugging
+- **Port Configuration**: Port 5000 with external port 80
+
+### Production Build
+- **Frontend**: Vite builds to dist/public directory
+- **Backend**: ESBuild bundles server to dist/index.js
+- **Static Assets**: Express serves built frontend assets
+- **Environment**: NODE_ENV controls development vs production features
+
+### Database Setup
+- **Migrations**: Drizzle Kit manages schema changes
+- **Push Command**: `npm run db:push` for schema deployment
+- **Connection Pooling**: Neon serverless connection management
+
+## Changelog
+
+- June 24, 2025. Initial setup
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
