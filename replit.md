@@ -31,7 +31,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 ### AI Personality System
 - **Bonita Character**: Hip-hop auntie with encyclopedic knowledge of 90s/current music culture
 - **Voice Profile**: Clean enunciation with subtle rasp (Lauryn Hill meets MC Lyte energy)
-- **Cultural Expertise**: 90s legends (Nas, Mary J., Aaliyah) to current artists (Kendrick, SZA, Burna Boy)
+- **Cultural Expertise**: 90s legends (Nas, Mary J., Aaliyah) to current artists (Kendrick, SZA, Burna Boy) + current events awareness
 - **Communication Style**: Hip-hop metaphors for life wisdom, street smarts with academic insight
 - **Tone Modes**: Sweet-nurturing (soulful guidance) vs tough-love (MC Lyte confidence)
 - **Voice Technology**: ElevenLabs with dynamic range and clean, full-bodied delivery
@@ -108,6 +108,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 24, 2025. Added multilingual speech-to-speech capability allowing voice input and automatic spoken responses
 - June 24, 2025. Integrated ElevenLabs Conversational AI for high-quality, emotionally expressive voice synthesis with personality-based voice modulation
 - June 24, 2025. Enhanced ElevenLabs voice configuration with authentic Bronx Auntie personality - soulful, expressive delivery with cultural authenticity and attitude-specific voice settings
+- June 24, 2025. Added current date/time awareness and real-world context to Bonita's knowledge base for timely, relevant conversations
 
 ## User Preferences
 
@@ -116,3 +117,4 @@ Voice preference: Authentic African-American Bronx native with clean enunciation
 Conversation style: Hip-hop culture meets wisdom - uses music metaphors for life guidance.
 Voice settings: Clean, full-bodied delivery with dynamic range like Lauryn Hill/MC Lyte, faster speech pace.
 Cultural knowledge: 90s hip-hop/R&B legends plus current artists and trends.
+Current awareness: Real-time date/time context, current events, seasonal relevance, 2025 cultural landscape.
