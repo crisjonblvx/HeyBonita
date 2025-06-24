@@ -19,68 +19,68 @@ export const BONITA_VOICES = {
     en: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC', // User's chosen voice - sweet and upbeat
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.3, // Slightly higher for sweeter delivery
-      similarityBoost: 0.85, // Balanced for natural delivery
-      style: 0.6, // Higher for more upbeat and expressive
-      useSpeakerBoost: true
+      stability: 0.5, // Higher stability for cleaner sound, less distortion
+      similarityBoost: 0.75, // Reduced to minimize bass/distortion
+      style: 0.4, // Reduced for faster, cleaner delivery
+      useSpeakerBoost: false // Disabled to reduce bass boost
     },
     es: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice for consistency
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.35,
-      similarityBoost: 0.8,
-      style: 0.65,
-      useSpeakerBoost: true
+      stability: 0.5,
+      similarityBoost: 0.75,
+      style: 0.4,
+      useSpeakerBoost: false
     },
     pt: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.35,
-      similarityBoost: 0.8,
-      style: 0.65,
-      useSpeakerBoost: true
+      stability: 0.5,
+      similarityBoost: 0.75,
+      style: 0.4,
+      useSpeakerBoost: false
     },
     fr: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.35,
-      similarityBoost: 0.8,
-      style: 0.65,
-      useSpeakerBoost: true
+      stability: 0.5,
+      similarityBoost: 0.75,
+      style: 0.4,
+      useSpeakerBoost: false
     }
   },
   'tough-love': {
     en: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice, adjusted settings for more assertive tone
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.2, // Lower for more dynamic expression
-      similarityBoost: 0.9, // High for character consistency
-      style: 0.75, // High style for attitude and inflection
-      useSpeakerBoost: true
+      stability: 0.4, // Higher for cleaner, faster delivery
+      similarityBoost: 0.7, // Reduced to minimize distortion
+      style: 0.5, // Moderate for clear, assertive speech
+      useSpeakerBoost: false // Disabled to reduce bass
     },
     es: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.25,
-      similarityBoost: 0.85,
-      style: 0.7,
-      useSpeakerBoost: true
+      stability: 0.4,
+      similarityBoost: 0.7,
+      style: 0.5,
+      useSpeakerBoost: false
     },
     pt: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.25,
-      similarityBoost: 0.85,
-      style: 0.7,
-      useSpeakerBoost: true
+      stability: 0.4,
+      similarityBoost: 0.7,
+      style: 0.5,
+      useSpeakerBoost: false
     },
     fr: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.25,
-      similarityBoost: 0.85,
-      style: 0.7,
-      useSpeakerBoost: true
+      stability: 0.4,
+      similarityBoost: 0.7,
+      style: 0.5,
+      useSpeakerBoost: false
     }
   }
 };
