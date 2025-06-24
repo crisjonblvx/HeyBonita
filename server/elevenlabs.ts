@@ -17,7 +17,7 @@ export interface ElevenLabsConfig {
 export const BONITA_VOICES = {
   'sweet-nurturing': {
     en: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB', // Adam - deeper, warmer tone for nurturing
+      voiceId: 'EXAVITQu4vr4xnSDxMaL', // Bella - mature female voice with warmth
       modelId: 'eleven_turbo_v2_5',
       stability: 0.4, // Lower for more expressive inflection
       similarityBoost: 0.9, // Higher for consistent Bronx character
@@ -25,7 +25,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     es: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB', // Same voice for consistency across languages
+      voiceId: 'EXAVITQu4vr4xnSDxMaL', // Same voice for consistency across languages
       modelId: 'eleven_turbo_v2_5',
       stability: 0.5,
       similarityBoost: 0.85,
@@ -33,7 +33,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB',
+      voiceId: 'EXAVITQu4vr4xnSDxMaL',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.5,
       similarityBoost: 0.85,
@@ -41,7 +41,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB',
+      voiceId: 'EXAVITQu4vr4xnSDxMaL',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.5,
       similarityBoost: 0.85,
@@ -51,7 +51,7 @@ export const BONITA_VOICES = {
   },
   'tough-love': {
     en: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB', // Same voice, different settings for attitude
+      voiceId: 'ThT5KcBeYPX3keUQqHPh', // Dorothy - more assertive female voice
       modelId: 'eleven_turbo_v2_5',
       stability: 0.3, // Even lower for more dynamic expression
       similarityBoost: 0.95, // Maximum for strong character consistency
@@ -59,7 +59,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     es: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB',
+      voiceId: 'ThT5KcBeYPX3keUQqHPh',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.35,
       similarityBoost: 0.9,
@@ -67,7 +67,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB',
+      voiceId: 'ThT5KcBeYPX3keUQqHPh',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.35,
       similarityBoost: 0.9,
@@ -75,7 +75,7 @@ export const BONITA_VOICES = {
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: 'pNInz6obpgDQGcFmaJgB',
+      voiceId: 'ThT5KcBeYPX3keUQqHPh',
       modelId: 'eleven_turbo_v2_5',
       stability: 0.35,
       similarityBoost: 0.9,
@@ -89,18 +89,19 @@ export const BONITA_VOICES = {
 function preprocessTextForBonita(text: string, toneMode: 'sweet-nurturing' | 'tough-love'): string {
   let processedText = text;
   
-  // Add natural pauses and emphasis for Bonita's speaking style
-  processedText = processedText.replace(/\./g, '...');
-  processedText = processedText.replace(/!/g, '!');
-  processedText = processedText.replace(/\?/g, '?');
+  // Clean up any existing voice directions that might confuse the AI
+  processedText = processedText.replace(/\*[^*]*\*/g, '');
   
-  // Add subtle voice direction for more authentic delivery
+  // Add natural pauses for more expressive delivery
+  processedText = processedText.replace(/\.\.\./g, '...');
+  
+  // Add voice direction for authentic African-American female delivery
   if (toneMode === 'sweet-nurturing') {
-    // Softer, more nurturing delivery cues
-    processedText = `*speaking with warmth and gentle wisdom* ${processedText}`;
+    // Warm, nurturing auntie energy
+    processedText = `[Voice: Warm, nurturing African-American woman from the Bronx, speaking with gentle confidence and maternal wisdom] ${processedText}`;
   } else {
-    // More direct, assertive delivery cues  
-    processedText = `*speaking with confident, no-nonsense Bronx attitude* ${processedText}`;
+    // Strong, assertive auntie energy
+    processedText = `[Voice: Confident, no-nonsense African-American woman from the Bronx, speaking with authority and sass] ${processedText}`;
   }
   
   return processedText;
