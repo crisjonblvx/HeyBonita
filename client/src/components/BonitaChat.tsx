@@ -493,6 +493,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
               onClick={stopResponse}
               variant="destructive"
               className="animate-pulse"
+              title="Stop Bonita's response"
             >
               <Square className="h-4 w-4" />
             </Button>
@@ -501,6 +502,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
               onClick={handleSendMessage}
               disabled={!message.trim() || sendMessageMutation.isPending}
               className="glow"
+              title="Send message"
             >
               <Send className="h-4 w-4" />
             </Button>
