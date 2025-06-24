@@ -27,7 +27,9 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechToSpeechMode, setSpeechToSpeechMode] = useState(false);
   const [isUsingElevenLabs, setIsUsingElevenLabs] = useState(false);
+  const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   const { language, t } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -40,11 +42,39 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     staleTime: 0 // Always refetch to keep messages fresh
   });
 
-  // Send message mutation
+  // Send message mutation with abort controller
   const sendMessageMutation = useMutation({
-    mutationFn: async (messageData: { userId: number; message: string; language: string; toneMode: string }) => {
-      const response = await apiRequest('POST', '/api/chat', messageData);
-      return response.json();
+    mutationFn: async (messageText: string) => {
+      // Create abort controller for this request
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+      setIsGeneratingResponse(true);
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: messageText,
+            userId: userId,
+            toneMode: toneMode,
+            language: language,
+          }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+      } finally {
+        setIsGeneratingResponse(false);
+        abortControllerRef.current = null;
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/chat', userId] });
@@ -54,12 +84,20 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
         setTimeout(() => speakMessage(data.content), 500); // Small delay for better UX
       }
     },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      if (error.name === 'AbortError') {
+        toast({
+          title: "Response Stopped",
+          description: "Bonita's response was stopped.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to send message. Please try again.",
+          variant: "destructive",
+        });
+        console.error('Send message error:', error);
+      }
     },
   });
 
@@ -70,13 +108,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
-
-    sendMessageMutation.mutate({
-      userId,
-      message: message.trim(),
-      language,
-      toneMode,
-    });
+    sendMessageMutation.mutate(message.trim());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -257,6 +289,14 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     setIsUsingElevenLabs(false);
   };
 
+  const stopResponse = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setIsGeneratingResponse(false);
+    }
+  };
+  };
+
   const clearHistoryMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest('DELETE', `/api/chat/${userId}`);
@@ -281,8 +321,6 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   const clearHistory = () => {
     clearHistoryMutation.mutate();
   };
-
-
 
   if (isLoading) {
     return (
@@ -311,6 +349,12 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
                 <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                   <Volume2 className="w-3 h-3 mr-1" />
                   Speaking...
+                </span>
+              )}
+              {isGeneratingResponse && (
+                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <div className="w-3 h-3 mr-1 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  Bonita is thinking...
                 </span>
               )}
             </p>
@@ -443,13 +487,23 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
               }`} />
             </Button>
           </div>
-          <Button 
-            onClick={handleSendMessage}
-            disabled={!message.trim() || sendMessageMutation.isPending}
-            className="glow"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+          {isGeneratingResponse ? (
+            <Button 
+              onClick={stopResponse}
+              variant="destructive"
+              className="animate-pulse"
+            >
+              <Square className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleSendMessage}
+              disabled={!message.trim() || sendMessageMutation.isPending}
+              className="glow"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
