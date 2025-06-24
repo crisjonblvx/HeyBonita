@@ -36,6 +36,7 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [speechToSpeechEnabled, setSpeechToSpeechEnabled] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [userId] = useState(1); // Mock user ID - in real app this would come from auth
 
@@ -46,10 +47,14 @@ export default function Home() {
   // Load user preferences
   useEffect(() => {
     const savedToneMode = localStorage.getItem('bonita-tone-mode') as ToneMode;
+    const savedResponseMode = localStorage.getItem('bonita-response-mode') as ResponseMode;
     const savedVoiceEnabled = localStorage.getItem('bonita-voice-enabled');
+    const savedSpeechToSpeechEnabled = localStorage.getItem('bonita-speech-to-speech-enabled');
     
     if (savedToneMode) setToneMode(savedToneMode);
+    if (savedResponseMode) setResponseMode(savedResponseMode);
     if (savedVoiceEnabled) setVoiceEnabled(savedVoiceEnabled === 'true');
+    if (savedSpeechToSpeechEnabled) setSpeechToSpeechEnabled(savedSpeechToSpeechEnabled === 'true');
   }, []);
 
   // Save preferences
@@ -202,6 +207,33 @@ export default function Home() {
                 >
                   ⚡ Quick & Real
                 </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Voice Controls */}
+          <div className="mt-4 p-4 bg-muted rounded-xl">
+            <h3 className="text-sm font-semibold mb-3">Voice Features</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Volume2 className="h-4 w-4" />
+                  <span className="text-sm">Text-to-Speech</span>
+                </div>
+                <Switch
+                  checked={voiceEnabled}
+                  onCheckedChange={setVoiceEnabled}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Mic className="h-4 w-4" />
+                  <span className="text-sm">Speech-to-Speech</span>
+                </div>
+                <Switch
+                  checked={speechToSpeechEnabled}
+                  onCheckedChange={setSpeechToSpeechEnabled}
+                />
               </div>
             </div>
           </div>

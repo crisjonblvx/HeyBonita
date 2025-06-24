@@ -21,13 +21,14 @@ interface BonitaChatProps {
   userId: number;
   toneMode: 'sweet-nurturing' | 'tough-love';
   responseMode: 'quick' | 'detailed';
+  voiceEnabled: boolean;
+  speechToSpeechEnabled: boolean;
 }
 
-export function BonitaChat({ userId, toneMode, responseMode }: BonitaChatProps) {
+export function BonitaChat({ userId, toneMode, responseMode, voiceEnabled, speechToSpeechEnabled }: BonitaChatProps) {
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [speechToSpeechMode, setSpeechToSpeechMode] = useState(false);
   const [isUsingElevenLabs, setIsUsingElevenLabs] = useState(false);
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -144,7 +145,7 @@ export function BonitaChat({ userId, toneMode, responseMode }: BonitaChatProps) 
 
     recognition.onstart = () => {
       setIsListening(true);
-      if (speechToSpeechMode) {
+      if (speechToSpeechEnabled) {
         // Stop any ongoing speech when starting to listen
         stopSpeaking();
       }
