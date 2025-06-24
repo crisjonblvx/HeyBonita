@@ -74,24 +74,24 @@ export default function Home() {
   };
 
   const handleVoiceToggle = () => {
-    setIsListening(!isListening);
-    setVoiceEnabled(!voiceEnabled);
+    const newMode = voiceMode === 'text-to-speech' ? 'speech-to-speech' : 'text-to-speech';
+    setVoiceMode(newMode);
     toast({
-      title: voiceEnabled ? "Voice Disabled" : "Voice Enabled",
-      description: voiceEnabled ? "Voice features have been disabled." : "Voice features have been enabled.",
+      title: "Voice mode changed",
+      description: `Switched to ${newMode.replace('-', ' ')} mode.`,
     });
   };
 
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'chat':
-        return <BonitaChat userId={userId} toneMode={toneMode} />;
+        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
       case 'image':
         return <ImageGenerator userId={userId} />;
       case 'video':
-        return <VideoScripts userId={userId} toneMode={toneMode} />;
+        return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
       default:
-        return <BonitaChat userId={userId} toneMode={toneMode} />;
+        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
     }
   };
 
@@ -244,11 +244,11 @@ export default function Home() {
             </Button>
             <Button
               size="icon"
-              variant={voiceEnabled ? "default" : "ghost"}
+              variant={voiceMode === 'speech-to-speech' ? "default" : "ghost"}
               onClick={handleVoiceToggle}
               className={isListening ? "animate-pulse" : ""}
             >
-              {voiceEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+              {voiceMode === 'speech-to-speech' ? <Volume2 className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </Button>
           </div>
         </div>
@@ -292,15 +292,21 @@ export default function Home() {
             
             {/* Voice Settings */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">{t('voiceSettings')}</h4>
+              <h4 className="text-sm font-semibold mb-3">Voice Mode</h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">{t('enableVoiceInput')}</span>
-                  <Switch checked={voiceEnabled} onCheckedChange={setVoiceEnabled} />
+                  <span className="text-sm">Text-to-Speech</span>
+                  <Switch 
+                    checked={voiceMode === 'text-to-speech'} 
+                    onCheckedChange={(checked) => setVoiceMode(checked ? 'text-to-speech' : 'speech-to-speech')} 
+                  />
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">{t('textToSpeech')}</span>
-                  <Switch checked={voiceEnabled} onCheckedChange={setVoiceEnabled} />
+                  <span className="text-sm">Speech-to-Speech</span>
+                  <Switch 
+                    checked={voiceMode === 'speech-to-speech'} 
+                    onCheckedChange={(checked) => setVoiceMode(checked ? 'speech-to-speech' : 'text-to-speech')} 
+                  />
                 </div>
               </div>
             </div>
