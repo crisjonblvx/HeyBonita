@@ -60,8 +60,10 @@ export default function Home() {
   // Save preferences
   useEffect(() => {
     localStorage.setItem('bonita-tone-mode', toneMode);
+    localStorage.setItem('bonita-response-mode', responseMode);
     localStorage.setItem('bonita-voice-enabled', voiceEnabled.toString());
-  }, [toneMode, voiceEnabled]);
+    localStorage.setItem('bonita-speech-to-speech-enabled', speechToSpeechEnabled.toString());
+  }, [toneMode, responseMode, voiceEnabled, speechToSpeechEnabled]);
 
   const handleLanguageChange = (lang: 'en' | 'es' | 'pt' | 'fr') => {
     setLanguage(lang);

@@ -63,6 +63,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceEnabled, speec
             message: messageText,
             userId: userId,
             toneMode: toneMode,
+            responseMode: responseMode,
             language: language,
           }),
           signal: controller.signal,
@@ -82,8 +83,8 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceEnabled, speec
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/chat', userId] });
       setMessage('');
-      // Automatically speak Bonita's response with ElevenLabs
-      if (data && data.content) {
+      // Automatically speak Bonita's response if voice is enabled
+      if (data && data.content && voiceEnabled) {
         setTimeout(() => speakMessage(data.content), 500); // Small delay for better UX
       }
     },
@@ -158,7 +159,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceEnabled, speec
       setMessage(transcript);
       
       // Auto-send in speech-to-speech mode
-      if (autoSend || speechToSpeechMode) {
+      if (autoSend || speechToSpeechEnabled) {
         setTimeout(() => {
           // Trigger message send
           sendMessageMutation.mutate({
@@ -365,7 +366,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceEnabled, speec
             <div className="text-muted-foreground">
               <p>{t('chatSubtitle')}</p>
               <div className="flex flex-wrap gap-2 mt-2">
-                {speechToSpeechMode && (
+                {speechToSpeechEnabled && (
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                     <MessageCircle className="w-3 h-3 mr-1" />
                     {t('speechToSpeechMode')}
@@ -387,15 +388,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceEnabled, speec
             </div>
           </div>
           <div className="flex space-x-2">
-            <Button 
-              size="icon" 
-              variant={speechToSpeechMode ? "default" : "outline"}
-              onClick={() => setSpeechToSpeechMode(!speechToSpeechMode)}
-              className={speechToSpeechMode ? "bg-green-600 hover:bg-green-700" : ""}
-              title={t('speechToSpeechMode')}
-            >
-              <MessageCircle className="h-4 w-4" />
-            </Button>
+
             <Button 
               size="icon" 
               variant={isSpeaking ? "default" : "outline"}
@@ -502,15 +495,15 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceEnabled, speec
               size="sm"
               variant="ghost"
               className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${
-                speechToSpeechMode ? 'bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800' : ''
+                speechToSpeechEnabled ? 'bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800' : ''
               }`}
-              onClick={() => startVoiceRecording(speechToSpeechMode)}
+              onClick={() => startVoiceRecording(speechToSpeechEnabled)}
               disabled={isListening}
-              title={speechToSpeechMode ? t('voiceChat') : "Voice Input"}
+              title={speechToSpeechEnabled ? t('voiceChat') : "Voice Input"}
             >
               <Mic className={`h-4 w-4 ${
                 isListening ? 'animate-pulse text-red-500' : 
-                speechToSpeechMode ? 'text-green-600' : ''
+                speechToSpeechEnabled ? 'text-green-600' : ''
               }`} />
             </Button>
           </div>
