@@ -114,5 +114,5 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 Preferred communication style: Simple, everyday language.
 Voice preference: Authentic African-American Bronx native with clean enunciation.
 Conversation style: Hip-hop culture meets wisdom - uses music metaphors for life guidance.
-Voice settings: Clean, full-bodied delivery with dynamic range like Lauryn Hill/MC Lyte.
+Voice settings: Clean, full-bodied delivery with dynamic range like Lauryn Hill/MC Lyte, faster speech pace.
 Cultural knowledge: 90s hip-hop/R&B legends plus current artists and trends.

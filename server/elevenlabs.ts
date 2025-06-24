@@ -20,33 +20,33 @@ export const BONITA_VOICES = {
     en: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd', // New voice selection - clean, soulful
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.6, // Higher for clean enunciation like Lauryn Hill
-      similarityBoost: 0.8, // Balanced for full-bodied, clear sound
-      style: 0.3, // Lower for natural, conversational flow
+      stability: 0.4, // Lower for faster, more dynamic speech
+      similarityBoost: 0.75, // Balanced for clear, faster delivery
+      style: 0.2, // Lower for quicker, natural flow
       useSpeakerBoost: false // Clean sound, no bass boost
     },
     es: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd', // Same voice for consistency
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5,
-      similarityBoost: 0.75,
-      style: 0.4,
+      stability: 0.4,
+      similarityBoost: 0.7,
+      style: 0.25,
       useSpeakerBoost: false
     },
     pt: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5,
-      similarityBoost: 0.75,
-      style: 0.4,
+      stability: 0.4,
+      similarityBoost: 0.7,
+      style: 0.25,
       useSpeakerBoost: false
     },
     fr: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5,
-      similarityBoost: 0.75,
-      style: 0.4,
+      stability: 0.4,
+      similarityBoost: 0.7,
+      style: 0.25,
       useSpeakerBoost: false
     }
   },
@@ -54,33 +54,33 @@ export const BONITA_VOICES = {
     en: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd', // Same voice, MC Lyte confidence
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5, // Balanced for confident, clear delivery
-      similarityBoost: 0.85, // Higher for strong dynamic range
-      style: 0.4, // Moderate for assertive but clean speech
+      stability: 0.3, // Lower for faster, more assertive delivery
+      similarityBoost: 0.8, // Balanced for strong but fast delivery
+      style: 0.3, // Lower for quicker, confident speech
       useSpeakerBoost: false // Clean, powerful delivery
     },
     es: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4,
-      similarityBoost: 0.7,
-      style: 0.5,
+      stability: 0.3,
+      similarityBoost: 0.75,
+      style: 0.35,
       useSpeakerBoost: false
     },
     pt: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4,
-      similarityBoost: 0.7,
-      style: 0.5,
+      stability: 0.3,
+      similarityBoost: 0.75,
+      style: 0.35,
       useSpeakerBoost: false
     },
     fr: {
       voiceId: 'aTxZrSrp47xsP6Ot4Kgd',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4,
-      similarityBoost: 0.7,
-      style: 0.5,
+      stability: 0.3,
+      similarityBoost: 0.75,
+      style: 0.35,
       useSpeakerBoost: false
     }
   }
