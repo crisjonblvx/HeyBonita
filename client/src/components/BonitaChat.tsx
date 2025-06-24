@@ -294,47 +294,47 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
                   msg.role === 'user' ? 'justify-end' : ''
                 }`}
               >
-              {msg.role === 'assistant' && (
-                <Avatar className="w-10 h-10">
-                  <AvatarImage src="/images/bonita-avatar.png" />
-                  <AvatarFallback>B</AvatarFallback>
-                </Avatar>
-              )}
-              <div className={`chat-bubble rounded-2xl px-4 py-3 relative group ${
-                msg.role === 'user' 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'bg-muted'
-              }`}>
-                <p>{msg.content}</p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className={`text-xs ${
-                    msg.role === 'user' 
-                      ? 'text-primary-foreground/70' 
-                      : 'text-muted-foreground'
-                  }`}>
-                    {new Date(msg.createdAt).toLocaleTimeString()}
-                  </span>
-                  {msg.role === 'assistant' && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-1"
-                      onClick={() => speakMessage(msg.content)}
-                      title={t('speakMessage')}
-                    >
-                      <Volume2 className="h-3 w-3" />
-                    </Button>
-                  )}
+                {msg.role === 'assistant' && (
+                  <Avatar className="w-10 h-10">
+                    <AvatarImage src="/images/bonita-avatar.png" />
+                    <AvatarFallback>B</AvatarFallback>
+                  </Avatar>
+                )}
+                <div className={`chat-bubble rounded-2xl px-4 py-3 relative group ${
+                  msg.role === 'user' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted'
+                }`}>
+                  <p>{msg.content}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className={`text-xs ${
+                      msg.role === 'user' 
+                        ? 'text-primary-foreground/70' 
+                        : 'text-muted-foreground'
+                    }`}>
+                      {new Date(msg.createdAt).toLocaleTimeString()}
+                    </span>
+                    {msg.role === 'assistant' && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-1"
+                        onClick={() => speakMessage(msg.content)}
+                        title={t('speakMessage')}
+                      >
+                        <Volume2 className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
+                {msg.role === 'user' && (
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                )}
               </div>
-              {msg.role === 'user' && (
-                <Avatar className="w-10 h-10">
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
+            ))}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
       </div>
