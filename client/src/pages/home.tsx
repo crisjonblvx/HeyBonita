@@ -18,7 +18,10 @@ import {
   Moon, 
   Sun,
   VolumeX,
-  Volume2
+  Volume2,
+  Download,
+  Trash2,
+  Mail
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
