@@ -85,12 +85,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         toneMode
       });
 
-      // Get chat history for context
+      // Get chat history for context (excluding the current message)
       const chatHistory = await storage.getChatMessages(userId, 10);
-      const historyFormatted = chatHistory.map(msg => ({
-        role: msg.role as 'user' | 'assistant',
-        content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-      }));
+      const historyFormatted = chatHistory
+        .filter(msg => msg.content !== message) // Exclude the current message from history
+        .map(msg => ({
+          role: msg.role as 'user' | 'assistant',
+          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+        }));
 
       // Get Bonita's response
       const personality: BonitaPersonality = {

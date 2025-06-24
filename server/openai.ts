@@ -124,16 +124,25 @@ export async function chatWithBonita(
     const systemPrompt = getBonitaSystemPrompt(personality);
     
     // Ensure all messages have proper content structure for OpenAI API
-    const formattedHistory = chatHistory.slice(-10).map(msg => ({
-      role: msg.role as "user" | "assistant",
-      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-    }));
+    const formattedHistory = chatHistory.slice(-10).map(msg => {
+      let content = msg.content;
+      if (typeof content !== 'string') {
+        content = JSON.stringify(content);
+      }
+      return {
+        role: msg.role as "user" | "assistant",
+        content: content
+      };
+    });
     
     const messages = [
       { role: "system" as const, content: systemPrompt },
       ...formattedHistory,
       { role: "user" as const, content: message }
     ];
+
+    // Debug log to check message structure
+    console.log("Messages being sent to OpenAI:", JSON.stringify(messages, null, 2));
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
