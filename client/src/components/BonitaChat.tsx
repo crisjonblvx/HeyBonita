@@ -295,7 +295,6 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
       setIsGeneratingResponse(false);
     }
   };
-  };
 
   const clearHistoryMutation = useMutation({
     mutationFn: async () => {
