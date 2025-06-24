@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Mic, Send, History } from 'lucide-react';
+import { Mic, Send, History, Volume2, VolumeX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
@@ -24,6 +24,7 @@ interface BonitaChatProps {
 export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { language, t } = useLanguage();
   const { toast } = useToast();
@@ -43,9 +44,13 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
       const response = await apiRequest('POST', '/api/chat', messageData);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/chat', userId] });
       setMessage('');
+      // Automatically speak Bonita's response
+      if (data && data.content) {
+        setTimeout(() => speakMessage(data.content), 500); // Small delay for better UX
+      }
     },
     onError: () => {
       toast({
@@ -118,6 +123,66 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     recognition.start();
   };
 
+  // Text-to-speech functionality
+  const speakMessage = (text: string) => {
+    if (!('speechSynthesis' in window)) {
+      toast({
+        title: "Not Supported",
+        description: "Text-to-speech is not supported in your browser.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Stop any current speech
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    
+    // Configure voice for Bonita's personality
+    utterance.rate = 0.85; // Slightly slower for authenticity
+    utterance.pitch = 0.9; // Slightly lower pitch
+    utterance.volume = 0.8;
+    
+    // Try to use a female voice if available
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(voice => 
+      voice.name.toLowerCase().includes('female') || 
+      voice.name.toLowerCase().includes('woman') ||
+      voice.name.toLowerCase().includes('samantha') ||
+      voice.name.toLowerCase().includes('karen') ||
+      voice.gender === 'female'
+    );
+    
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+
+    // Set language based on current language setting
+    const speechLang = language === 'es' ? 'es-ES' : 
+                      language === 'pt' ? 'pt-BR' :
+                      language === 'fr' ? 'fr-FR' : 'en-US';
+    utterance.lang = speechLang;
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      toast({
+        title: "Speech Error",
+        description: "Failed to speak the message.",
+        variant: "destructive",
+      });
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeaking = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
+
   const clearHistory = () => {
     // TODO: Implement clear history functionality
     toast({
@@ -145,10 +210,20 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
             <h2 className="text-2xl font-bold">{t('chatHeader')}</h2>
             <p className="text-muted-foreground">{t('chatSubtitle')}</p>
           </div>
-          <Button variant="outline" onClick={clearHistory}>
-            <History className="mr-2 h-4 w-4" />
-            {t('clearHistory')}
-          </Button>
+          <div className="flex space-x-2">
+            <Button 
+              size="icon" 
+              variant={isSpeaking ? "default" : "outline"}
+              onClick={isSpeaking ? stopSpeaking : () => {}}
+              className={isSpeaking ? "animate-pulse" : ""}
+            >
+              {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+            <Button variant="outline" onClick={clearHistory}>
+              <History className="mr-2 h-4 w-4" />
+              {t('clearHistory')}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -181,19 +256,31 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
                   <AvatarFallback>B</AvatarFallback>
                 </Avatar>
               )}
-              <div className={`chat-bubble rounded-2xl px-4 py-3 ${
+              <div className={`chat-bubble rounded-2xl px-4 py-3 relative group ${
                 msg.role === 'user' 
                   ? 'bg-primary text-primary-foreground' 
                   : 'bg-muted'
               }`}>
                 <p>{msg.content}</p>
-                <span className={`text-xs mt-1 block ${
-                  msg.role === 'user' 
-                    ? 'text-primary-foreground/70' 
-                    : 'text-muted-foreground'
-                }`}>
-                  {new Date(msg.createdAt).toLocaleTimeString()}
-                </span>
+                <div className="flex items-center justify-between mt-1">
+                  <span className={`text-xs ${
+                    msg.role === 'user' 
+                      ? 'text-primary-foreground/70' 
+                      : 'text-muted-foreground'
+                  }`}>
+                    {new Date(msg.createdAt).toLocaleTimeString()}
+                  </span>
+                  {msg.role === 'assistant' && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-1"
+                      onClick={() => speakMessage(msg.content)}
+                    >
+                      <Volume2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               </div>
               {msg.role === 'user' && (
                 <Avatar className="w-10 h-10">
