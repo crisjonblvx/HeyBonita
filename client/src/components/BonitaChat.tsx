@@ -231,6 +231,31 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     }
   };
 
+  // Apply speech personality corrections for browser TTS
+  const applyBrowserSpeechCorrections = (text: string): string => {
+    let corrected = text;
+    
+    // Pronunciation aids for browser TTS
+    const corrections = {
+      "Chile": "Child", // Browser TTS handles this better
+      "2025": "Twenty Twenty-five",
+      "aight": "alright",
+      "preciate": "appreciate",
+      "fixin' to": "about to",
+      "gonna": "going to",
+      "nah": "no",
+      "boo": "boo", // Keep endearing terms
+      "sugar": "sugar"
+    };
+    
+    for (const [term, replacement] of Object.entries(corrections)) {
+      const regex = new RegExp(`\\b${term}\\b`, 'gi');
+      corrected = corrected.replace(regex, replacement);
+    }
+    
+    return corrected;
+  };
+
   // Fallback to browser TTS
   const fallbackToWebSpeech = (text: string) => {
     if (!('speechSynthesis' in window)) {
@@ -248,7 +273,9 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     // Stop any current speech
     window.speechSynthesis.cancel();
     
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Apply pronunciation corrections for browser TTS
+    const correctedText = applyBrowserSpeechCorrections(text);
+    const utterance = new SpeechSynthesisUtterance(correctedText);
     
     // Configure voice for Bonita's personality - faster speech
     utterance.rate = 1.1; // Increased from 0.85 for faster speech

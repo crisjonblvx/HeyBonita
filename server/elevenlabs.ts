@@ -87,8 +87,53 @@ export const BONITA_VOICES = {
 };
 
 // Enhanced text preprocessing for Bonita's authentic voice
+// Speech personality enhancements for authentic Bonita delivery
+const slangCorrections = {
+  // Pronunciation corrections for ElevenLabs
+  "Chile": "Chiiiile", // pronounced like 'child' but drawn out
+  "2025": "Twenty Twenty-five",
+  "2024": "Twenty Twenty-four",
+  
+  // Common Black vernacular enhancements
+  "nah": "nah", // preserve with tone
+  "no": "nah",
+  "finna": "fixin' to",
+  "gon": "gonna",
+  "on God": "on everything, baby",
+  "fr": "for real",
+  "bet": "say less",
+  "sus": "shady",
+  "lit": "poppin'",
+  "cap": "lie",
+  "no cap": "dead serious",
+  "vibe": "energy",
+  
+  // Style corrections for speech flow
+  "okay": "aight",
+  "hello": "hey boo",
+  "goodbye": "alright now, take care sugar",
+  "thanks": "preciate you",
+  "thank you": "preciate you",
+  "you know": "you feel me",
+  "understand": "get it",
+  "really": "real talk",
+  "seriously": "dead serious"
+};
+
+function applySlangCorrections(text: string): string {
+  let corrected = text;
+  for (const [term, replacement] of Object.entries(slangCorrections)) {
+    const regex = new RegExp(`\\b${term}\\b`, 'gi');
+    corrected = corrected.replace(regex, replacement);
+  }
+  return corrected;
+}
+
 function preprocessTextForBonita(text: string, toneMode: 'sweet-nurturing' | 'tough-love'): string {
   let processedText = text;
+  
+  // Apply authentic speech corrections first
+  processedText = applySlangCorrections(processedText);
   
   // Clean up any existing voice directions that might confuse the AI
   processedText = processedText.replace(/\*[^*]*\*/g, '');
@@ -96,6 +141,17 @@ function preprocessTextForBonita(text: string, toneMode: 'sweet-nurturing' | 'to
   
   // Add natural pauses for more expressive delivery
   processedText = processedText.replace(/\.\.\./g, '...');
+  
+  // Add tone-specific speech enhancements
+  if (toneMode === 'tough-love') {
+    // Add emphasis for tough love delivery
+    processedText = processedText.replace(/\breal talk\b/gi, 'REAL talk');
+    processedText = processedText.replace(/\blisten\b/gi, 'Listen up');
+  } else {
+    // Sweet nurturing tone enhancements
+    processedText = processedText.replace(/\bbaby\b/gi, 'baby');
+    processedText = processedText.replace(/\bhoney\b/gi, 'honey');
+  }
   
   return processedText;
 }
