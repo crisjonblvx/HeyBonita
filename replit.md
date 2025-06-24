@@ -29,11 +29,12 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 ## Key Components
 
 ### AI Personality System
-- **Bonita Character**: Digital Bronx Auntie with authentic African-American voice and cultural roots
-- **Voice Profile**: Late 30s-50s, soulful with slight rasp, expressive Bronx inflection
-- **Tone Modes**: Sweet-nurturing (warm, gentle) vs tough-love (assertive, direct)
-- **Multilingual Support**: Context-aware responses in 4 languages with cultural authenticity
-- **Voice Technology**: ElevenLabs AI with personality-specific voice modulation
+- **Bonita Character**: Hip-hop auntie with encyclopedic knowledge of 90s/current music culture
+- **Voice Profile**: Clean enunciation with subtle rasp (Lauryn Hill meets MC Lyte energy)
+- **Cultural Expertise**: 90s legends (Nas, Mary J., Aaliyah) to current artists (Kendrick, SZA, Burna Boy)
+- **Communication Style**: Hip-hop metaphors for life wisdom, street smarts with academic insight
+- **Tone Modes**: Sweet-nurturing (soulful guidance) vs tough-love (MC Lyte confidence)
+- **Voice Technology**: ElevenLabs with dynamic range and clean, full-bodied delivery
 
 ### Language System
 - **React Context**: Centralized language state management
@@ -111,6 +112,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Voice preference: More authentic African-American personality, less Latina influence. 
-Conversation style: Dynamic, engaging, challenging - not just responsive.
-Voice settings: Faster speech with reduced bass/distortion for clearer delivery.
+Voice preference: Authentic African-American Bronx native with clean enunciation.
+Conversation style: Hip-hop culture meets wisdom - uses music metaphors for life guidance.
+Voice settings: Clean, full-bodied delivery with dynamic range like Lauryn Hill/MC Lyte.
+Cultural knowledge: 90s hip-hop/R&B legends plus current artists and trends.

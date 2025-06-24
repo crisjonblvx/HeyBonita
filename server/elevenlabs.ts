@@ -10,19 +10,20 @@ export interface ElevenLabsConfig {
 }
 
 // Bonita's Voice Profile for ElevenLabs
-// African-American woman from the Bronx with soulful, expressive voice
-// Confident, witty, and nurturing - like your favorite auntie who tells it like it is
-// Slightly raspy but warm, with playful inflection and strong emotional delivery
+// African-American Bronx native with clean enunciation and soulful confidence
+// Clear, full-bodied voice with subtle rasp like Lauryn Hill meets MC Lyte
+// Strong dynamic range - can drop wisdom soft or come in high like a hype track
+// Rhythm in her words like she grew up speaking over boom bap beats
 
 export const BONITA_VOICES = {
   'sweet-nurturing': {
     en: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC', // User's chosen voice - sweet and upbeat
+      voiceId: 'XpYJVdFNVAV7rVr2CReC', // User's chosen voice - clean, soulful
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5, // Higher stability for cleaner sound, less distortion
-      similarityBoost: 0.75, // Reduced to minimize bass/distortion
-      style: 0.4, // Reduced for faster, cleaner delivery
-      useSpeakerBoost: false // Disabled to reduce bass boost
+      stability: 0.6, // Higher for clean enunciation like Lauryn Hill
+      similarityBoost: 0.8, // Balanced for full-bodied, clear sound
+      style: 0.3, // Lower for natural, conversational flow
+      useSpeakerBoost: false // Clean sound, no bass boost
     },
     es: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice for consistency
@@ -51,12 +52,12 @@ export const BONITA_VOICES = {
   },
   'tough-love': {
     en: {
-      voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice, adjusted settings for more assertive tone
+      voiceId: 'XpYJVdFNVAV7rVr2CReC', // Same voice, MC Lyte confidence
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4, // Higher for cleaner, faster delivery
-      similarityBoost: 0.7, // Reduced to minimize distortion
-      style: 0.5, // Moderate for clear, assertive speech
-      useSpeakerBoost: false // Disabled to reduce bass
+      stability: 0.5, // Balanced for confident, clear delivery
+      similarityBoost: 0.85, // Higher for strong dynamic range
+      style: 0.4, // Moderate for assertive but clean speech
+      useSpeakerBoost: false // Clean, powerful delivery
     },
     es: {
       voiceId: 'XpYJVdFNVAV7rVr2CReC',
