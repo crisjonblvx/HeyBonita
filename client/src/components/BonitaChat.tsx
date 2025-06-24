@@ -227,7 +227,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col h-full overflow-hidden">
       {/* Chat Header */}
       <div className="p-6 border-b border-border bg-background">
         <div className="flex items-center justify-between">
@@ -271,28 +271,29 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
       </div>
 
       {/* Chat Messages */}
-      <ScrollArea className="flex-1 p-6">
-        <div className="space-y-4">
-          {/* Welcome message */}
-          <div className="flex items-start space-x-3">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src="/images/bonita-avatar.png" />
-              <AvatarFallback>B</AvatarFallback>
-            </Avatar>
-            <div className="chat-bubble bg-muted rounded-2xl px-4 py-3">
-              <p>{t('welcomeMessage')}</p>
-              <span className="text-xs text-muted-foreground mt-1 block">Just now</span>
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full p-6">
+          <div className="space-y-4">
+            {/* Welcome message */}
+            <div className="flex items-start space-x-3">
+              <Avatar className="w-10 h-10">
+                <AvatarImage src="/images/bonita-avatar.png" />
+                <AvatarFallback>B</AvatarFallback>
+              </Avatar>
+              <div className="chat-bubble bg-muted rounded-2xl px-4 py-3">
+                <p>{t('welcomeMessage')}</p>
+                <span className="text-xs text-muted-foreground mt-1 block">Just now</span>
+              </div>
             </div>
-          </div>
 
-          {/* Chat messages */}
-          {messages.map((msg: ChatMessage) => (
-            <div
-              key={msg.id}
-              className={`flex items-start space-x-3 ${
-                msg.role === 'user' ? 'justify-end' : ''
-              }`}
-            >
+            {/* Chat messages */}
+            {messages.map((msg: ChatMessage) => (
+              <div
+                key={msg.id}
+                className={`flex items-start space-x-3 ${
+                  msg.role === 'user' ? 'justify-end' : ''
+                }`}
+              >
               {msg.role === 'assistant' && (
                 <Avatar className="w-10 h-10">
                   <AvatarImage src="/images/bonita-avatar.png" />
@@ -334,8 +335,9 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
             </div>
           ))}
           <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+          </div>
+        </ScrollArea>
+      </div>
 
       {/* Chat Input */}
       <div className="p-6 border-t border-border bg-background">
