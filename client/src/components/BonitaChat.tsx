@@ -488,7 +488,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
               }`} />
             </Button>
           </div>
-          {isGeneratingResponse ? (
+          {(isGeneratingResponse || sendMessageMutation.isPending) ? (
             <Button 
               onClick={stopResponse}
               variant="destructive"
@@ -500,7 +500,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
           ) : (
             <Button 
               onClick={handleSendMessage}
-              disabled={!message.trim() || sendMessageMutation.isPending}
+              disabled={!message.trim()}
               className="glow"
               title="Send message"
             >
