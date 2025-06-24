@@ -108,6 +108,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       platform,
       language,
       toneMode,
+      responseMode,
     });
   };
 

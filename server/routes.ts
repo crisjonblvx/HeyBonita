@@ -70,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/chat", async (req, res) => {
     try {
-      const { userId, message, language = 'en', toneMode = 'sweet-nurturing' } = req.body;
+      const { userId, message, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
       
       if (!userId || !message) {
         return res.status(400).json({ error: "User ID and message are required" });
@@ -100,7 +100,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get Bonita's response
       const personality: BonitaPersonality = {
         language: language as 'en' | 'es' | 'pt' | 'fr',
-        toneMode: toneMode as 'sweet-nurturing' | 'tough-love'
+        toneMode: toneMode as 'sweet-nurturing' | 'tough-love',
+        responseMode: responseMode as 'quick' | 'detailed'
       };
 
       const bonitaResponse = await chatWithBonita(messageText, personality, historyFormatted);
@@ -216,7 +217,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const personality: BonitaPersonality = {
         language: language as 'en' | 'es' | 'pt' | 'fr',
-        toneMode: toneMode as 'sweet-nurturing' | 'tough-love'
+        toneMode: toneMode as 'sweet-nurturing' | 'tough-love',
+        responseMode: responseMode as 'quick' | 'detailed'
       };
 
       const script = await generateVideoScript(topic, platform, language, personality);
