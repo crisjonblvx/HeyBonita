@@ -88,7 +88,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get chat history for context (excluding the current message)
       const chatHistory = await storage.getChatMessages(userId, 10);
       const historyFormatted = chatHistory
-        .filter(msg => msg.content !== message) // Exclude the current message from history
+        .filter(msg => msg.content !== messageText) // Exclude the current message from history
         .map(msg => ({
           role: msg.role as 'user' | 'assistant',
           content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
@@ -100,7 +100,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         toneMode: toneMode as 'sweet-nurturing' | 'tough-love'
       };
 
-      const bonitaResponse = await chatWithBonita(message, personality, historyFormatted);
+      const bonitaResponse = await chatWithBonita(messageText, personality, historyFormatted);
 
       // Save Bonita's response
       const savedResponse = await storage.createChatMessage({

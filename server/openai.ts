@@ -141,8 +141,7 @@ export async function chatWithBonita(
       { role: "user" as const, content: message }
     ];
 
-    // Debug log to check message structure
-    console.log("Messages being sent to OpenAI:", JSON.stringify(messages, null, 2));
+    // Debug log to check message structure (removed for production)
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
