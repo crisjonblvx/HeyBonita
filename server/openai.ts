@@ -167,15 +167,23 @@ export async function chatWithBonita(
     ];
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini", // Use gpt-4o-mini for better reliability
       messages,
-      max_tokens: personality.responseMode === 'quick' ? 150 : 350, // Much shorter for quick mode
-      temperature: personality.responseMode === 'quick' ? 0.6 : 0.7, // More focused for quick responses
+      max_tokens: personality.responseMode === 'quick' ? 150 : 350,
+      temperature: personality.responseMode === 'quick' ? 0.6 : 0.7,
     });
 
     return response.choices[0].message.content || "I'm sorry, I couldn't process that right now.";
   } catch (error) {
     console.error("Error in chatWithBonita:", error);
+    // More detailed error handling
+    if (error.status === 404) {
+      throw new Error("AI service temporarily unavailable. Please try again.");
+    } else if (error.status === 401) {
+      throw new Error("Authentication issue. Please check your API key.");
+    } else if (error.status === 429) {
+      throw new Error("Rate limit exceeded. Please wait and try again.");
+    }
     throw new Error("Failed to get response from Bonita");
   }
 }

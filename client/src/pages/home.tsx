@@ -175,69 +175,104 @@ export default function Home() {
             </Button>
           </div>
           
-          {/* Tone Mode Toggle */}
-          <div className="mt-8 p-4 bg-muted rounded-xl">
-            <h3 className="text-sm font-semibold mb-3">{t('bonitasTone')}</h3>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <Button
-                  variant={toneMode === 'sweet-nurturing' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setToneMode('sweet-nurturing')}
-                  className="text-xs flex-1"
-                >
-                  ✨ Sweet & Nurturing
-                </Button>
-                <Button
-                  variant={toneMode === 'tough-love' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setToneMode('tough-love')}
-                  className="text-xs flex-1"
-                >
-                  💪 Tough Love
-                </Button>
+          {/* Control Panel */}
+          <div className="mt-6 p-3 bg-muted rounded-lg">
+            <h3 className="text-xs font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Settings</h3>
+            
+            {/* Tone Mode */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <Heart className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                <span className="text-xs truncate">Tone</span>
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={responseMode === 'detailed' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setResponseMode('detailed')}
-                  className="text-xs flex-1"
+              <div className="flex bg-muted-foreground/10 rounded-lg p-0.5 flex-shrink-0">
+                <button
+                  onClick={() => setToneMode('sweet-nurturing')}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    toneMode === 'sweet-nurturing' 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Sweet & Nurturing"
                 >
-                  🎭 Poetic & Deep
-                </Button>
-                <Button
-                  variant={responseMode === 'quick' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setResponseMode('quick')}
-                  className="text-xs flex-1"
+                  Sweet
+                </button>
+                <button
+                  onClick={() => setToneMode('tough-love')}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    toneMode === 'tough-love' 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Tough Love"
                 >
-                  ⚡ Quick & Real
-                </Button>
+                  Tough
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* Voice Mode */}
-          <div className="mt-4 p-4 bg-muted rounded-xl">
-            <h3 className="text-sm font-semibold mb-3">Voice Mode</h3>
-            <div className="flex gap-2">
-              <Button
-                variant={voiceMode === 'text-to-speech' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setVoiceMode('text-to-speech')}
-                className="text-xs flex-1"
-              >
-                💬 Text-to-Speech
-              </Button>
-              <Button
-                variant={voiceMode === 'speech-to-speech' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setVoiceMode('speech-to-speech')}
-                className="text-xs flex-1"
-              >
-                🗣️ Speech-to-Speech
-              </Button>
+            {/* Response Mode */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <Zap className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                <span className="text-xs truncate">Speed</span>
+              </div>
+              <div className="flex bg-muted-foreground/10 rounded-lg p-0.5 flex-shrink-0">
+                <button
+                  onClick={() => setResponseMode('detailed')}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    responseMode === 'detailed' 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Detailed & Poetic"
+                >
+                  Deep
+                </button>
+                <button
+                  onClick={() => setResponseMode('quick')}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    responseMode === 'quick' 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Quick & Real"
+                >
+                  Quick
+                </button>
+              </div>
+            </div>
+
+            {/* Voice Mode */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <Headphones className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                <span className="text-xs truncate">Voice</span>
+              </div>
+              <div className="flex bg-muted-foreground/10 rounded-lg p-0.5 flex-shrink-0">
+                <button
+                  onClick={() => setVoiceMode('text-to-speech')}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    voiceMode === 'text-to-speech' 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Text-to-Speech"
+                >
+                  TTS
+                </button>
+                <button
+                  onClick={() => setVoiceMode('speech-to-speech')}
+                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    voiceMode === 'speech-to-speech' 
+                      ? 'bg-background text-foreground shadow-sm' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  title="Speech-to-Speech"
+                >
+                  STS
+                </button>
+              </div>
             </div>
           </div>
         </nav>
