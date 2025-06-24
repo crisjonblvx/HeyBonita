@@ -250,8 +250,8 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     
     const utterance = new SpeechSynthesisUtterance(text);
     
-    // Configure voice for Bonita's personality
-    utterance.rate = 0.85;
+    // Configure voice for Bonita's personality - faster speech
+    utterance.rate = 1.1; // Increased from 0.85 for faster speech
     utterance.pitch = 0.9;
     utterance.volume = 0.8;
     
