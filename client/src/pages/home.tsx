@@ -35,8 +35,7 @@ export default function Home() {
   const [responseMode, setResponseMode] = useState<ResponseMode>('detailed');
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [voiceEnabled, setVoiceEnabled] = useState(true);
-  const [speechToSpeechEnabled, setSpeechToSpeechEnabled] = useState(false);
+  const [voiceMode, setVoiceMode] = useState<'text-to-speech' | 'speech-to-speech'>('text-to-speech');
   const [isListening, setIsListening] = useState(false);
   const [userId] = useState(1); // Mock user ID - in real app this would come from auth
 
@@ -48,22 +47,19 @@ export default function Home() {
   useEffect(() => {
     const savedToneMode = localStorage.getItem('bonita-tone-mode') as ToneMode;
     const savedResponseMode = localStorage.getItem('bonita-response-mode') as ResponseMode;
-    const savedVoiceEnabled = localStorage.getItem('bonita-voice-enabled');
-    const savedSpeechToSpeechEnabled = localStorage.getItem('bonita-speech-to-speech-enabled');
+    const savedVoiceMode = localStorage.getItem('bonita-voice-mode') as 'text-to-speech' | 'speech-to-speech';
     
     if (savedToneMode) setToneMode(savedToneMode);
     if (savedResponseMode) setResponseMode(savedResponseMode);
-    if (savedVoiceEnabled) setVoiceEnabled(savedVoiceEnabled === 'true');
-    if (savedSpeechToSpeechEnabled) setSpeechToSpeechEnabled(savedSpeechToSpeechEnabled === 'true');
+    if (savedVoiceMode) setVoiceMode(savedVoiceMode);
   }, []);
 
   // Save preferences
   useEffect(() => {
     localStorage.setItem('bonita-tone-mode', toneMode);
     localStorage.setItem('bonita-response-mode', responseMode);
-    localStorage.setItem('bonita-voice-enabled', voiceEnabled.toString());
-    localStorage.setItem('bonita-speech-to-speech-enabled', speechToSpeechEnabled.toString());
-  }, [toneMode, responseMode, voiceEnabled, speechToSpeechEnabled]);
+    localStorage.setItem('bonita-voice-mode', voiceMode);
+  }, [toneMode, responseMode, voiceMode]);
 
   const handleLanguageChange = (lang: 'en' | 'es' | 'pt' | 'fr') => {
     setLanguage(lang);
@@ -213,30 +209,26 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Voice Controls */}
+          {/* Voice Mode */}
           <div className="mt-4 p-4 bg-muted rounded-xl">
-            <h3 className="text-sm font-semibold mb-3">Voice Features</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Volume2 className="h-4 w-4" />
-                  <span className="text-sm">Text-to-Speech</span>
-                </div>
-                <Switch
-                  checked={voiceEnabled}
-                  onCheckedChange={setVoiceEnabled}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Mic className="h-4 w-4" />
-                  <span className="text-sm">Speech-to-Speech</span>
-                </div>
-                <Switch
-                  checked={speechToSpeechEnabled}
-                  onCheckedChange={setSpeechToSpeechEnabled}
-                />
-              </div>
+            <h3 className="text-sm font-semibold mb-3">Voice Mode</h3>
+            <div className="flex gap-2">
+              <Button
+                variant={voiceMode === 'text-to-speech' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setVoiceMode('text-to-speech')}
+                className="text-xs flex-1"
+              >
+                💬 Text-to-Speech
+              </Button>
+              <Button
+                variant={voiceMode === 'speech-to-speech' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setVoiceMode('speech-to-speech')}
+                className="text-xs flex-1"
+              >
+                🗣️ Speech-to-Speech
+              </Button>
             </div>
           </div>
         </nav>
