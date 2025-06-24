@@ -111,3 +111,5 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Voice preference: More authentic African-American personality, less Latina influence. 
+Conversation style: Dynamic, engaging, challenging - not just responsive.

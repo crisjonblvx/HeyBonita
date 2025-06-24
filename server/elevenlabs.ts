@@ -17,69 +17,69 @@ export interface ElevenLabsConfig {
 export const BONITA_VOICES = {
   'sweet-nurturing': {
     en: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL', // Bella - mature female voice with warmth
+      voiceId: '21m00Tcm4TlvDq8ikWAM', // Rachel - natural female voice
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.4, // Lower for more expressive inflection
-      similarityBoost: 0.9, // Higher for consistent Bronx character
-      style: 0.7, // Higher for soulful, expressive delivery
+      stability: 0.3, // Lower for more dynamic expression
+      similarityBoost: 0.85, // Balanced for natural delivery
+      style: 0.6, // Moderate style for authentic feel
       useSpeakerBoost: true
     },
     es: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL', // Same voice for consistency across languages
+      voiceId: '21m00Tcm4TlvDq8ikWAM', // Same voice for consistency
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5,
-      similarityBoost: 0.85,
-      style: 0.65,
+      stability: 0.4,
+      similarityBoost: 0.8,
+      style: 0.55,
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: '21m00Tcm4TlvDq8ikWAM',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5,
-      similarityBoost: 0.85,
-      style: 0.65,
+      stability: 0.4,
+      similarityBoost: 0.8,
+      style: 0.55,
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: '21m00Tcm4TlvDq8ikWAM',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5,
-      similarityBoost: 0.85,
-      style: 0.65,
+      stability: 0.4,
+      similarityBoost: 0.8,
+      style: 0.55,
       useSpeakerBoost: true
     }
   },
   'tough-love': {
     en: {
-      voiceId: 'ThT5KcBeYPX3keUQqHPh', // Dorothy - more assertive female voice
+      voiceId: 'EXAVITQu4vr4xnSDxMaL', // Bella - more assertive delivery
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.3, // Even lower for more dynamic expression
-      similarityBoost: 0.95, // Maximum for strong character consistency
-      style: 0.8, // Maximum style for full attitude and inflection
+      stability: 0.2, // Very low for maximum dynamic expression
+      similarityBoost: 0.9, // High for character consistency
+      style: 0.75, // High style for attitude and inflection
       useSpeakerBoost: true
     },
     es: {
-      voiceId: 'ThT5KcBeYPX3keUQqHPh',
+      voiceId: 'EXAVITQu4vr4xnSDxMaL',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.35,
-      similarityBoost: 0.9,
-      style: 0.75,
+      stability: 0.25,
+      similarityBoost: 0.85,
+      style: 0.7,
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: 'ThT5KcBeYPX3keUQqHPh',
+      voiceId: 'EXAVITQu4vr4xnSDxMaL',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.35,
-      similarityBoost: 0.9,
-      style: 0.75,
+      stability: 0.25,
+      similarityBoost: 0.85,
+      style: 0.7,
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: 'ThT5KcBeYPX3keUQqHPh',
+      voiceId: 'EXAVITQu4vr4xnSDxMaL',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.35,
-      similarityBoost: 0.9,
-      style: 0.75,
+      stability: 0.25,
+      similarityBoost: 0.85,
+      style: 0.7,
       useSpeakerBoost: true
     }
   }
@@ -97,11 +97,11 @@ function preprocessTextForBonita(text: string, toneMode: 'sweet-nurturing' | 'to
   
   // Add voice direction for authentic African-American female delivery
   if (toneMode === 'sweet-nurturing') {
-    // Warm, nurturing auntie energy
-    processedText = `[Voice: Warm, nurturing African-American woman from the Bronx, speaking with gentle confidence and maternal wisdom] ${processedText}`;
+    // Warm but real auntie energy
+    processedText = `[Voice: Warm but direct African-American woman from the Bronx, speaking with authentic caring and natural rhythm] ${processedText}`;
   } else {
-    // Strong, assertive auntie energy
-    processedText = `[Voice: Confident, no-nonsense African-American woman from the Bronx, speaking with authority and sass] ${processedText}`;
+    // Strong, challenging auntie energy
+    processedText = `[Voice: Confident, challenging African-American woman from the Bronx, speaking with authority and realness] ${processedText}`;
   }
   
   return processedText;
