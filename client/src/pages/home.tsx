@@ -166,13 +166,43 @@ export default function Home() {
           {/* Tone Mode Toggle */}
           <div className="mt-8 p-4 bg-muted rounded-xl">
             <h3 className="text-sm font-semibold mb-3">{t('bonitasTone')}</h3>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{t('sweetNurturing')}</span>
-              <Switch
-                checked={toneMode === 'tough-love'}
-                onCheckedChange={handleToneModeChange}
-              />
-              <span className="text-sm text-muted-foreground">{t('toughLove')}</span>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <Button
+                  variant={toneMode === 'sweet-nurturing' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setToneMode('sweet-nurturing')}
+                  className="text-xs flex-1"
+                >
+                  ✨ Sweet & Nurturing
+                </Button>
+                <Button
+                  variant={toneMode === 'tough-love' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setToneMode('tough-love')}
+                  className="text-xs flex-1"
+                >
+                  💪 Tough Love
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={responseMode === 'detailed' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setResponseMode('detailed')}
+                  className="text-xs flex-1"
+                >
+                  🎭 Poetic & Deep
+                </Button>
+                <Button
+                  variant={responseMode === 'quick' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setResponseMode('quick')}
+                  className="text-xs flex-1"
+                >
+                  ⚡ Quick & Real
+                </Button>
+              </div>
             </div>
           </div>
         </nav>

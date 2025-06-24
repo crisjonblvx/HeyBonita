@@ -208,7 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/scripts/generate", async (req, res) => {
     try {
-      const { userId, topic, platform, language = 'en', toneMode = 'sweet-nurturing' } = req.body;
+      const { userId, topic, platform, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
       
       if (!userId || !topic || !platform) {
         return res.status(400).json({ error: "User ID, topic, and platform are required" });
