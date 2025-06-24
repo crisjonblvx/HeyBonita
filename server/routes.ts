@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const chatHistory = await storage.getChatMessages(userId, 10);
       const historyFormatted = chatHistory.map(msg => ({
         role: msg.role as 'user' | 'assistant',
-        content: msg.content
+        content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
       }));
 
       // Get Bonita's response
