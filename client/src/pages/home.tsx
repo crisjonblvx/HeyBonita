@@ -100,7 +100,7 @@ export default function Home() {
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <Avatar className="w-12 h-12 pulse-slow border-2 border-primary">
-                  <AvatarImage src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150" />
+                  <AvatarImage src="/images/bonita-avatar.png" />
                   <AvatarFallback>B</AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>

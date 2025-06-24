@@ -101,6 +101,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 ## Changelog
 
 - June 24, 2025. Initial setup
+- June 24, 2025. Integrated custom Bonita avatar images to replace placeholder images throughout the application
 
 ## User Preferences
 
