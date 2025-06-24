@@ -144,31 +144,34 @@ export default function Home() {
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 p-4">
-          <div className="space-y-2">
+        <nav className="flex-1 p-3">
+          <div className="space-y-1">
             <Button
               variant={activeTab === 'chat' ? "default" : "ghost"}
-              className="w-full justify-start nav-pill"
+              className="w-full justify-start h-9 text-sm"
               onClick={() => setActiveTab('chat')}
+              title="Chat with Bonita"
             >
-              <MessageCircle className="mr-3 h-5 w-5" />
-              {t('chatWithBonita')}
+              <MessageCircle className="mr-2 h-4 w-4" />
+              Chat
             </Button>
             <Button
               variant={activeTab === 'image' ? "default" : "ghost"}
-              className="w-full justify-start nav-pill"
+              className="w-full justify-start h-9 text-sm"
               onClick={() => setActiveTab('image')}
+              title="Generate Images"
             >
-              <Image className="mr-3 h-5 w-5" />
-              {t('imageGenerator')}
+              <Image className="mr-2 h-4 w-4" />
+              Images
             </Button>
             <Button
               variant={activeTab === 'video' ? "default" : "ghost"}
-              className="w-full justify-start nav-pill"
+              className="w-full justify-start h-9 text-sm"
               onClick={() => setActiveTab('video')}
+              title="Create Scripts"
             >
-              <Video className="mr-3 h-5 w-5" />
-              {t('videoScripts')}
+              <Video className="mr-2 h-4 w-4" />
+              Scripts
             </Button>
           </div>
           
@@ -240,16 +243,16 @@ export default function Home() {
         </nav>
         
         {/* Footer Controls */}
-        <div className="p-4 border-t border-border">
-          <div className="flex justify-between items-center">
-            <Button size="icon" variant="ghost" onClick={() => setShowSettings(true)} title="Settings">
-              <Settings className="h-5 w-5" />
+        <div className="p-3 border-t border-border">
+          <div className="flex justify-center gap-2">
+            <Button size="sm" variant="ghost" onClick={() => setShowSettings(true)} title="Settings" className="h-8 w-8 p-0">
+              <Settings className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={() => setShowHelp(true)} title="Help">
-              <HelpCircle className="h-5 w-5" />
+            <Button size="sm" variant="ghost" onClick={() => setShowHelp(true)} title="Help" className="h-8 w-8 p-0">
+              <HelpCircle className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={toggleTheme} title="Toggle Theme">
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <Button size="sm" variant="ghost" onClick={toggleTheme} title="Toggle Theme" className="h-8 w-8 p-0">
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
           </div>
         </div>
