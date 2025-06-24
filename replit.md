@@ -114,6 +114,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 24, 2025. Integrated Perplexity API for real-time news and current events access, enabling accurate responses about current politics and world events
 - June 24, 2025. Enhanced speech personality with authentic AAVE pronunciation corrections and slang adaptations for both ElevenLabs and browser TTS
 - June 24, 2025. Integrated GNews.io for comprehensive real-time news coverage alongside Perplexity for enhanced current events awareness
+- June 24, 2025. Enhanced Perplexity integration with trending topics detection and social media culture awareness for viral content and cultural buzz
 
 ## User Preferences
 

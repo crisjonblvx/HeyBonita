@@ -46,10 +46,16 @@ async function searchWithGNews(query: string): Promise<string> {
 
   try {
     const searchQuery = encodeURIComponent(query);
-    const response = await fetch(`https://gnews.io/api/v4/search?q=${searchQuery}&lang=en&country=us&max=3&apikey=${apiKey}`);
+    const response = await fetch(`https://gnews.io/api/v4/search?q=${searchQuery}&lang=en&country=us&max=3&apikey=${apiKey}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Bonita-AI/1.0)'
+      }
+    });
 
     if (!response.ok) {
       console.error('GNews API error:', response.status, response.statusText);
+      const errorText = await response.text();
+      console.error('GNews error details:', errorText);
       return '';
     }
 
@@ -78,6 +84,11 @@ async function searchWithPerplexity(query: string): Promise<string> {
   }
 
   try {
+    // Enhanced query for cultural trends and current events
+    const enhancedQuery = needsTrendingInfo(query) 
+      ? `${query} trending now social media Twitter X Instagram TikTok 2025`
+      : query;
+
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
@@ -89,18 +100,18 @@ async function searchWithPerplexity(query: string): Promise<string> {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that provides current, factual information. Be concise and accurate.'
+            content: 'You are a helpful assistant that provides current, factual information with cultural context. Include trending topics and social media buzz when relevant. Be concise and accurate.'
           },
           {
             role: 'user',
-            content: query
+            content: enhancedQuery
           }
         ],
         max_tokens: 300,
         temperature: 0.2,
         top_p: 0.9,
         return_related_questions: false,
-        search_recency_filter: 'month',
+        search_recency_filter: 'week', // More recent for trending topics
         stream: false
       })
     });
@@ -133,6 +144,18 @@ export async function searchCurrentInfo(query: string): Promise<string> {
   return results.join('\n\n---\n\n');
 }
 
+function needsTrendingInfo(message: string): boolean {
+  const trendingKeywords = [
+    'trending', 'viral', 'popular', 'buzz', 'hot topic', 'what\'s happening',
+    'social media', 'twitter', 'x.com', 'instagram', 'tiktok', 'culture',
+    'celebrity', 'influencer', 'meme', 'hashtag', 'drama', 'tea'
+  ];
+  
+  return trendingKeywords.some(keyword => 
+    message.toLowerCase().includes(keyword.toLowerCase())
+  );
+}
+
 export function needsCurrentInfo(message: string): boolean {
   const currentInfoKeywords = [
     'president', 'biden', 'trump', 'election', 'current', 'now', 'today',
@@ -140,7 +163,9 @@ export function needsCurrentInfo(message: string): boolean {
     'current events', 'politics', 'government', 'leader', 'prime minister',
     'breaking', 'just happened', 'this week', 'this month', 'this year',
     'weather', 'stock market', 'economy', 'war', 'conflict', 'celebrity',
-    'sports', 'technology', 'ai news', 'social media', 'trending'
+    'sports', 'technology', 'ai news', 'social media', 'trending',
+    'viral', 'popular', 'buzz', 'hot topic', 'what\'s happening',
+    'culture', 'influencer', 'meme', 'hashtag', 'drama', 'tea'
   ];
   
   return currentInfoKeywords.some(keyword => 
