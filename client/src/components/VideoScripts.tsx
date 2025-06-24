@@ -30,6 +30,7 @@ interface VideoScript {
 interface VideoScriptsProps {
   userId: number;
   toneMode: 'sweet-nurturing' | 'tough-love';
+  responseMode: 'quick' | 'detailed';
 }
 
 const scriptTemplates = [
@@ -56,7 +57,7 @@ const scriptTemplates = [
   }
 ];
 
-export function VideoScripts({ userId, toneMode }: VideoScriptsProps) {
+export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsProps) {
   const [topic, setTopic] = useState('');
   const [platform, setPlatform] = useState('TikTok (15-60s)');
   const [currentScript, setCurrentScript] = useState<string | null>(null);

@@ -20,9 +20,10 @@ interface ChatMessage {
 interface BonitaChatProps {
   userId: number;
   toneMode: 'sweet-nurturing' | 'tough-love';
+  responseMode: 'quick' | 'detailed';
 }
 
-export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
+export function BonitaChat({ userId, toneMode, responseMode }: BonitaChatProps) {
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);

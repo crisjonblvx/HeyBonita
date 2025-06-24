@@ -27,10 +27,12 @@ import { useToast } from '@/hooks/use-toast';
 
 type ActiveTab = 'chat' | 'image' | 'video';
 type ToneMode = 'sweet-nurturing' | 'tough-love';
+type ResponseMode = 'quick' | 'detailed';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('chat');
   const [toneMode, setToneMode] = useState<ToneMode>('sweet-nurturing');
+  const [responseMode, setResponseMode] = useState<ResponseMode>('detailed');
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);

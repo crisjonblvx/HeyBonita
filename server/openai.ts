@@ -9,6 +9,7 @@ const openai = new OpenAI({
 export interface BonitaPersonality {
   language: 'en' | 'es' | 'pt' | 'fr';
   toneMode: 'sweet-nurturing' | 'tough-love';
+  responseMode: 'quick' | 'detailed';
 }
 
 function getCurrentContext(): string {
@@ -164,8 +165,8 @@ export async function chatWithBonita(
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages,
-      max_tokens: 350, // Reduced for faster responses
-      temperature: 0.7, // Slightly lower for more focused responses
+      max_tokens: personality.responseMode === 'quick' ? 150 : 350, // Much shorter for quick mode
+      temperature: personality.responseMode === 'quick' ? 0.6 : 0.7, // More focused for quick responses
     });
 
     return response.choices[0].message.content || "I'm sorry, I couldn't process that right now.";

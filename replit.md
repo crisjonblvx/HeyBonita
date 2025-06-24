@@ -116,6 +116,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 24, 2025. Integrated GNews.io for comprehensive real-time news coverage alongside Perplexity for enhanced current events awareness
 - June 24, 2025. Enhanced Perplexity integration with trending topics detection and social media culture awareness for viral content and cultural buzz
 - June 24, 2025. Optimized response times by reducing token limits and implementing global audio controller for better speech management
+- June 24, 2025. Added Quick Mode toggle for 1-2 sentence responses vs detailed responses, significantly improving response speed for rapid Q&A
 
 ## User Preferences
 
