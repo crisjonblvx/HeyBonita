@@ -62,7 +62,13 @@ export const translations = {
     bonitasTone: "Bonita's Tone",
     
     // Welcome message
-    welcomeMessage: "¡Hola mi amor! I'm Bonita, your Digital Bronx Auntie. Whether you need some tough love or sweet nurturing, I'm here for you. What's on your mind today?"
+    welcomeMessage: "¡Hola mi amor! I'm Bonita, your Digital Bronx Auntie. Whether you need some tough love or sweet nurturing, I'm here for you. What's on your mind today?",
+    
+    // Speech features
+    speechToSpeechMode: "Speech-to-Speech Mode",
+    voiceChat: "Voice Chat",
+    speakMessage: "Speak this message",
+    stopSpeaking: "Stop speaking"
   },
   es: {
     // Navigation
@@ -127,7 +133,13 @@ export const translations = {
     bonitasTone: "Tono de Bonita",
     
     // Welcome message
-    welcomeMessage: "¡Hola mi amor! Soy Bonita, tu Tía Digital del Bronx. Ya sea que necesites amor duro o cariño dulce, estoy aquí para ti. ¿Qué tienes en mente hoy?"
+    welcomeMessage: "¡Hola mi amor! Soy Bonita, tu Tía Digital del Bronx. Ya sea que necesites amor duro o cariño dulce, estoy aquí para ti. ¿Qué tienes en mente hoy?",
+    
+    // Speech features
+    speechToSpeechMode: "Modo Voz a Voz",
+    voiceChat: "Chat de Voz",
+    speakMessage: "Hablar este mensaje",
+    stopSpeaking: "Dejar de hablar"
   },
   pt: {
     // Navigation
@@ -192,7 +204,13 @@ export const translations = {
     bonitasTone: "Tom da Bonita",
     
     // Welcome message
-    welcomeMessage: "¡Hola mi amor! Eu sou Bonita, sua Tia Digital do Bronx. Seja você precisando de amor duro ou carinho doce, estou aqui para você. O que você tem em mente hoje?"
+    welcomeMessage: "¡Hola mi amor! Eu sou Bonita, sua Tia Digital do Bronx. Seja você precisando de amor duro ou carinho doce, estou aqui para você. O que você tem em mente hoje?",
+    
+    // Speech features
+    speechToSpeechMode: "Modo Voz para Voz",
+    voiceChat: "Bate-papo por Voz",
+    speakMessage: "Falar esta mensagem",
+    stopSpeaking: "Parar de falar"
   },
   fr: {
     // Navigation
@@ -257,7 +275,13 @@ export const translations = {
     bonitasTone: "Ton de Bonita",
     
     // Welcome message
-    welcomeMessage: "¡Hola mi amor! Je suis Bonita, votre Tante Numérique du Bronx. Que vous ayez besoin d'amour dur ou de douceur bienveillante, je suis là pour vous. Qu'avez-vous en tête aujourd'hui?"
+    welcomeMessage: "¡Hola mi amor! Je suis Bonita, votre Tante Numérique du Bronx. Que vous ayez besoin d'amour dur ou de douceur bienveillante, je suis là pour vous. Qu'avez-vous en tête aujourd'hui?",
+    
+    // Speech features
+    speechToSpeechMode: "Mode Voix à Voix",
+    voiceChat: "Chat Vocal",
+    speakMessage: "Dire ce message",
+    stopSpeaking: "Arrêter de parler"
   }
 };
 

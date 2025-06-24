@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Mic, Send, History, Volume2, VolumeX } from 'lucide-react';
+import { Mic, Send, History, Volume2, VolumeX, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
@@ -25,6 +25,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechToSpeechMode, setSpeechToSpeechMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { language, t } = useLanguage();
   const { toast } = useToast();
@@ -84,7 +85,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     }
   };
 
-  const startVoiceRecording = () => {
+  const startVoiceRecording = (autoSend = false) => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
         title: "Not Supported",
@@ -99,21 +100,45 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = language === 'en' ? 'en-US' : 
-                     language === 'es' ? 'es-ES' : 
-                     language === 'pt' ? 'pt-BR' : 'fr-FR';
+    
+    // Set up multilingual recognition - try current language first, then auto-detect
+    const currentLang = language === 'en' ? 'en-US' : 
+                       language === 'es' ? 'es-ES' : 
+                       language === 'pt' ? 'pt-BR' : 'fr-FR';
+    recognition.lang = currentLang;
 
-    recognition.onstart = () => setIsListening(true);
+    recognition.onstart = () => {
+      setIsListening(true);
+      if (speechToSpeechMode) {
+        // Stop any ongoing speech when starting to listen
+        stopSpeaking();
+      }
+    };
+    
     recognition.onend = () => setIsListening(false);
     
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       setMessage(transcript);
+      
+      // Auto-send in speech-to-speech mode
+      if (autoSend || speechToSpeechMode) {
+        setTimeout(() => {
+          // Trigger message send
+          sendMessageMutation.mutate({
+            userId,
+            message: transcript.trim(),
+            language,
+            toneMode,
+          });
+        }, 100);
+      }
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
       toast({
-        title: "Error",
+        title: "Voice Recognition Error",
         description: "Voice recognition failed. Please try again.",
         variant: "destructive",
       });
@@ -213,9 +238,19 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
           <div className="flex space-x-2">
             <Button 
               size="icon" 
+              variant={speechToSpeechMode ? "default" : "outline"}
+              onClick={() => setSpeechToSpeechMode(!speechToSpeechMode)}
+              className={speechToSpeechMode ? "bg-green-600 hover:bg-green-700" : ""}
+              title={t('speechToSpeechMode')}
+            >
+              <MessageCircle className="h-4 w-4" />
+            </Button>
+            <Button 
+              size="icon" 
               variant={isSpeaking ? "default" : "outline"}
               onClick={isSpeaking ? stopSpeaking : () => {}}
               className={isSpeaking ? "animate-pulse" : ""}
+              title={isSpeaking ? t('stopSpeaking') : t('voiceChat')}
             >
               {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </Button>
@@ -276,6 +311,7 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
                       variant="ghost"
                       className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-1"
                       onClick={() => speakMessage(msg.content)}
+                      title={t('speakMessage')}
                     >
                       <Volume2 className="h-3 w-3" />
                     </Button>
@@ -308,11 +344,17 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
             <Button
               size="sm"
               variant="ghost"
-              className="absolute right-2 top-1/2 transform -translate-y-1/2"
-              onClick={startVoiceRecording}
+              className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${
+                speechToSpeechMode ? 'bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800' : ''
+              }`}
+              onClick={() => startVoiceRecording(speechToSpeechMode)}
               disabled={isListening}
+              title={speechToSpeechMode ? t('voiceChat') : "Voice Input"}
             >
-              <Mic className={`h-4 w-4 ${isListening ? 'animate-pulse text-red-500' : ''}`} />
+              <Mic className={`h-4 w-4 ${
+                isListening ? 'animate-pulse text-red-500' : 
+                speechToSpeechMode ? 'text-green-600' : ''
+              }`} />
             </Button>
           </div>
           <Button 
