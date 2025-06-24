@@ -123,9 +123,15 @@ export async function chatWithBonita(
   try {
     const systemPrompt = getBonitaSystemPrompt(personality);
     
+    // Ensure all messages have proper content structure for OpenAI API
+    const formattedHistory = chatHistory.slice(-10).map(msg => ({
+      role: msg.role as "user" | "assistant",
+      content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+    }));
+    
     const messages = [
       { role: "system" as const, content: systemPrompt },
-      ...chatHistory.slice(-10), // Keep last 10 messages for context
+      ...formattedHistory,
       { role: "user" as const, content: message }
     ];
 
