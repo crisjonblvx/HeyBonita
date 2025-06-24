@@ -233,7 +233,15 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">{t('chatHeader')}</h2>
-            <p className="text-muted-foreground">{t('chatSubtitle')}</p>
+            <p className="text-muted-foreground">
+              {t('chatSubtitle')}
+              {speechToSpeechMode && (
+                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  <MessageCircle className="w-3 h-3 mr-1" />
+                  {t('speechToSpeechMode')}
+                </span>
+              )}
+            </p>
           </div>
           <div className="flex space-x-2">
             <Button 
