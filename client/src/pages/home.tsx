@@ -236,19 +236,20 @@ export default function Home() {
         {/* Footer Controls */}
         <div className="p-4 border-t border-border">
           <div className="flex justify-between items-center">
-            <Button size="icon" variant="ghost" onClick={() => setShowSettings(true)}>
+            <Button size="icon" variant="ghost" onClick={() => setShowSettings(true)} title="Settings">
               <Settings className="h-5 w-5" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={() => setShowHelp(true)}>
+            <Button size="icon" variant="ghost" onClick={() => setShowHelp(true)} title="Help">
               <HelpCircle className="h-5 w-5" />
             </Button>
             <Button
               size="icon"
-              variant={voiceMode === 'speech-to-speech' ? "default" : "ghost"}
+              variant="ghost"
               onClick={handleVoiceToggle}
               className={isListening ? "animate-pulse" : ""}
+              title={`Voice: ${voiceMode === 'speech-to-speech' ? 'Speech-to-Speech' : 'Text-to-Speech'}`}
             >
-              {voiceMode === 'speech-to-speech' ? <Volume2 className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+              {voiceMode === 'speech-to-speech' ? <MessageSquare className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </Button>
           </div>
         </div>
