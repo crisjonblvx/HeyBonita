@@ -25,6 +25,7 @@ export interface IStorage {
   // Chat message operations
   getChatMessages(userId: number, limit?: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  clearChatMessages(userId: number): Promise<void>;
   
   // Generated image operations
   getGeneratedImages(userId: number, limit?: number): Promise<GeneratedImage[]>;
@@ -78,6 +79,10 @@ export class DatabaseStorage implements IStorage {
       .values(message)
       .returning();
     return chatMessage;
+  }
+
+  async clearChatMessages(userId: number): Promise<void> {
+    await db.delete(chatMessages).where(eq(chatMessages.userId, userId));
   }
 
   async getGeneratedImages(userId: number, limit: number = 20): Promise<GeneratedImage[]> {

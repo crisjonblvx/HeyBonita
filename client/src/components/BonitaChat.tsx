@@ -208,12 +208,29 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
     setIsSpeaking(false);
   };
 
+  const clearHistoryMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('DELETE', `/api/chat/${userId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/chat', userId] });
+      toast({
+        title: "History Cleared",
+        description: "Chat history has been cleared successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to clear chat history. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const clearHistory = () => {
-    // TODO: Implement clear history functionality
-    toast({
-      title: "History Cleared",
-      description: "Chat history has been cleared.",
-    });
+    clearHistoryMutation.mutate();
   };
 
 
@@ -262,9 +279,13 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
             >
               {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </Button>
-            <Button variant="outline" onClick={clearHistory}>
+            <Button 
+              variant="outline" 
+              onClick={clearHistory}
+              disabled={clearHistoryMutation.isPending}
+            >
               <History className="mr-2 h-4 w-4" />
-              {t('clearHistory')}
+              {clearHistoryMutation.isPending ? "Clearing..." : t('clearHistory')}
             </Button>
           </div>
         </div>
