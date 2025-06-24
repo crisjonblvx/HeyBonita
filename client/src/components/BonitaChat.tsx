@@ -336,27 +336,29 @@ export function BonitaChat({ userId, toneMode }: BonitaChatProps) {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">{t('chatHeader')}</h2>
-            <p className="text-muted-foreground">
-              {t('chatSubtitle')}
-              {speechToSpeechMode && (
-                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  <MessageCircle className="w-3 h-3 mr-1" />
-                  {t('speechToSpeechMode')}
-                </span>
-              )}
-              {isSpeaking && (
-                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  <Volume2 className="w-3 h-3 mr-1" />
-                  Speaking...
-                </span>
-              )}
-              {isGeneratingResponse && (
-                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                  <div className="w-3 h-3 mr-1 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                  Bonita is thinking...
-                </span>
-              )}
-            </p>
+            <div className="text-muted-foreground">
+              <p>{t('chatSubtitle')}</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {speechToSpeechMode && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    <MessageCircle className="w-3 h-3 mr-1" />
+                    {t('speechToSpeechMode')}
+                  </span>
+                )}
+                {isSpeaking && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    <Volume2 className="w-3 h-3 mr-1" />
+                    Speaking...
+                  </span>
+                )}
+                {isGeneratingResponse && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    <div className="w-3 h-3 mr-1 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    Bonita is thinking...
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
           <div className="flex space-x-2">
             <Button 
