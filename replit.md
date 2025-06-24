@@ -29,10 +29,11 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 ## Key Components
 
 ### AI Personality System
-- **Bonita Character**: Digital Bronx Auntie with cultural authenticity
-- **Tone Modes**: Sweet-nurturing vs tough-love personality variants
-- **Multilingual Support**: Context-aware responses in 4 languages
-- **Cultural Context**: Code-switching and culturally appropriate expressions
+- **Bonita Character**: Digital Bronx Auntie with authentic African-American voice and cultural roots
+- **Voice Profile**: Late 30s-50s, soulful with slight rasp, expressive Bronx inflection
+- **Tone Modes**: Sweet-nurturing (warm, gentle) vs tough-love (assertive, direct)
+- **Multilingual Support**: Context-aware responses in 4 languages with cultural authenticity
+- **Voice Technology**: ElevenLabs AI with personality-specific voice modulation
 
 ### Language System
 - **React Context**: Centralized language state management
@@ -105,6 +106,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 24, 2025. Added text-to-speech functionality with automatic speech for new messages and manual speech controls for existing messages
 - June 24, 2025. Added multilingual speech-to-speech capability allowing voice input and automatic spoken responses
 - June 24, 2025. Integrated ElevenLabs Conversational AI for high-quality, emotionally expressive voice synthesis with personality-based voice modulation
+- June 24, 2025. Enhanced ElevenLabs voice configuration with authentic Bronx Auntie personality - soulful, expressive delivery with cultural authenticity and attitude-specific voice settings
 
 ## User Preferences
 

@@ -9,77 +9,102 @@ export interface ElevenLabsConfig {
   useSpeakerBoost?: boolean;
 }
 
-// Voice configurations for different personality modes and languages
+// Bonita's Voice Profile for ElevenLabs
+// African-American woman from the Bronx with soulful, expressive voice
+// Confident, witty, and nurturing - like your favorite auntie who tells it like it is
+// Slightly raspy but warm, with playful inflection and strong emotional delivery
+
 export const BONITA_VOICES = {
   'sweet-nurturing': {
     en: {
-      voiceId: '21m00Tcm4TlvDq8ikWAM', // Rachel - warm, friendly
+      voiceId: 'pNInz6obpgDQGcFmaJgB', // Adam - deeper, warmer tone for nurturing
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.5,
-      similarityBoost: 0.8,
-      style: 0.3,
+      stability: 0.4, // Lower for more expressive inflection
+      similarityBoost: 0.9, // Higher for consistent Bronx character
+      style: 0.7, // Higher for soulful, expressive delivery
       useSpeakerBoost: true
     },
     es: {
-      voiceId: 'XB0fDUnXU5powFXDhCwa', // Charlotte - multilingual capable
+      voiceId: 'pNInz6obpgDQGcFmaJgB', // Same voice for consistency across languages
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.6,
-      similarityBoost: 0.75,
-      style: 0.4,
+      stability: 0.5,
+      similarityBoost: 0.85,
+      style: 0.65,
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: 'XB0fDUnXU5powFXDhCwa', // Charlotte - multilingual
+      voiceId: 'pNInz6obpgDQGcFmaJgB',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.6,
-      similarityBoost: 0.75,
-      style: 0.4,
+      stability: 0.5,
+      similarityBoost: 0.85,
+      style: 0.65,
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: 'XB0fDUnXU5powFXDhCwa', // Charlotte - multilingual
+      voiceId: 'pNInz6obpgDQGcFmaJgB',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.6,
-      similarityBoost: 0.75,
-      style: 0.4,
+      stability: 0.5,
+      similarityBoost: 0.85,
+      style: 0.65,
       useSpeakerBoost: true
     }
   },
   'tough-love': {
     en: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL', // Bella - more assertive
+      voiceId: 'pNInz6obpgDQGcFmaJgB', // Same voice, different settings for attitude
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.7,
-      similarityBoost: 0.85,
-      style: 0.6,
+      stability: 0.3, // Even lower for more dynamic expression
+      similarityBoost: 0.95, // Maximum for strong character consistency
+      style: 0.8, // Maximum style for full attitude and inflection
       useSpeakerBoost: true
     },
     es: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: 'pNInz6obpgDQGcFmaJgB',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.7,
-      similarityBoost: 0.85,
-      style: 0.6,
+      stability: 0.35,
+      similarityBoost: 0.9,
+      style: 0.75,
       useSpeakerBoost: true
     },
     pt: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: 'pNInz6obpgDQGcFmaJgB',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.7,
-      similarityBoost: 0.85,
-      style: 0.6,
+      stability: 0.35,
+      similarityBoost: 0.9,
+      style: 0.75,
       useSpeakerBoost: true
     },
     fr: {
-      voiceId: 'EXAVITQu4vr4xnSDxMaL',
+      voiceId: 'pNInz6obpgDQGcFmaJgB',
       modelId: 'eleven_turbo_v2_5',
-      stability: 0.7,
-      similarityBoost: 0.85,
-      style: 0.6,
+      stability: 0.35,
+      similarityBoost: 0.9,
+      style: 0.75,
       useSpeakerBoost: true
     }
   }
 };
+
+// Enhanced text preprocessing for Bonita's authentic voice
+function preprocessTextForBonita(text: string, toneMode: 'sweet-nurturing' | 'tough-love'): string {
+  let processedText = text;
+  
+  // Add natural pauses and emphasis for Bonita's speaking style
+  processedText = processedText.replace(/\./g, '...');
+  processedText = processedText.replace(/!/g, '!');
+  processedText = processedText.replace(/\?/g, '?');
+  
+  // Add subtle voice direction for more authentic delivery
+  if (toneMode === 'sweet-nurturing') {
+    // Softer, more nurturing delivery cues
+    processedText = `*speaking with warmth and gentle wisdom* ${processedText}`;
+  } else {
+    // More direct, assertive delivery cues  
+    processedText = `*speaking with confident, no-nonsense Bronx attitude* ${processedText}`;
+  }
+  
+  return processedText;
+}
 
 export async function generateSpeechWithElevenLabs(
   text: string,
@@ -91,6 +116,7 @@ export async function generateSpeechWithElevenLabs(
   }
 
   const config = BONITA_VOICES[toneMode][language];
+  const processedText = preprocessTextForBonita(text, toneMode);
   
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${config.voiceId}`, {
     method: 'POST',
@@ -100,7 +126,7 @@ export async function generateSpeechWithElevenLabs(
       'xi-api-key': process.env.ELEVENLABS_API_KEY,
     },
     body: JSON.stringify({
-      text,
+      text: processedText,
       model_id: config.modelId,
       voice_settings: {
         stability: config.stability,
@@ -112,6 +138,8 @@ export async function generateSpeechWithElevenLabs(
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('ElevenLabs API error:', response.status, errorText);
     throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`);
   }
 
