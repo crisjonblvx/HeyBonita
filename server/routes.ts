@@ -31,8 +31,122 @@ import { exportUserData, formatAsJSON, formatAsCSV, formatAsTXT } from "./export
 import { z } from "zod";
 import multer from "multer";
 import bcrypt from "bcrypt";
+import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as AppleStrategy } from "passport-apple";
 
 const upload = multer({ storage: multer.memoryStorage() });
+
+// Configure OAuth strategies
+function configureOAuthStrategies() {
+  // Passport serialization
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: number, done) => {
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
+  });
+
+  // Google OAuth Strategy
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(new GoogleStrategy({
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback"
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if user already exists with this Google ID
+        let user = await storage.getUserByGoogleId(profile.id);
+        
+        if (user) {
+          return done(null, user);
+        }
+
+        // Check if user exists with this email
+        if (profile.emails && profile.emails[0]) {
+          const existingUser = await storage.getUserByUsername(profile.emails[0].value);
+          if (existingUser) {
+            // Link Google account to existing user
+            const updatedUser = await storage.updateUser(existingUser.id, {
+              googleId: profile.id,
+              provider: 'google'
+            });
+            return done(null, updatedUser);
+          }
+        }
+
+        // Create new user
+        const newUser = await storage.createUser({
+          username: profile.emails?.[0]?.value || `google_${profile.id}`,
+          email: profile.emails?.[0]?.value || null,
+          googleId: profile.id,
+          provider: 'google'
+        });
+
+        return done(null, newUser);
+      } catch (error) {
+        return done(error, undefined);
+      }
+    }));
+  }
+
+  // Apple OAuth Strategy
+  if (process.env.APPLE_CLIENT_ID && process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_PRIVATE_KEY) {
+    passport.use(new AppleStrategy({
+      clientID: process.env.APPLE_CLIENT_ID,
+      teamID: process.env.APPLE_TEAM_ID,
+      keyID: process.env.APPLE_KEY_ID,
+      privateKey: process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      callbackURL: "/auth/apple/callback",
+      scope: ['name', 'email']
+    },
+    async (accessToken: any, refreshToken: any, idToken: any, profile: any, done: any) => {
+      try {
+        // Apple ID is in the 'sub' field of the profile
+        const appleId = profile.id || profile.sub;
+        
+        // Check if user already exists with this Apple ID
+        let user = await storage.getUserByAppleId(appleId);
+        
+        if (user) {
+          return done(null, user);
+        }
+
+        // Check if user exists with this email
+        if (profile.email) {
+          const existingUser = await storage.getUserByUsername(profile.email);
+          if (existingUser) {
+            // Link Apple account to existing user
+            const updatedUser = await storage.updateUser(existingUser.id, {
+              appleId: appleId,
+              provider: 'apple'
+            });
+            return done(null, updatedUser);
+          }
+        }
+
+        // Create new user
+        const newUser = await storage.createUser({
+          username: profile.email || `apple_${appleId}`,
+          email: profile.email || null,
+          appleId: appleId,
+          provider: 'apple'
+        });
+
+        return done(null, newUser);
+      } catch (error) {
+        return done(error, undefined);
+      }
+    }));
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
@@ -52,6 +166,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
   }));
+
+  // Initialize passport
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Configure OAuth strategies
+  configureOAuthStrategies();
+
+  // OAuth Routes - Google
+  app.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+  );
+
+  app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    (req, res) => {
+      // Set session userId for compatibility with existing auth system
+      if (req.user && typeof req.user === 'object' && 'id' in req.user) {
+        (req.session as any).userId = (req.user as any).id;
+      }
+      // Successful authentication, redirect to home
+      res.redirect('/');
+    }
+  );
+
+  // OAuth Routes - Apple
+  app.get('/auth/apple',
+    passport.authenticate('apple')
+  );
+
+  app.get('/auth/apple/callback',
+    passport.authenticate('apple', { failureRedirect: '/login' }),
+    (req, res) => {
+      // Set session userId for compatibility with existing auth system
+      if (req.user && typeof req.user === 'object' && 'id' in req.user) {
+        (req.session as any).userId = (req.user as any).id;
+      }
+      // Successful authentication, redirect to home
+      res.redirect('/');
+    }
+  );
   
   // Authentication routes with rate limiting
   app.post("/api/auth/register", rateLimitMiddleware('/api/auth/register'), async (req, res) => {

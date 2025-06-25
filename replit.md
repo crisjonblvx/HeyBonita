@@ -140,6 +140,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 25, 2025. Enhanced image download with clear step-by-step instructions for users unfamiliar with right-click saving, making the feature more accessible to all skill levels
 - June 25, 2025. Implemented server-side proxy download system for seamless image downloads - users can now download images with a single click without needing to navigate new tabs or right-click operations
 - June 25, 2025. Updated YouTube Intro preset duration from 5-10 minutes to 15-90 seconds for more focused intro content creation
+- June 25, 2025. Added Google and Apple OAuth login integration: database schema updated with OAuth fields, authentication routes configured, login buttons added to auth page - requires Google/Apple developer credentials to activate
 
 ## User Preferences
 
