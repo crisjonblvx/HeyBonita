@@ -62,6 +62,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         passwordHash,
       });
       
+      // Create session for new user
+      req.session.userId = user.id;
+      
       // Remove password hash from response
       const { passwordHash: _, ...userWithoutPassword } = user;
       
@@ -92,6 +95,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: "Invalid username or password" });
       }
       
+      // Create session
+      req.session.userId = user.id;
+      
       // Remove password hash from response
       const { passwordHash: _, ...userWithoutPassword } = user;
       
@@ -100,6 +106,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Login error:", error);
       res.status(500).json({ error: "Login failed" });
     }
+  });
+
+  // Authentication status endpoint
+  app.get("/api/auth/status", async (req, res) => {
+    if (req.session && req.session.userId) {
+      try {
+        const user = await storage.getUser(req.session.userId);
+        if (user) {
+          const { passwordHash, ...userWithoutPassword } = user;
+          res.json({ 
+            authenticated: true, 
+            user: userWithoutPassword 
+          });
+        } else {
+          req.session.destroy(() => {});
+          res.json({ authenticated: false });
+        }
+      } catch (error) {
+        res.json({ authenticated: false });
+      }
+    } else {
+      res.json({ authenticated: false });
+    }
+  });
+
+  // Logout endpoint
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Failed to logout" });
+      }
+      res.clearCookie('connect.sid');
+      res.json({ message: "Logged out successfully" });
+    });
   });
 
   // User routes

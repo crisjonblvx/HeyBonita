@@ -22,19 +22,18 @@ function AppRoute() {
   const [layoutType] = useState(() => isMobile ? 'mobile' : 'desktop');
 
   useEffect(() => {
-    // For now, force authentication mode for soft launch
-    // Clear any existing demo session
-    localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    
-    // Check if user is already logged in with valid credentials
-    const savedUserId = localStorage.getItem('userId');
-    const savedUsername = localStorage.getItem('username');
-    
-    if (savedUserId && savedUsername && savedUserId !== '1') {
-      setUser({ id: parseInt(savedUserId), username: savedUsername });
-    }
-    setIsLoading(false);
+    // Check authentication status via server session
+    fetch('/api/auth/status', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          setUser(data.user);
+        }
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const handleAuthenticated = (authenticatedUser: any) => {

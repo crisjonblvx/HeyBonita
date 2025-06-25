@@ -114,10 +114,15 @@ export default function Auth({ onAuthenticated }: AuthProps) {
     setIsLoading(true);
 
     try {
-      const response = await apiRequest('POST', '/api/auth/register', {
-        username: registerData.username.trim(),
-        email: registerData.email.trim(),
-        password: registerData.password
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          username: registerData.username.trim(),
+          email: registerData.email.trim(),
+          password: registerData.password
+        })
       });
       
       if (!response.ok) {
