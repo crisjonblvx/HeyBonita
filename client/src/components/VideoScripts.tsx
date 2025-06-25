@@ -43,7 +43,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       id: 'youtube',
       name: 'YouTube Intro',
       topic: 'Create an engaging YouTube intro for a lifestyle channel',
-      platform: 'YouTube Video (5-10min)',
+      platform: 'YouTube Intro (15-90s)',
       emoji: '📺'
     },
     {
