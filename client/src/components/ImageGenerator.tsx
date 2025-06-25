@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useLanguage } from './LanguageProvider';
@@ -54,15 +54,19 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
     staleTime: 30000, // 30 seconds
     refetchOnWindowFocus: false,
     refetchInterval: false,
-    onError: (error: any) => {
+  });
+
+  // Handle query errors
+  useEffect(() => {
+    if (isError && error) {
       console.error('Error fetching images:', error);
       toast({
         title: "Image Loading Error",
         description: "Unable to load your generated images. Please refresh the page.",
         variant: "destructive",
       });
-    },
-  });
+    }
+  }, [isError, error, toast]);
 
   // Filter out expired images
   const validImages = Array.isArray(images) ? images.filter((image: GeneratedImage) => {
