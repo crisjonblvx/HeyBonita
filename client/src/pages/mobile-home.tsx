@@ -49,10 +49,13 @@ export default function MobileHome() {
   const { theme, colorScheme, toggleTheme, setColorScheme } = useTheme();
   const { toast } = useToast();
 
-  // Fetch user data
+  // Fetch user data with better caching
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: [`/api/user/${userId}`],
     enabled: !!userId,
+    staleTime: 30000, // 30 seconds
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
   });
 
   // Load user preferences (excluding activeTab which is handled in useState)
@@ -77,31 +80,50 @@ export default function MobileHome() {
 
   const renderActiveTab = () => {
     console.log('Rendering active tab:', activeTab);
-    switch (activeTab) {
-      case 'chat':
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
-      case 'image':
+    
+    // Use React.memo equivalent approach to prevent unnecessary re-renders
+    if (activeTab === 'chat') {
+      return <BonitaChat key="chat" userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+    }
+    
+    if (activeTab === 'image') {
+      return (
+        <div key="image" className="h-full">
+          <ImageGenerator userId={userId} />
+        </div>
+      );
+    }
+    
+    if (activeTab === 'video') {
+      return <VideoScripts key="video" userId={userId} toneMode={toneMode} responseMode={responseMode} />;
+    }
+    
+    if (activeTab === 'profile') {
+      if (userLoading) {
         return (
-          <div className="h-full">
-            <ImageGenerator userId={userId} />
+          <div key="profile-loading" className="flex-1 flex items-center justify-center">
+            <div className="text-center text-muted-foreground p-8">
+              Loading profile...
+            </div>
           </div>
         );
-      case 'video':
-        return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
-      case 'profile':
-        if (userLoading || !user) {
-          return (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground p-8">
-                {userLoading ? 'Loading profile...' : 'Creating profile...'}
-              </div>
+      }
+      
+      if (!user) {
+        return (
+          <div key="profile-error" className="flex-1 flex items-center justify-center">
+            <div className="text-center text-muted-foreground p-8">
+              Unable to load profile
             </div>
-          );
-        }
-        return <GamificationPanel userId={userId} user={user} />;
-      default:
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+          </div>
+        );
+      }
+      
+      return <GamificationPanel key="profile" userId={userId} user={user} />;
     }
+    
+    // Default fallback
+    return <BonitaChat key="default" userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
   };
 
   return (

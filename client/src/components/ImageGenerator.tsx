@@ -46,13 +46,14 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
 
   console.log('ImageGenerator rendered with userId:', userId);
 
-  // Fetch generated images
+  // Fetch generated images with better caching
   const { data: images = [], isError, error } = useQuery({
     queryKey: ['/api/images'],
     enabled: !!userId,
     retry: 2,
-    staleTime: 30000,
+    staleTime: 60000, // 1 minute
     refetchOnWindowFocus: false,
+    refetchInterval: false, // Disable auto-refetch
     onError: (error: any) => {
       console.error('Error fetching images:', error);
     },
