@@ -73,12 +73,40 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       return response.json();
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/scripts', userId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/achievements', userId] });
       setCurrentScript(data.script);
       setTopic('');
-      toast({
-        title: "Success",
-        description: "Video script generated successfully!",
-      });
+      
+      // Show gamification rewards
+      if (data.gamification) {
+        const { pointsEarned, newAchievements, levelUp, newLevel } = data.gamification;
+        
+        if (newAchievements.length > 0 || levelUp) {
+          toast({
+            title: "Script created! Rewards earned!",
+            description: (
+              <AchievementToast
+                achievements={newAchievements}
+                points={pointsEarned}
+                levelUp={levelUp}
+                newLevel={newLevel}
+              />
+            ),
+            duration: 5000,
+          });
+        } else {
+          toast({
+            title: "Script generated!",
+            description: `Your video script has been created successfully. +${pointsEarned} points earned!`,
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Video script generated successfully!",
+        });
+      }
     },
     onError: () => {
       toast({

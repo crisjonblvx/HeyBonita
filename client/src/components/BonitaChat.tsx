@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Mic, Send, History, Volume2, VolumeX, MessageCircle, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { playAudio, stopAudio, isAudioPlaying } from '@/lib/audioController';
+import { AchievementToast } from '@/components/Gamification';
 
 interface ChatMessage {
   id: number;
@@ -82,7 +83,29 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/chat', userId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/achievements', userId] });
       setMessage('');
+      
+      // Show gamification rewards
+      if (data.gamification) {
+        const { pointsEarned, newAchievements, levelUp, newLevel } = data.gamification;
+        
+        if (newAchievements.length > 0 || levelUp || pointsEarned > 0) {
+          toast({
+            title: "Rewards Earned!",
+            description: (
+              <AchievementToast
+                achievements={newAchievements}
+                points={pointsEarned}
+                levelUp={levelUp}
+                newLevel={newLevel}
+              />
+            ),
+            duration: 5000,
+          });
+        }
+      }
+      
       // Automatically speak Bonita's response in both voice modes
       if (data && data.content) {
         setTimeout(() => speakMessage(data.content), 500); // Small delay for better UX

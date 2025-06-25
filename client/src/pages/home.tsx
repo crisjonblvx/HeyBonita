@@ -175,6 +175,15 @@ export default function Home() {
               <Video className="mr-2 h-4 w-4" />
               Scripts
             </Button>
+            <Button
+              variant={activeTab === 'profile' ? "default" : "ghost"}
+              className="w-full justify-start h-9 text-sm"
+              onClick={() => setActiveTab('profile')}
+              title="View Profile & Achievements"
+            >
+              <Trophy className="mr-2 h-4 w-4" />
+              Profile
+            </Button>
           </div>
           
           {/* Control Panel */}
