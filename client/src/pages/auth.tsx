@@ -36,29 +36,34 @@ export default function Auth({ onAuthenticated }: AuthProps) {
     setIsLoading(true);
 
     try {
-      const response = await apiRequest('POST', '/api/auth/login', loginData);
-      const result = await response.json();
+      const response = await apiRequest('POST', '/api/auth/login', {
+        username: loginData.username.trim(),
+        password: loginData.password
+      });
       
-      if (response.ok) {
-        localStorage.setItem('userId', result.user.id);
-        localStorage.setItem('username', result.user.username);
-        onAuthenticated(result.user);
+      if (!response.ok) {
+        const result = await response.json();
         toast({
-          title: "Welcome back!",
-          description: `Good to see you again, ${result.user.username}!`,
-        });
-      } else {
-        toast({
-          title: "Login failed",
+          title: "Login Failed",
           description: result.error || "Invalid username or password",
           variant: "destructive",
         });
+        return;
       }
+      
+      const result = await response.json();
+      localStorage.setItem('userId', result.user.id);
+      localStorage.setItem('username', result.user.username);
+      onAuthenticated(result.user);
+      toast({
+        title: "Welcome back!",
+        description: `Good to see you again, ${result.user.username}!`,
+      });
     } catch (error) {
       console.error('Login error:', error);
       toast({
         title: "Connection Error",
-        description: "Unable to connect to server. Please check your internet connection and try again.",
+        description: "Network connection failed. Please check your internet and try again.",
         variant: "destructive",
       });
     } finally {
@@ -110,32 +115,34 @@ export default function Auth({ onAuthenticated }: AuthProps) {
 
     try {
       const response = await apiRequest('POST', '/api/auth/register', {
-        username: registerData.username,
-        email: registerData.email,
+        username: registerData.username.trim(),
+        email: registerData.email.trim(),
         password: registerData.password
       });
-      const result = await response.json();
       
-      if (response.ok) {
-        localStorage.setItem('userId', result.user.id);
-        localStorage.setItem('username', result.user.username);
-        onAuthenticated(result.user);
+      if (!response.ok) {
+        const result = await response.json();
         toast({
-          title: "Welcome to Bonita!",
-          description: `Account created successfully! Welcome, ${result.user.username}!`,
-        });
-      } else {
-        toast({
-          title: "Registration failed",
+          title: "Registration Failed",
           description: result.error || "Unable to create account",
           variant: "destructive",
         });
+        return;
       }
+      
+      const result = await response.json();
+      localStorage.setItem('userId', result.user.id);
+      localStorage.setItem('username', result.user.username);
+      onAuthenticated(result.user);
+      toast({
+        title: "Welcome to Bonita!",
+        description: `Account created successfully! Welcome, ${result.user.username}!`,
+      });
     } catch (error) {
       console.error('Registration error:', error);
       toast({
         title: "Connection Error", 
-        description: "Unable to connect to server. Please check your internet connection and try again.",
+        description: "Network connection failed. Please check your internet and try again.",
         variant: "destructive",
       });
     } finally {
@@ -197,7 +204,7 @@ export default function Auth({ onAuthenticated }: AuthProps) {
                 <div>
                   <Input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Username (try a different one)"
                     value={registerData.username}
                     onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
                     required
