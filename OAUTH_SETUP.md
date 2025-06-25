@@ -27,8 +27,9 @@ Add these scopes:
 2. Name: "Bonita AI Web Client"
 3. Authorized redirect URIs:
    ```
-   https://your-replit-url.replit.app/auth/google/callback
+   https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback
    ```
+   (Use your actual Replit URL from the webview)
 
 ### 5. Get Credentials
 After creation, you'll receive:
