@@ -12,6 +12,14 @@ export const users = pgTable("users", {
   colorScheme: text("color_scheme").default("red"),
   toneMode: text("tone_mode").default("sweet-nurturing"),
   voiceEnabled: boolean("voice_enabled").default(true),
+  // Gamification fields
+  points: integer("points").default(0),
+  level: integer("level").default(1),
+  streak: integer("streak").default(0),
+  lastActiveDate: timestamp("last_active_date"),
+  totalChats: integer("total_chats").default(0),
+  totalImages: integer("total_images").default(0),
+  totalScripts: integer("total_scripts").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
