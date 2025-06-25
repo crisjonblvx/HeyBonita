@@ -66,9 +66,11 @@ export default function Landing() {
       <header className="border-b border-border/40 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <Heart className="h-6 w-6 text-primary-foreground" />
-            </div>
+            <img 
+              src="/images/bonita-logo-alpha.png" 
+              alt="Bonita AI" 
+              className="w-12 h-12 object-contain"
+            />
             <div>
               <h1 className="text-xl font-bold">Bonita AI</h1>
               <p className="text-xs text-muted-foreground">Your Digital Bronx Auntie</p>
@@ -105,14 +107,16 @@ export default function Landing() {
           </Button>
         </div>
 
-        {/* Hero Image Placeholder */}
+        {/* Hero Image */}
         <div className="relative max-w-4xl mx-auto">
-          <div className="aspect-video bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl border border-border/50 flex items-center justify-center">
+          <div className="aspect-video bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 rounded-2xl border border-border/50 flex items-center justify-center">
             <div className="text-center">
-              <div className="w-24 h-24 rounded-full bg-primary/20 mx-auto mb-4 flex items-center justify-center">
-                <MessageCircle className="h-12 w-12 text-primary" />
-              </div>
-              <p className="text-muted-foreground">Experience Bonita's authentic personality</p>
+              <img 
+                src="/images/bonita-logo-alpha.png" 
+                alt="Bonita AI Character" 
+                className="w-48 h-48 mx-auto mb-6 object-contain"
+              />
+              <p className="text-muted-foreground text-lg">Meet your Digital Bronx Auntie with authentic personality</p>
             </div>
           </div>
         </div>
@@ -309,9 +313,11 @@ export default function Landing() {
       <footer className="border-t border-border bg-muted/30">
         <div className="container mx-auto px-4 py-8 text-center">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <Heart className="h-4 w-4 text-primary-foreground" />
-            </div>
+            <img 
+              src="/images/bonita-logo-alpha.png" 
+              alt="Bonita AI" 
+              className="w-10 h-10 object-contain"
+            />
             <span className="text-lg font-semibold">Bonita AI</span>
           </div>
           <p className="text-sm text-muted-foreground mb-4">

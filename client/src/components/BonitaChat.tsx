@@ -458,7 +458,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
             {/* Welcome message */}
             <div className="flex items-start space-x-3">
               <Avatar className="w-10 h-10">
-                <AvatarImage src="/images/bonita-avatar.png" />
+                <AvatarImage src="/images/bonita-logo-alpha.png" />
                 <AvatarFallback>B</AvatarFallback>
               </Avatar>
               <div className="chat-bubble bg-muted rounded-2xl px-4 py-3">
@@ -477,7 +477,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
               >
                 {msg.role === 'assistant' && (
                   <Avatar className="w-10 h-10">
-                    <AvatarImage src="/images/bonita-avatar.png" />
+                    <AvatarImage src="/images/bonita-logo-alpha.png" />
                     <AvatarFallback>B</AvatarFallback>
                   </Avatar>
                 )}

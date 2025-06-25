@@ -109,10 +109,13 @@ export default function Home() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <Avatar className="w-12 h-12 pulse-slow border-2 border-primary">
-                  <AvatarImage src="/images/bonita-avatar.png" />
-                  <AvatarFallback>B</AvatarFallback>
-                </Avatar>
+                <div className="w-12 h-12 pulse-slow border-2 border-primary rounded-full flex items-center justify-center bg-background">
+                  <img 
+                    src="/images/bonita-logo-alpha.png" 
+                    alt="Bonita AI" 
+                    className="w-10 h-10 object-contain"
+                  />
+                </div>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
               </div>
               <div>
