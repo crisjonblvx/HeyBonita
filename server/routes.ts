@@ -63,7 +63,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Create session for new user
-      req.session.userId = user.id;
+      if (req.session) {
+        req.session.userId = user.id;
+      }
       
       // Remove password hash from response
       const { passwordHash: _, ...userWithoutPassword } = user;
@@ -96,7 +98,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Create session
-      req.session.userId = user.id;
+      if (req.session) {
+        req.session.userId = user.id;
+      }
       
       // Remove password hash from response
       const { passwordHash: _, ...userWithoutPassword } = user;
@@ -133,13 +137,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Logout endpoint
   app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ error: "Failed to logout" });
-      }
-      res.clearCookie('connect.sid');
-      res.json({ message: "Logged out successfully" });
-    });
+    if (req.session) {
+      req.session.destroy((err) => {
+        if (err) {
+          return res.status(500).json({ error: "Failed to logout" });
+        }
+        res.clearCookie('connect.sid');
+        res.json({ message: "Logged out successfully" });
+      });
+    } else {
+      res.json({ message: "Already logged out" });
+    }
   });
 
   // User routes
