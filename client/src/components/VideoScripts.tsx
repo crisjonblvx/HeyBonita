@@ -30,21 +30,24 @@ const scriptTemplates = [
     name: 'TikTok Hook',
     description: 'Attention-grabbing opener',
     icon: Play,
-    platform: 'TikTok (15-60s)'
+    platform: 'TikTok (15-60s)',
+    topic: 'Create a viral TikTok hook about daily motivation'
   },
   {
     id: 'youtube-intro',
     name: 'YouTube Intro',
     description: 'Engaging video introduction',
     icon: Youtube,
-    platform: 'YouTube Video (5-10min)'
+    platform: 'YouTube Video (5-10min)',
+    topic: 'Create an engaging YouTube intro for a lifestyle channel'
   },
   {
     id: 'instagram-reel',
     name: 'Instagram Reel',
     description: 'Short-form content script',
     icon: Instagram,
-    platform: 'Instagram Reel (15-90s)'
+    platform: 'Instagram Reel (15-90s)',
+    topic: 'Create an Instagram Reel script about productivity tips'
   }
 ];
 
@@ -133,7 +136,11 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
 
   const handleTemplateClick = (template: typeof scriptTemplates[0]) => {
     setPlatform(template.platform);
-    setTopic(`Create a ${template.name.toLowerCase()} script`);
+    setTopic(template.topic);
+    toast({
+      title: "Template Selected",
+      description: `${template.name} template loaded. Click Generate to create your script!`,
+    });
   };
 
   const copyScript = () => {
