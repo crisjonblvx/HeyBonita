@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
 import { useLanguage } from './LanguageProvider';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Wand2, Video, Play, Youtube, Instagram, FileText, Download } from 'lucide-react';
+import { Copy, Wand2, Video, Play, Youtube, Instagram, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface VideoScript {
@@ -24,33 +22,6 @@ interface VideoScriptsProps {
   responseMode: 'quick' | 'detailed';
 }
 
-const scriptTemplates = [
-  {
-    id: 'tiktok-hook',
-    name: 'TikTok Hook',
-    description: 'Grab attention',
-    icon: Play,
-    platform: 'TikTok (15-60s)',
-    topic: 'Create a viral TikTok hook about daily motivation'
-  },
-  {
-    id: 'youtube-intro',
-    name: 'YouTube Intro',
-    description: 'Video intro',
-    icon: Youtube,
-    platform: 'YouTube Video (5-10min)',
-    topic: 'Create an engaging YouTube intro for a lifestyle channel'
-  },
-  {
-    id: 'instagram-reel',
-    name: 'Instagram Reel',
-    description: 'Short content',
-    icon: Instagram,
-    platform: 'Instagram Reel (15-90s)',
-    topic: 'Create an Instagram Reel script about productivity tips'
-  }
-];
-
 export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsProps) {
   const [topic, setTopic] = useState('');
   const [platform, setPlatform] = useState('TikTok (15-60s)');
@@ -58,6 +29,28 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
   const { language, t } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Quick preset templates
+  const templates = [
+    {
+      name: 'TikTok Hook',
+      topic: 'Create a viral TikTok hook about daily motivation',
+      platform: 'TikTok (15-60s)',
+      icon: '🎬'
+    },
+    {
+      name: 'YouTube Intro', 
+      topic: 'Create an engaging YouTube intro for a lifestyle channel',
+      platform: 'YouTube Video (5-10min)',
+      icon: '📺'
+    },
+    {
+      name: 'Instagram Reel',
+      topic: 'Create an Instagram Reel script about productivity tips',
+      platform: 'Instagram Reel (15-90s)', 
+      icon: '📱'
+    }
+  ];
 
   // Fetch video scripts
   const { data: scripts = [] } = useQuery({
@@ -87,56 +80,21 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         throw new Error(errorData.error || 'Failed to generate script');
       }
       
-      const data = await response.json();
-      console.log('Script generation response:', data);
-      return data;
+      return response.json();
     },
     onSuccess: (data) => {
-      console.log('Script generation success:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/scripts', userId] });
       queryClient.invalidateQueries({ queryKey: ['/api/achievements', userId] });
       
-      // Set the script content
       if (data && data.script) {
         setCurrentScript(data.script);
-        setTopic('');
-        
-        // Show success toast
         toast({
-          title: "Script generated!",
-          description: "Your video script has been created successfully.",
+          title: "Script Generated!",
+          description: "Your video script is ready. Check it out below!",
         });
-        
-        // Show gamification rewards if available
-        if (data.gamification && data.gamification.pointsEarned > 0) {
-          const { pointsEarned, newAchievements = [], levelUp, newLevel } = data.gamification;
-          
-          setTimeout(() => {
-            if (newAchievements.length > 0 || levelUp) {
-              toast({
-                title: "Rewards earned!",
-                description: (
-                  <AchievementToast
-                    achievements={newAchievements}
-                    points={pointsEarned}
-                    levelUp={levelUp}
-                    newLevel={newLevel}
-                  />
-                ),
-                duration: 5000,
-              });
-            } else {
-              toast({
-                title: "Points earned!",
-                description: `+${pointsEarned} points added to your profile!`,
-              });
-            }
-          }, 1000);
-        }
       }
     },
     onError: (error: any) => {
-      console.error('Script generation error:', error);
       const errorMessage = error?.message || error?.error || "Failed to generate script. Please try again.";
       toast({
         title: "Error",
@@ -159,14 +117,11 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
     });
   };
 
-  const handleTemplateClick = (template: typeof scriptTemplates[0]) => {
-    console.log('Template clicked:', template);
-    console.log('Setting platform to:', template.platform);
-    console.log('Setting topic to:', template.topic);
-    setPlatform(template.platform);
+  const handleTemplateClick = (template: typeof templates[0]) => {
     setTopic(template.topic);
+    setPlatform(template.platform);
     toast({
-      title: "Template Selected", 
+      title: "Template Selected",
       description: `${template.name} template loaded. Click Generate to create your script!`,
     });
   };
@@ -181,46 +136,12 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
     }
   };
 
-  const exportScript = () => {
-    if (currentScript) {
-      const blob = new Blob([currentScript], { type: 'text/plain' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `bonita-script-${Date.now()}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast({
-        title: "Success",
-        description: "Script exported successfully!",
-      });
-    }
-  };
-
   const formatScript = (script: string) => {
-    // Parse and format the script with proper timing markers and structure
-    const lines = script.split('\n');
-    return lines.map((line, index) => {
-      if (line.includes('[') && line.includes(']')) {
-        // Timing marker
-        return (
-          <div key={index} className="mb-2">
-            <span className="font-bold text-primary">{line}</span>
-          </div>
-        );
-      } else if (line.trim()) {
-        // Content line
-        return (
-          <div key={index} className="mb-2">
-            <p className="text-foreground leading-relaxed">{line}</p>
-          </div>
-        );
-      }
-      return <div key={index} className="mb-2"></div>;
-    });
+    return script.split('\n').map((line, index) => (
+      <div key={index} className="mb-1">
+        {line || <br />}
+      </div>
+    ));
   };
 
   return (
@@ -232,129 +153,130 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
             <h2 className="text-2xl font-bold">{t('videoHeader')}</h2>
             <p className="text-muted-foreground">{t('videoSubtitle')}</p>
           </div>
-          <Button variant="outline" onClick={exportScript} disabled={!currentScript}>
+          <Button variant="outline" onClick={copyScript} disabled={!currentScript}>
             <Download className="mr-2 h-4 w-4" />
-            {t('exportScript')}
+            Export Script
           </Button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto min-h-0" style={{ height: 'calc(100vh - 140px)' }}>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 140px)' }}>
         <div className="max-w-4xl mx-auto p-6 space-y-8 pb-20">
-          {/* Script Templates */}
+          
+          {/* Quick Templates */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">{t('scriptTemplates')}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {scriptTemplates.map((template) => {
-                const IconComponent = template.icon;
-                const handleClick = () => {
-                  console.log('Template click handler called:', template);
-                  setTopic(template.topic);
-                  setPlatform(template.platform);
-                  toast({
-                    title: "Template Selected",
-                    description: `${template.name} template loaded. Click Generate to create your script!`,
-                  });
-                };
-                
-                return (
-                  <div
-                    key={template.id}
-                    className="border border-border rounded-lg p-4 cursor-pointer hover:bg-muted/50 hover:border-primary/50 transition-colors min-h-[120px] flex flex-col space-y-2"
-                    onClick={handleClick}
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    <IconComponent className="h-6 w-6 flex-shrink-0 text-primary" />
-                    <div className="flex-1 w-full">
-                      <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Generated Script Display */}
-          <div>
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">{t('generatedScript')}</h3>
-                <div className="bg-muted rounded-lg p-6 font-mono text-sm leading-relaxed max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
-                  {currentScript ? (
-                    <div className="space-y-2">
-                      {formatScript(currentScript)}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      {generateScriptMutation.isPending 
-                        ? "Generating your script..." 
-                        : "Your generated script will appear here"}
-                    </div>
-                  )}
+            <h3 className="text-lg font-semibold mb-4">Quick Presets</h3>
+            <div className="grid grid-cols-3 gap-4">
+              {templates.map((template, index) => (
+                <div
+                  key={index}
+                  className="p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  onClick={() => handleTemplateClick(template)}
+                >
+                  <div className="text-2xl mb-2">{template.icon}</div>
+                  <h4 className="font-medium text-sm">{template.name}</h4>
+                  <p className="text-xs text-muted-foreground mt-1">{template.platform}</p>
                 </div>
-                {currentScript && (
-                  <div className="mt-4 flex justify-between items-center">
-                    <div className="text-sm text-muted-foreground">
-                      <span className="font-medium">Platform:</span> {platform}
-                    </div>
-                    <Button onClick={copyScript}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      {t('copyScript')}
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </div>
 
           {/* Script Input */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                {t('whatsVideoAbout')}
-              </label>
-              <Textarea
-                value={topic}
-                onChange={(e) => {
-                  console.log('Topic changed to:', e.target.value);
-                  setTopic(e.target.value);
-                }}
-                placeholder="I want to create a video about starting a side hustle..."
-                rows={3}
-                className="resize-none"
-              />
-            </div>
-            
-            <div className="flex space-x-3">
-              <Select value={platform} onValueChange={(value) => {
-                console.log('Platform changed to:', value);
-                setPlatform(value);
-              }}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TikTok (15-60s)">TikTok (15-60s)</SelectItem>
-                  <SelectItem value="Instagram Reel (15-90s)">Instagram Reel (15-90s)</SelectItem>
-                  <SelectItem value="YouTube Short (60s)">YouTube Short (60s)</SelectItem>
-                  <SelectItem value="YouTube Video (5-10min)">YouTube Video (5-10min)</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button 
-                onClick={handleGenerateScript}
-                disabled={!topic.trim() || generateScriptMutation.isPending}
-                className="flex-1"
-              >
-                {generateScriptMutation.isPending ? (
-                  <Video className="mr-2 h-4 w-4 animate-pulse" />
-                ) : (
-                  <Wand2 className="mr-2 h-4 w-4" />
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  What's your video about?
+                </label>
+                <Textarea
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="I want to create a video about starting a side hustle..."
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+              
+              <div className="flex space-x-3">
+                <Select value={platform} onValueChange={setPlatform}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TikTok (15-60s)">TikTok (15-60s)</SelectItem>
+                    <SelectItem value="Instagram Reel (15-90s)">Instagram Reel (15-90s)</SelectItem>
+                    <SelectItem value="YouTube Short (60s)">YouTube Short (60s)</SelectItem>
+                    <SelectItem value="YouTube Video (5-10min)">YouTube Video (5-10min)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleGenerateScript}
+                  disabled={!topic.trim() || generateScriptMutation.isPending}
+                  className="flex-1"
+                >
+                  {generateScriptMutation.isPending ? (
+                    <Video className="mr-2 h-4 w-4 animate-pulse" />
+                  ) : (
+                    <Wand2 className="mr-2 h-4 w-4" />
+                  )}
+                  Generate Script
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Generated Script Display */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Generated Script</h3>
+                {currentScript && (
+                  <Button variant="outline" size="sm" onClick={copyScript}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
                 )}
-                {t('generateScript')}
-              </Button>
+              </div>
+              <div className="bg-muted rounded-lg p-6 font-mono text-sm leading-relaxed min-h-[200px] max-h-64 overflow-y-auto">
+                {currentScript ? (
+                  <div className="space-y-2">
+                    {formatScript(currentScript)}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    {generateScriptMutation.isPending 
+                      ? "Generating your script..." 
+                      : "Your generated script will appear here"}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Previous Scripts */}
+          {scripts.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Previous Scripts</h3>
+              <div className="space-y-4">
+                {scripts.slice(0, 5).map((script: VideoScript) => (
+                  <Card key={script.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setCurrentScript(script.script)}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium truncate pr-4">{script.topic}</h4>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
+                          {script.platform}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {script.script.substring(0, 150)}...
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
