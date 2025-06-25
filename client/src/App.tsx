@@ -7,7 +7,7 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
-import Admin from "@/pages/admin";
+import Admin from "@/pages/simple-admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {

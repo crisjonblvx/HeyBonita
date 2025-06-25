@@ -64,6 +64,19 @@ export default function Admin() {
     );
   }
 
+  if (metricsError || ticketsError) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Error Loading Dashboard</h2>
+          <p className="text-muted-foreground">
+            {metricsError?.message || ticketsError?.message}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const openTickets = tickets?.filter(t => t.status === 'open') || [];
   const highPriorityTickets = tickets?.filter(t => t.priority === 'high' || t.priority === 'urgent') || [];
 

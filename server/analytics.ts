@@ -17,10 +17,9 @@ export async function getAnalyticsMetrics(days: number = 7) {
   since.setDate(since.getDate() - days);
 
   try {
-    // Total users
-    const totalUsers = await db.select({ count: count() })
-      .from(analyticsEvents)
-      .where(eq(analyticsEvents.eventType, 'signup'));
+    // Total users - get from users table instead of analytics events
+    const { users } = await import('@shared/schema');
+    const totalUsers = await db.select({ count: count() }).from(users);
 
     // Daily active users
     const dailyActiveUsers = await db.select({ 
