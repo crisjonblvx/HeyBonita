@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useLanguage } from './LanguageProvider';
 import { Button } from '@/components/ui/button';
@@ -57,6 +57,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
   const [currentScript, setCurrentScript] = useState<string | null>(null);
   const { language, t } = useLanguage();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch video scripts
   const { data: scripts = [] } = useQuery({
@@ -96,37 +97,42 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       queryClient.invalidateQueries({ queryKey: ['/api/achievements', userId] });
       
       // Set the script content
-      setCurrentScript(data.script);
-      setTopic('');
-      
-      // Show gamification rewards if available
-      if (data.gamification && data.gamification.pointsEarned > 0) {
-        const { pointsEarned, newAchievements = [], levelUp, newLevel } = data.gamification;
+      if (data && data.script) {
+        setCurrentScript(data.script);
+        setTopic('');
         
-        if (newAchievements.length > 0 || levelUp) {
-          toast({
-            title: "Script created! Rewards earned!",
-            description: (
-              <AchievementToast
-                achievements={newAchievements}
-                points={pointsEarned}
-                levelUp={levelUp}
-                newLevel={newLevel}
-              />
-            ),
-            duration: 5000,
-          });
-        } else {
-          toast({
-            title: "Script generated!",
-            description: `Video script created successfully! +${pointsEarned} points earned!`,
-          });
-        }
-      } else {
+        // Show success toast
         toast({
           title: "Script generated!",
           description: "Your video script has been created successfully.",
         });
+        
+        // Show gamification rewards if available
+        if (data.gamification && data.gamification.pointsEarned > 0) {
+          const { pointsEarned, newAchievements = [], levelUp, newLevel } = data.gamification;
+          
+          setTimeout(() => {
+            if (newAchievements.length > 0 || levelUp) {
+              toast({
+                title: "Rewards earned!",
+                description: (
+                  <AchievementToast
+                    achievements={newAchievements}
+                    points={pointsEarned}
+                    levelUp={levelUp}
+                    newLevel={newLevel}
+                  />
+                ),
+                duration: 5000,
+              });
+            } else {
+              toast({
+                title: "Points earned!",
+                description: `+${pointsEarned} points added to your profile!`,
+              });
+            }
+          }, 1000);
+        }
       }
     },
     onError: (error: any) => {
