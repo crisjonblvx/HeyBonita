@@ -105,9 +105,19 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
     },
     onError: (error: any) => {
       console.error('Image generation error:', error);
+      let errorMessage = "Failed to generate image. Please try again.";
+      
+      if (error?.message?.includes('rate limit')) {
+        errorMessage = "Rate limit reached. Please wait a moment before trying again.";
+      } else if (error?.message?.includes('network')) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error?.message?.includes('database')) {
+        errorMessage = "Database temporarily unavailable. Your image was generated but not saved.";
+      }
+      
       toast({
-        title: "Error",
-        description: error?.message || "Failed to generate image. Please try again.",
+        title: "Generation Failed",
+        description: errorMessage,
         variant: "destructive",
       });
     },

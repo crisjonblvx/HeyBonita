@@ -232,27 +232,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "User ID and prompt are required" });
       }
 
+      // Generate image first (this usually works)
       const result = await generateImage(prompt, language);
       
-      const savedImage = await storage.createGeneratedImage({
-        userId,
-        prompt,
-        imageUrl: result.url,
-        language
-      });
-
-      // Award gamification points and check achievements
-      const gamificationReward = await rewardImageGeneration(userId);
-      const explorerAchievement = await checkExplorerAchievement(userId);
+      // Try to save with retry logic for database issues
+      let savedImage;
+      let retryCount = 0;
+      const maxRetries = 3;
       
-      if (explorerAchievement) {
-        gamificationReward.newAchievements.push(explorerAchievement);
+      while (retryCount < maxRetries) {
+        try {
+          savedImage = await storage.createGeneratedImage({
+            userId,
+            prompt,
+            imageUrl: result.url,
+            language
+          });
+          break; // Success, exit retry loop
+        } catch (dbError: any) {
+          retryCount++;
+          console.error(`Database save attempt ${retryCount} failed:`, dbError);
+          
+          if (retryCount >= maxRetries) {
+            // If database save fails, still return the image URL
+            console.warn("Database save failed after retries, returning image without saving");
+            return res.json({
+              id: Date.now(), // Temporary ID
+              userId,
+              prompt,
+              imageUrl: result.url,
+              language,
+              createdAt: new Date().toISOString(),
+              warning: "Image generated but not saved to database"
+            });
+          }
+          
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
       }
 
-      res.json({ 
-        ...savedImage, 
-        gamification: gamificationReward 
-      });
+      // Try to award points, but don't fail if this doesn't work
+      try {
+        const gamificationReward = await rewardImageGeneration(userId);
+        const explorerAchievement = await checkExplorerAchievement(userId);
+        
+        if (explorerAchievement) {
+          gamificationReward.newAchievements.push(explorerAchievement);
+        }
+
+        res.json({ 
+          ...savedImage, 
+          gamification: gamificationReward 
+        });
+      } catch (gamificationError) {
+        console.error("Gamification update failed:", gamificationError);
+        res.json(savedImage); // Return image without gamification data
+      }
+      
     } catch (error) {
       console.error("Image generation error:", error);
       res.status(500).json({ error: "Failed to generate image" });
