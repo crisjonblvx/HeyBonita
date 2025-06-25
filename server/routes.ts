@@ -224,8 +224,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Chat routes
   app.get("/api/chat/:userId", async (req, res) => {
     try {
-      const userId = parseInt(req.params.userId);
-      const messages = await storage.getChatMessages(userId);
+      const requestedUserId = parseInt(req.params.userId);
+      const sessionUserId = req.session?.userId;
+      
+      // Only allow users to access their own chat history
+      if (!sessionUserId || sessionUserId !== requestedUserId) {
+        return res.status(401).json({ error: "Not authenticated or unauthorized" });
+      }
+      
+      const messages = await storage.getChatMessages(requestedUserId);
       res.json(messages.reverse()); // Return in chronological order
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch chat history" });
@@ -234,10 +241,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/chat", rateLimitMiddleware('/api/chat'), async (req, res) => {
     try {
-      const { userId, message, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
+      const { message, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
+      const userId = req.session?.userId;
       
-      if (!userId || !message) {
-        return res.status(400).json({ error: "User ID and message are required" });
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      if (!message) {
+        return res.status(400).json({ error: "Message is required" });
       }
 
       // Extract just the message text if it's wrapped in an object
@@ -378,10 +390,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/images/generate", rateLimitMiddleware('/api/images'), async (req, res) => {
     try {
-      const { userId, prompt, language = 'en' } = req.body;
+      const { prompt, language = 'en' } = req.body;
+      const userId = req.session?.userId;
       
-      if (!userId || !prompt) {
-        return res.status(400).json({ error: "User ID and prompt are required" });
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
       }
 
       // Content moderation check
@@ -471,10 +488,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/scripts/generate", rateLimitMiddleware('/api/scripts'), async (req, res) => {
     try {
-      const { userId, topic, platform, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
+      const { topic, platform, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
+      const userId = req.session?.userId;
       
-      if (!userId || !topic || !platform) {
-        return res.status(400).json({ error: "User ID, topic, and platform are required" });
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      if (!topic || !platform) {
+        return res.status(400).json({ error: "Topic and platform are required" });
       }
 
       // Content moderation check

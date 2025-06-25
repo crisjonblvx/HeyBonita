@@ -45,11 +45,26 @@ export default function MobileHome() {
   const [responseMode, setResponseMode] = useState<ResponseMode>('detailed');
   const [showSettings, setShowSettings] = useState(false);
   const [voiceMode, setVoiceMode] = useState<'text-to-speech' | 'speech-to-speech'>('text-to-speech');
-  const [userId] = useState(1);
+  const [userId, setUserId] = useState<number | null>(null);
 
   const { language, setLanguage, t } = useLanguage();
   const { theme, colorScheme, toggleTheme, setColorScheme } = useTheme();
   const { toast } = useToast();
+
+  // Check authentication status
+  useEffect(() => {
+    fetch('/api/auth/status', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          setUserId(data.user.id);
+        }
+      })
+      .catch(() => {
+        // Not authenticated, redirect to login
+        window.location.href = '/';
+      });
+  }, []);
 
   // Fetch user data with better caching
   const { data: user, isLoading: userLoading } = useQuery({
@@ -122,44 +137,54 @@ export default function MobileHome() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        {/* Chat Tab */}
-        <div className={`h-full ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
-          <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />
-        </div>
-        
-        {/* Images Tab */}
-        <div className={`h-full ${activeTab === 'image' ? 'block' : 'hidden'}`}>
-          <ImageGenerator userId={userId} />
-        </div>
-        
-        {/* Video Scripts Tab */}
-        <div className={`h-full ${activeTab === 'video' ? 'block' : 'hidden'}`}>
-          <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />
-        </div>
-        
-        {/* Profile Tab */}
-        <div className={`h-full ${activeTab === 'profile' ? 'block' : 'hidden'}`}>
-          {userLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground p-8">
-                Loading profile...
-              </div>
+        {!userId ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center text-muted-foreground p-8">
+              Loading...
             </div>
-          ) : !user ? (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground p-8">
-                Unable to load profile
-              </div>
+          </div>
+        ) : (
+          <>
+            {/* Chat Tab */}
+            <div className={`h-full ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
+              <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />
             </div>
-          ) : (
-            <GamificationPanel userId={userId} user={user} />
-          )}
-        </div>
+            
+            {/* Images Tab */}
+            <div className={`h-full ${activeTab === 'image' ? 'block' : 'hidden'}`}>
+              <ImageGenerator userId={userId} />
+            </div>
+            
+            {/* Video Scripts Tab */}
+            <div className={`h-full ${activeTab === 'video' ? 'block' : 'hidden'}`}>
+              <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />
+            </div>
+            
+            {/* Profile Tab */}
+            <div className={`h-full ${activeTab === 'profile' ? 'block' : 'hidden'}`}>
+              {userLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center text-muted-foreground p-8">
+                    Loading profile...
+                  </div>
+                </div>
+              ) : !user ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center text-muted-foreground p-8">
+                    Unable to load profile
+                  </div>
+                </div>
+              ) : (
+                <GamificationPanel userId={userId} user={user} />
+              )}
+            </div>
 
-        {/* Export Tab */}
-        <div className={`h-full ${activeTab === 'export' ? 'block' : 'hidden'}`}>
-          <ExportData userId={userId} />
-        </div>
+            {/* Export Tab */}
+            <div className={`h-full ${activeTab === 'export' ? 'block' : 'hidden'}`}>
+              <ExportData userId={userId} />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bottom Navigation */}

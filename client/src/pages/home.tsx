@@ -47,11 +47,26 @@ export default function Home() {
   const [voiceMode, setVoiceMode] = useState<'text-to-speech' | 'speech-to-speech'>('text-to-speech');
   const [isListening, setIsListening] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [userId] = useState(1); // Mock user ID - in real app this would come from auth
+  const [userId, setUserId] = useState<number | null>(null);
 
   const { language, setLanguage, t } = useLanguage();
   const { theme, colorScheme, toggleTheme, setColorScheme } = useTheme();
   const { toast } = useToast();
+
+  // Check authentication status
+  useEffect(() => {
+    fetch('/api/auth/status', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.authenticated && data.user) {
+          setUserId(data.user.id);
+        }
+      })
+      .catch(() => {
+        // Not authenticated, redirect to login
+        window.location.href = '/';
+      });
+  }, []);
 
   // Fetch user data
   const { data: user, isLoading: userLoading } = useQuery({
@@ -101,6 +116,16 @@ export default function Home() {
   };
 
   const renderActiveTab = () => {
+    if (!userId) {
+      return (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-muted-foreground p-8">
+            Loading...
+          </div>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'chat':
         return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
