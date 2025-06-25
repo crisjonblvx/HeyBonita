@@ -8,6 +8,10 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email"),
   passwordHash: text("password_hash"), // For authentication
+  // OAuth fields
+  googleId: text("google_id").unique(),
+  appleId: text("apple_id").unique(),
+  provider: text("provider").default("local"), // 'local', 'google', 'apple'
   language: text("language").default("en"),
   theme: text("theme").default("light"),
   colorScheme: text("color_scheme").default("red"),
