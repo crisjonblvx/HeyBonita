@@ -160,18 +160,30 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
 
   const downloadImage = async (imageUrl: string) => {
     try {
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error('Download failed');
+      // For DALL-E images, we need to handle CORS properly
+      const response = await fetch(imageUrl, {
+        mode: 'cors',
+        credentials: 'omit'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `bonita-generated-${Date.now()}.png`;
+      a.style.display = 'none';
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      // Clean up
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
       
       toast({
         title: "Success",
@@ -179,11 +191,21 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
       });
     } catch (error) {
       console.error('Download error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to download image.",
-        variant: "destructive",
-      });
+      
+      // Fallback: open image in new tab for manual download
+      try {
+        window.open(imageUrl, '_blank');
+        toast({
+          title: "Download Alternative",
+          description: "Image opened in new tab. Right-click to save.",
+        });
+      } catch (fallbackError) {
+        toast({
+          title: "Download Failed",
+          description: "Unable to download image. Try right-clicking the image to save it manually.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
