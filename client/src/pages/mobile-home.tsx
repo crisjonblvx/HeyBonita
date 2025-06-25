@@ -44,6 +44,7 @@ export default function MobileHome() {
   const [toneMode, setToneMode] = useState<ToneMode>('sweet-nurturing');
   const [responseMode, setResponseMode] = useState<ResponseMode>('detailed');
   const [showSettings, setShowSettings] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [voiceMode, setVoiceMode] = useState<'text-to-speech' | 'speech-to-speech'>('text-to-speech');
   const [userId, setUserId] = useState<number | null>(null);
 
