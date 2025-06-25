@@ -67,11 +67,16 @@ export default function MobileHome() {
   }, [toneMode, responseMode, voiceMode]);
 
   const renderActiveTab = () => {
+    console.log('Rendering active tab:', activeTab);
     switch (activeTab) {
       case 'chat':
         return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
       case 'image':
-        return <ImageGenerator userId={userId} />;
+        return (
+          <div className="h-full">
+            <ImageGenerator userId={userId} />
+          </div>
+        );
       case 'video':
         return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
       case 'profile':
@@ -149,7 +154,10 @@ export default function MobileHome() {
             Chat
           </button>
           <button
-            onClick={() => setActiveTab('image')}
+            onClick={() => {
+              console.log('Image button clicked, setting activeTab to image');
+              setActiveTab('image');
+            }}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'image'
                 ? 'text-primary bg-primary/10'
