@@ -239,30 +239,37 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 140px)' }}>
-        <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div className="flex-1 overflow-y-auto min-h-0" style={{ height: 'calc(100vh - 140px)' }}>
+        <div className="max-w-4xl mx-auto p-6 space-y-8 pb-20">
           {/* Script Templates */}
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('scriptTemplates')}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {scriptTemplates.map((template) => {
                 const IconComponent = template.icon;
+                const handleClick = () => {
+                  console.log('Template click handler called:', template);
+                  setTopic(template.topic);
+                  setPlatform(template.platform);
+                  toast({
+                    title: "Template Selected",
+                    description: `${template.name} template loaded. Click Generate to create your script!`,
+                  });
+                };
+                
                 return (
-                  <button
+                  <div
                     key={template.id}
-                    type="button"
-                    className="border border-border rounded-lg p-4 cursor-pointer hover:bg-muted/50 hover:border-primary/50 transition-colors min-h-[120px] flex flex-col space-y-2 text-left"
-                    onClick={() => {
-                      console.log('Button clicked, template:', template.name);
-                      handleTemplateClick(template);
-                    }}
+                    className="border border-border rounded-lg p-4 cursor-pointer hover:bg-muted/50 hover:border-primary/50 transition-colors min-h-[120px] flex flex-col space-y-2"
+                    onClick={handleClick}
+                    onMouseDown={(e) => e.preventDefault()}
                   >
                     <IconComponent className="h-6 w-6 flex-shrink-0 text-primary" />
                     <div className="flex-1 w-full">
                       <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
                       <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
