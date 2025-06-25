@@ -21,6 +21,7 @@ import {
   rewardScriptCreation, 
   checkExplorerAchievement 
 } from "./gamification";
+import { trackEvent, getAnalyticsMetrics, createSupportTicket, getSupportTickets } from "./analytics";
 import { z } from "zod";
 import multer from "multer";
 
