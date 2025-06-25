@@ -23,6 +23,16 @@ export default function Auth({ onAuthenticated }: AuthProps) {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!loginData.username.trim() || !loginData.password.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both username and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -45,9 +55,10 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         });
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
-        title: "Login error",
-        description: "Unable to connect. Please try again.",
+        title: "Connection Error",
+        description: "Unable to connect to server. Please check your internet connection and try again.",
         variant: "destructive",
       });
     } finally {
@@ -58,6 +69,25 @@ export default function Auth({ onAuthenticated }: AuthProps) {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation checks
+    if (!registerData.username.trim() || !registerData.email.trim() || !registerData.password.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (registerData.username.trim().length < 3) {
+      toast({
+        title: "Username too short",
+        description: "Username must be at least 3 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (registerData.password !== registerData.confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -102,9 +132,10 @@ export default function Auth({ onAuthenticated }: AuthProps) {
         });
       }
     } catch (error) {
+      console.error('Registration error:', error);
       toast({
-        title: "Registration error",
-        description: "Unable to connect. Please try again.",
+        title: "Connection Error", 
+        description: "Unable to connect to server. Please check your internet connection and try again.",
         variant: "destructive",
       });
     } finally {
