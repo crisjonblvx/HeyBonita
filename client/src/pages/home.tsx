@@ -26,7 +26,8 @@ import {
   Heart,
   Headphones,
   Play,
-  Square
+  Square,
+  Trophy
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
