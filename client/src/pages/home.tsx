@@ -53,7 +53,7 @@ export default function Home() {
 
   // Fetch user data
   const { data: user, isLoading: userLoading } = useQuery({
-    queryKey: ['/api/user', userId],
+    queryKey: [`/api/user/${userId}`],
     enabled: !!userId,
   });
 
