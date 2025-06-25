@@ -240,7 +240,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     
     // Pronunciation aids for browser TTS
     const corrections = {
-      "Chile": "Child", // Browser TTS handles this better
+      "Chile": "Chil", // Pronounced like "child" without the "d"
       "2025": "Twenty Twenty-five",
       "aight": "alright",
       "preciate": "appreciate",
@@ -390,12 +390,12 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
 
             <Button 
               size="icon" 
-              variant={isSpeaking ? "default" : "outline"}
-              onClick={isSpeaking ? stopSpeaking : () => {}}
-              className={isSpeaking ? "animate-pulse" : ""}
-              title={isSpeaking ? t('stopSpeaking') : t('voiceChat')}
+              variant={(isSpeaking || isGeneratingResponse) ? "destructive" : "outline"}
+              onClick={(isSpeaking || isGeneratingResponse) ? stopSpeaking : () => {}}
+              className={(isSpeaking || isGeneratingResponse) ? "animate-pulse" : ""}
+              title={(isSpeaking || isGeneratingResponse) ? "Stop Processing" : "Audio Ready"}
             >
-              {isSpeaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {(isSpeaking || isGeneratingResponse) ? <Square className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </Button>
             <Button 
               variant="outline" 
