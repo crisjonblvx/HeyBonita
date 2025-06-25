@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
+import { GamificationPanel } from '@/components/Gamification';
 import { useLanguage } from '@/components/LanguageProvider';
 import { useTheme } from '@/components/ThemeProvider';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -48,6 +50,12 @@ export default function Home() {
   const { language, setLanguage, t } = useLanguage();
   const { theme, colorScheme, toggleTheme, setColorScheme } = useTheme();
   const { toast } = useToast();
+
+  // Fetch user data
+  const { data: user } = useQuery({
+    queryKey: ['/api/user', userId],
+    enabled: !!userId,
+  });
 
   // Load user preferences
   useEffect(() => {
@@ -96,6 +104,17 @@ export default function Home() {
         return <ImageGenerator userId={userId} />;
       case 'video':
         return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
+      case 'profile':
+        if (!user) {
+          return (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                Loading profile...
+              </div>
+            </div>
+          );
+        }
+        return <GamificationPanel userId={userId} user={user} />;
       default:
         return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
     }
