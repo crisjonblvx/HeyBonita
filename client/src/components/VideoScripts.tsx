@@ -72,15 +72,22 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       platform: string; 
       language: string;
       toneMode: string;
+      responseMode: string;
     }) => {
-      const response = await apiRequest('POST', '/api/scripts/generate', scriptData);
-      const data = await response.json();
-      console.log('Script generation response:', data);
+      const response = await fetch('/api/scripts/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(scriptData),
+        credentials: 'include'
+      });
       
-      if (!data.script) {
-        throw new Error('No script content in response');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate script');
       }
       
+      const data = await response.json();
+      console.log('Script generation response:', data);
       return data;
     },
     onSuccess: (data) => {
