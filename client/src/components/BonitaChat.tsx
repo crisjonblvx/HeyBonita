@@ -561,8 +561,14 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
               className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${
                 voiceMode === 'speech-to-speech' ? 'bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800' : ''
               }`}
-              onClick={() => startVoiceRecording(voiceMode === 'speech-to-speech')}
-              disabled={isListening}
+              onClick={() => {
+                // Add haptic feedback for mobile
+                if ('vibrate' in navigator) {
+                  navigator.vibrate(50);
+                }
+                startVoiceRecording(voiceMode === 'speech-to-speech');
+              }}
+              disabled={isListening || sendMessageMutation.isPending}
               title={voiceMode === 'speech-to-speech' ? t('voiceChat') : "Voice Input"}
             >
               <Mic className={`h-4 w-4 ${
