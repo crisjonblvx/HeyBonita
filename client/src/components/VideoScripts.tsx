@@ -5,6 +5,7 @@ import { useLanguage } from './LanguageProvider';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Copy, Wand2, Video, Play, Youtube, Instagram, FileText, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
