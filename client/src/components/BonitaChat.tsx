@@ -32,6 +32,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const { language, t } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -203,16 +204,21 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
         const audioUrl = URL.createObjectURL(audioBlob);
         const audio = new Audio(audioUrl);
         
+        // Store reference to current audio for stopping
+        currentAudioRef.current = audio;
+        
         audio.onended = () => {
           setIsSpeaking(false);
           setIsUsingElevenLabs(false);
           URL.revokeObjectURL(audioUrl);
+          currentAudioRef.current = null;
         };
         
         audio.onerror = () => {
           setIsSpeaking(false);
           setIsUsingElevenLabs(false);
           URL.revokeObjectURL(audioUrl);
+          currentAudioRef.current = null;
           // Fallback to browser TTS
           fallbackToWebSpeech(text);
         };
@@ -304,6 +310,13 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     // Stop global audio controller
     stopAudio();
     
+    // Stop current ElevenLabs audio if playing
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
+    
     // Stop browser TTS as fallback
     window.speechSynthesis.cancel();
     setIsSpeaking(false);
@@ -311,23 +324,40 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   };
 
   const stopGeneration = () => {
-    // Stop text generation
+    // Stop text generation by aborting the request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
-      setIsGeneratingResponse(false);
+      abortControllerRef.current = null;
     }
     
-    // Stop speech
+    // Reset generation state
+    setIsGeneratingResponse(false);
+    
+    // Stop all speech immediately
     setIsSpeaking(false);
     setIsUsingElevenLabs(false);
     
-    // Cancel any current speech synthesis
+    // Cancel browser speech synthesis
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
     
-    // Stop any playing audio
+    // Stop any playing audio elements
     stopAudio();
+    
+    // Stop current ElevenLabs audio if playing
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
+    
+    // Stop any HTML5 audio elements that might be playing
+    const audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+    });
     
     toast({
       title: "Stopped",
