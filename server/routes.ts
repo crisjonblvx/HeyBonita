@@ -238,13 +238,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         responseMode: responseMode as 'quick' | 'detailed'
       };
 
-      const script = await generateVideoScript(topic, platform, language, personality);
+      const scriptText = await generateVideoScript(topic, platform, language, personality);
       
       const savedScript = await storage.createVideoScript({
         userId,
         topic,
         platform,
-        script,
+        script: scriptText,
         language
       });
 
@@ -262,7 +262,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Script generation error:", error);
-      res.status(500).json({ error: "Failed to generate script" });
+      res.status(500).json({ 
+        error: "Failed to generate script",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 

@@ -77,9 +77,13 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       return response.json();
     },
     onSuccess: (data) => {
+      console.log('Script generation success:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/scripts', userId] });
       queryClient.invalidateQueries({ queryKey: ['/api/achievements', userId] });
-      setCurrentScript(data.script);
+      
+      // Handle the script content - check if it's nested in the response
+      const scriptContent = data.script || data.content || data;
+      setCurrentScript(scriptContent);
       setTopic('');
       
       // Show gamification rewards if available
@@ -112,7 +116,8 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         });
       }
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Script generation error:', error);
       toast({
         title: "Error",
         description: "Failed to generate script. Please try again.",
