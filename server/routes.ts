@@ -55,17 +55,21 @@ function configureOAuthStrategies() {
 
   // Google OAuth Strategy
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    passport.use(new GoogleStrategy({
+    console.log('Configuring Google OAuth strategy');
+    passport.use('google', new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback"
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
+        console.log('Google OAuth callback triggered for user:', profile.id);
+        
         // Check if user already exists with this Google ID
         let user = await storage.getUserByGoogleId(profile.id);
         
         if (user) {
+          console.log('Found existing user with Google ID');
           return done(null, user);
         }
 
@@ -73,6 +77,7 @@ function configureOAuthStrategies() {
         if (profile.emails && profile.emails[0]) {
           const existingUser = await storage.getUserByUsername(profile.emails[0].value);
           if (existingUser) {
+            console.log('Linking Google account to existing user');
             // Link Google account to existing user
             const updatedUser = await storage.updateUser(existingUser.id, {
               googleId: profile.id,
@@ -82,6 +87,7 @@ function configureOAuthStrategies() {
           }
         }
 
+        console.log('Creating new user from Google profile');
         // Create new user
         const newUser = await storage.createUser({
           username: profile.emails?.[0]?.value || `google_${profile.id}`,
@@ -92,9 +98,12 @@ function configureOAuthStrategies() {
 
         return done(null, newUser);
       } catch (error) {
+        console.error('Google OAuth error:', error);
         return done(error, undefined);
       }
     }));
+  } else {
+    console.log('Google OAuth credentials not found in environment');
   }
 
   // Apple OAuth Strategy
