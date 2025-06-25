@@ -237,7 +237,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>
         <div className="max-w-4xl mx-auto p-6 space-y-8">
           {/* Script Templates */}
           <div>
@@ -246,17 +246,23 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
               {scriptTemplates.map((template) => {
                 const IconComponent = template.icon;
                 return (
-                  <div
+                  <Card
                     key={template.id}
-                    className="border border-border rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col space-y-2"
-                    onClick={() => handleTemplateClick(template)}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[120px] border-border"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleTemplateClick(template);
+                    }}
                   >
-                    <IconComponent className="h-6 w-6 flex-shrink-0 text-primary" />
-                    <div className="flex-1 w-full">
-                      <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
-                    </div>
-                  </div>
+                    <CardContent className="p-4 flex flex-col space-y-2 h-full">
+                      <IconComponent className="h-6 w-6 flex-shrink-0 text-primary" />
+                      <div className="flex-1 w-full">
+                        <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
@@ -267,7 +273,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">{t('generatedScript')}</h3>
-                <div className="bg-muted rounded-lg p-6 font-mono text-sm leading-relaxed max-h-64 overflow-y-auto">
+                <div className="bg-muted rounded-lg p-6 font-mono text-sm leading-relaxed max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
                   {currentScript ? (
                     <div className="space-y-2">
                       {formatScript(currentScript)}
