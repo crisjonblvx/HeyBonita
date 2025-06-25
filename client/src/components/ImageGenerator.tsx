@@ -44,7 +44,7 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
   const { language, t } = useLanguage();
   const { toast } = useToast();
 
-  console.log('ImageGenerator rendered with userId:', userId);
+
 
   // Fetch generated images with normal caching
   const { data: images = [], isError, error } = useQuery({

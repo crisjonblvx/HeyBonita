@@ -77,44 +77,7 @@ export default function MobileHome() {
     localStorage.setItem('bonita-mobile-tab', activeTab);
   }, [toneMode, responseMode, voiceMode, activeTab]);
 
-  const renderActiveTab = () => {
-    switch (activeTab) {
-      case 'chat':
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
-      case 'image':
-        return (
-          <div className="h-full">
-            <ImageGenerator userId={userId} />
-          </div>
-        );
-      case 'video':
-        return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
-      case 'profile':
-        if (userLoading) {
-          return (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground p-8">
-                Loading profile...
-              </div>
-            </div>
-          );
-        }
-        
-        if (!user) {
-          return (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground p-8">
-                Unable to load profile
-              </div>
-            </div>
-          );
-        }
-        
-        return <GamificationPanel userId={userId} user={user} />;
-      default:
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
-    }
-  };
+
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -157,7 +120,39 @@ export default function MobileHome() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        {renderActiveTab()}
+        {/* Chat Tab */}
+        <div className={`h-full ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
+          <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />
+        </div>
+        
+        {/* Images Tab */}
+        <div className={`h-full ${activeTab === 'image' ? 'block' : 'hidden'}`}>
+          <ImageGenerator userId={userId} />
+        </div>
+        
+        {/* Video Scripts Tab */}
+        <div className={`h-full ${activeTab === 'video' ? 'block' : 'hidden'}`}>
+          <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />
+        </div>
+        
+        {/* Profile Tab */}
+        <div className={`h-full ${activeTab === 'profile' ? 'block' : 'hidden'}`}>
+          {userLoading ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                Loading profile...
+              </div>
+            </div>
+          ) : !user ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                Unable to load profile
+              </div>
+            </div>
+          ) : (
+            <GamificationPanel userId={userId} user={user} />
+          )}
+        </div>
       </div>
 
       {/* Bottom Navigation */}
