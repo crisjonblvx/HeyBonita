@@ -21,7 +21,8 @@ import {
   Sun,
   Mail,
   Trophy,
-  Download
+  Download,
+  LogOut
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -75,6 +76,33 @@ export default function MobileHome() {
     refetchOnWindowFocus: false,
     refetchInterval: false,
   });
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Logged out",
+          description: "You have been successfully logged out.",
+        });
+        // Redirect to login page
+        window.location.href = '/';
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Logout failed",
+        description: "There was an error logging out. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Load user preferences (excluding activeTab which is handled in useState)
   useEffect(() => {
@@ -394,8 +422,8 @@ export default function MobileHome() {
               </ul>
             </div>
 
-            <div className="pt-4 border-t">
-              <p className="text-sm text-muted-foreground mb-3">
+            <div className="pt-4 border-t space-y-3">
+              <p className="text-sm text-muted-foreground">
                 Need more help? Contact our support team:
               </p>
               <Button 
@@ -405,6 +433,15 @@ export default function MobileHome() {
               >
                 <Mail className="h-4 w-4 mr-2" />
                 Contact Support
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
               </Button>
             </div>
           </div>
