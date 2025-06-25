@@ -150,58 +150,109 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
         title: "Not Supported",
-        description: "Speech recognition is not supported in your browser.",
+        description: "Speech recognition is not supported in your browser. Please use text input.",
         variant: "destructive",
       });
       return;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    
-    // Set up multilingual recognition - try current language first, then auto-detect
-    const currentLang = language === 'en' ? 'en-US' : 
-                       language === 'es' ? 'es-ES' : 
-                       language === 'pt' ? 'pt-BR' : 'fr-FR';
-    recognition.lang = currentLang;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      if (voiceMode === 'speech-to-speech') {
-        // Stop any ongoing speech when starting to listen
-        stopSpeaking();
-      }
-    };
-    
-    recognition.onend = () => setIsListening(false);
-    
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setMessage(transcript);
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
       
-      // Auto-send in speech-to-speech mode
-      if (autoSend || voiceMode === 'speech-to-speech') {
-        setTimeout(() => {
-          // Trigger message send
-          sendMessageMutation.mutate(transcript.trim());
-        }, 100);
-      }
-    };
+      // Enhanced mobile compatibility settings
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      
+      // Set up multilingual recognition
+      const currentLang = language === 'en' ? 'en-US' : 
+                         language === 'es' ? 'es-ES' : 
+                         language === 'pt' ? 'pt-BR' : 'fr-FR';
+      recognition.lang = currentLang;
 
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
+      recognition.onstart = () => {
+        setIsListening(true);
+        if (voiceMode === 'speech-to-speech') {
+          // Stop any ongoing speech when starting to listen
+          stopSpeaking();
+        }
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognition.onresult = (event) => {
+        try {
+          const transcript = event.results[0][0].transcript;
+          setMessage(transcript);
+          
+          // Auto-send in speech-to-speech mode
+          if (autoSend || voiceMode === 'speech-to-speech') {
+            // Add mobile-optimized delay
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const delay = isMobile ? 300 : 100;
+            
+            setTimeout(() => {
+              sendMessageMutation.mutate(transcript.trim());
+            }, delay);
+          }
+        } catch (error) {
+          console.error('Error processing speech result:', error);
+          setIsListening(false);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        
+        let errorMessage = "Voice recognition failed. Please try again.";
+        switch(event.error) {
+          case 'not-allowed':
+            errorMessage = "Microphone access denied. Please enable microphone permissions in your browser settings.";
+            break;
+          case 'no-speech':
+            errorMessage = "No speech detected. Please speak clearly and try again.";
+            break;
+          case 'network':
+            errorMessage = "Network error. Please check your internet connection.";
+            break;
+          case 'audio-capture':
+            errorMessage = "Microphone not available. Please check your microphone.";
+            break;
+        }
+        
+        toast({
+          title: "Voice Recognition Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        setIsListening(false);
+      };
+
+      // Add timeout for mobile devices
+      const timeoutId = setTimeout(() => {
+        if (recognition) {
+          recognition.stop();
+        }
+      }, 10000); // 10 second timeout
+
+      recognition.onend = () => {
+        clearTimeout(timeoutId);
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } catch (error) {
+      console.error('Failed to initialize speech recognition:', error);
       toast({
-        title: "Voice Recognition Error",
-        description: "Voice recognition failed. Please try again.",
+        title: "Voice Error",
+        description: "Unable to start voice recording. Please try again or use text input.",
         variant: "destructive",
       });
       setIsListening(false);
-    };
-
-    recognition.start();
+    }
   };
 
   // ElevenLabs speech functionality with fallback to browser TTS
