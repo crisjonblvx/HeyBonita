@@ -189,7 +189,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         language
       });
 
-      res.json(savedImage);
+      // Award gamification points and check achievements
+      const gamificationReward = await rewardImageGeneration(userId);
+      const explorerAchievement = await checkExplorerAchievement(userId);
+      
+      if (explorerAchievement) {
+        gamificationReward.newAchievements.push(explorerAchievement);
+      }
+
+      res.json({ 
+        ...savedImage, 
+        gamification: gamificationReward 
+      });
     } catch (error) {
       console.error("Image generation error:", error);
       res.status(500).json({ error: "Failed to generate image" });
@@ -231,7 +242,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         language
       });
 
-      res.json(savedScript);
+      // Award gamification points and check achievements
+      const gamificationReward = await rewardScriptCreation(userId);
+      const explorerAchievement = await checkExplorerAchievement(userId);
+      
+      if (explorerAchievement) {
+        gamificationReward.newAchievements.push(explorerAchievement);
+      }
+
+      res.json({ 
+        ...savedScript, 
+        gamification: gamificationReward 
+      });
     } catch (error) {
       console.error("Script generation error:", error);
       res.status(500).json({ error: "Failed to generate script" });

@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-type ActiveTab = 'chat' | 'image' | 'video';
+type ActiveTab = 'chat' | 'image' | 'video' | 'profile';
 type ToneMode = 'sweet-nurturing' | 'tough-love';
 type ResponseMode = 'quick' | 'detailed';
 
