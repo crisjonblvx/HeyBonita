@@ -82,9 +82,9 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       setCurrentScript(data.script);
       setTopic('');
       
-      // Show gamification rewards
-      if (data.gamification) {
-        const { pointsEarned, newAchievements, levelUp, newLevel } = data.gamification;
+      // Show gamification rewards if available
+      if (data.gamification && data.gamification.pointsEarned > 0) {
+        const { pointsEarned, newAchievements = [], levelUp, newLevel } = data.gamification;
         
         if (newAchievements.length > 0 || levelUp) {
           toast({
@@ -102,13 +102,13 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         } else {
           toast({
             title: "Script generated!",
-            description: `Your video script has been created successfully. +${pointsEarned} points earned!`,
+            description: `Video script created successfully! +${pointsEarned} points earned!`,
           });
         }
       } else {
         toast({
-          title: "Success",
-          description: "Video script generated successfully!",
+          title: "Script generated!",
+          description: "Your video script has been created successfully.",
         });
       }
     },
@@ -216,19 +216,21 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
           {/* Script Templates */}
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('scriptTemplates')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {scriptTemplates.map((template) => {
                 const IconComponent = template.icon;
                 return (
                   <Button
                     key={template.id}
                     variant="outline"
-                    className="p-3 h-auto text-left flex flex-col items-start space-y-1 h-[90px] w-full justify-start overflow-hidden"
+                    className="p-4 h-auto text-left flex flex-col items-start space-y-2 min-h-[120px] w-full justify-start"
                     onClick={() => handleTemplateClick(template)}
                   >
-                    <IconComponent className="h-5 w-5 flex-shrink-0" />
-                    <h4 className="font-semibold text-sm leading-tight">{template.name}</h4>
-                    <p className="text-xs text-muted-foreground leading-tight truncate w-full">{template.description}</p>
+                    <IconComponent className="h-6 w-6 flex-shrink-0" />
+                    <div className="flex-1 w-full">
+                      <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
+                    </div>
                   </Button>
                 );
               })}
