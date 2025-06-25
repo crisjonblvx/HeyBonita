@@ -30,13 +30,32 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Test function for template clicks
-  const testClick = (templateName: string) => {
-    console.log('TEST CLICK:', templateName);
-    alert(`Clicked: ${templateName}`);
-  };
+  // Template presets
+  const templates = [
+    {
+      id: 'tiktok',
+      name: 'TikTok Hook',
+      topic: 'Create a viral TikTok hook about daily motivation',
+      platform: 'TikTok (15-60s)',
+      emoji: '🎬'
+    },
+    {
+      id: 'youtube',
+      name: 'YouTube Intro',
+      topic: 'Create an engaging YouTube intro for a lifestyle channel',
+      platform: 'YouTube Video (5-10min)',
+      emoji: '📺'
+    },
+    {
+      id: 'instagram',
+      name: 'Instagram Reel',
+      topic: 'Create an Instagram Reel script about productivity tips',
+      platform: 'Instagram Reel (15-90s)',
+      emoji: '📱'
+    }
+  ];
 
-  // Fetch video scripts
+  // Fetch scripts
   const { data: scripts = [] } = useQuery({
     queryKey: ['/api/scripts', userId],
     enabled: !!userId,
@@ -99,84 +118,63 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
     });
   };
 
+  const handleTemplateClick = (template: typeof templates[0]) => {
+    setTopic(template.topic);
+    setPlatform(template.platform);
+    toast({
+      title: "Template Selected",
+      description: `${template.name} template loaded!`,
+    });
+  };
+
+  const copyScript = () => {
+    if (currentScript) {
+      navigator.clipboard.writeText(currentScript);
+      toast({
+        title: "Success",
+        description: "Script copied to clipboard!",
+      });
+    }
+  };
+
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="h-full flex flex-col">
       {/* Header */}
-      <div style={{ padding: '24px', borderBottom: '1px solid #ccc', backgroundColor: '#fff', flexShrink: 0 }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Video Scripts - DEBUG</h2>
-        <p style={{ color: '#666', margin: '4px 0 0 0' }}>Testing click and scroll functionality</p>
+      <div className="p-6 border-b border-border bg-background">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Video Scripts</h2>
+            <p className="text-muted-foreground">Create engaging video content with AI</p>
+          </div>
+          <Button variant="outline" onClick={copyScript} disabled={!currentScript}>
+            <Download className="mr-2 h-4 w-4" />
+            Export Script
+          </Button>
+        </div>
       </div>
 
-      {/* Scrollable Content */}
-      <div style={{ flex: 1, overflow: 'auto', backgroundColor: '#f9f9f9' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-6 space-y-8">
           
-          {/* Quick Templates - ULTRA SIMPLE TEST */}
-          <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Quick Presets (Ultra Simple)</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button 
-                onClick={() => {
-                  console.log('TikTok button clicked!');
-                  alert('TikTok template clicked!');
-                  setTopic('Create a viral TikTok hook about daily motivation');
-                  setPlatform('TikTok (15-60s)');
-                }}
-                onMouseEnter={() => console.log('Mouse entered TikTok button')}
-                onMouseLeave={() => console.log('Mouse left TikTok button')}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  textAlign: 'left',
-                  border: '2px solid #333',
-                  borderRadius: '8px',
-                  backgroundColor: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '16px'
-                }}
-              >
-                🎬 TikTok Hook - CLICK ME
-              </button>
-              <button 
-                onClick={() => {
-                  console.log('YouTube button clicked!');
-                  alert('YouTube template clicked!');
-                  setTopic('Create an engaging YouTube intro for a lifestyle channel');
-                  setPlatform('YouTube Video (5-10min)');
-                }}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  textAlign: 'left',
-                  border: '2px solid #333',
-                  borderRadius: '8px',
-                  backgroundColor: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '16px'
-                }}
-              >
-                📺 YouTube Intro - CLICK ME
-              </button>
-              <button 
-                onClick={() => {
-                  console.log('Instagram button clicked!');
-                  alert('Instagram template clicked!');
-                  setTopic('Create an Instagram Reel script about productivity tips');
-                  setPlatform('Instagram Reel (15-90s)');
-                }}
-                style={{
-                  width: '100%',
-                  padding: '16px',
-                  textAlign: 'left',
-                  border: '2px solid #333',
-                  borderRadius: '8px',
-                  backgroundColor: '#fff',
-                  cursor: 'pointer',
-                  fontSize: '16px'
-                }}
-              >
-                📱 Instagram Reel - CLICK ME
-              </button>
+          {/* Quick Templates */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Quick Presets</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {templates.map((template) => (
+                <Button
+                  key={template.id}
+                  variant="outline"
+                  className="h-auto p-4 flex flex-col items-start text-left space-y-2"
+                  onClick={() => handleTemplateClick(template)}
+                >
+                  <div className="text-2xl">{template.emoji}</div>
+                  <div>
+                    <div className="font-semibold text-sm">{template.name}</div>
+                    <div className="text-xs text-muted-foreground">{template.platform}</div>
+                  </div>
+                </Button>
+              ))}
             </div>
           </div>
 
@@ -230,7 +228,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Generated Script</h3>
                 {currentScript && (
-                  <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(currentScript)}>
+                  <Button variant="outline" size="sm" onClick={copyScript}>
                     <Copy className="mr-2 h-4 w-4" />
                     Copy
                   </Button>
@@ -250,24 +248,29 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
             </CardContent>
           </Card>
 
-          {/* Test Scrolling */}
-          <div style={{ marginTop: '32px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Scroll Test Content</h3>
-            {Array.from({ length: 30 }, (_, i) => (
-              <div key={i} style={{ 
-                padding: '16px', 
-                backgroundColor: '#e0e0e0', 
-                borderRadius: '8px', 
-                marginBottom: '8px',
-                border: '1px solid #ccc'
-              }}>
-                <p style={{ margin: 0, fontSize: '14px' }}>
-                  SCROLL TEST BLOCK {i + 1} - This content tests if scrolling works properly. 
-                  If you can see this and scroll through all blocks, scrolling is working!
-                </p>
+          {/* Previous Scripts */}
+          {scripts.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Previous Scripts</h3>
+              <div className="space-y-4">
+                {scripts.slice(0, 5).map((script: VideoScript) => (
+                  <Card key={script.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setCurrentScript(script.script)}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-medium truncate pr-4">{script.topic}</h4>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded shrink-0">
+                          {script.platform}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {script.script.substring(0, 150)}...
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
