@@ -119,6 +119,8 @@ export default function Home() {
           );
         }
         return <GamificationPanel userId={userId} user={user} />;
+      case 'export':
+        return <ExportData userId={userId} />;
       default:
         return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
     }
@@ -207,6 +209,15 @@ export default function Home() {
             >
               <Trophy className="mr-2 h-4 w-4" />
               Profile
+            </Button>
+            <Button
+              variant={activeTab === 'export' ? "default" : "ghost"}
+              className="w-full justify-start h-9 text-sm"
+              onClick={() => setActiveTab('export')}
+              title="Export Your Data"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Export
             </Button>
           </div>
           

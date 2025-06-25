@@ -155,6 +155,11 @@ export default function MobileHome() {
             <GamificationPanel userId={userId} user={user} />
           )}
         </div>
+
+        {/* Export Tab */}
+        <div className={`h-full ${activeTab === 'export' ? 'block' : 'hidden'}`}>
+          <ExportData userId={userId} />
+        </div>
       </div>
 
       {/* Bottom Navigation */}

@@ -1,5 +1,5 @@
 // Content moderation service
-import { openai } from './openai.js';
+import OpenAI from 'openai';
 import { db } from './db.js';
 import { moderationFlags } from '../shared/schema.js';
 import { eq } from 'drizzle-orm';
@@ -14,13 +14,11 @@ interface ModerationResult {
 // Basic keyword filtering for immediate blocking
 const BLOCKED_KEYWORDS = [
   // Violence and harmful content
-  'kill', 'murder', 'suicide', 'harm yourself', 'self-harm',
-  // Explicit sexual content (keeping it minimal for hip-hop culture)
-  'explicit sexual terms here would be filtered',
-  // Hate speech and discrimination
-  'racial slurs', 'hate speech terms',
+  'kill yourself', 'harm yourself', 'end your life', 'commit suicide',
   // Illegal activities
-  'how to make drugs', 'how to make bombs', 'illegal weapons'
+  'how to make drugs', 'how to make bombs', 'make explosives',
+  // Hate speech (basic filtering)
+  'racial slur examples would go here'
 ];
 
 const SUSPICIOUS_PATTERNS = [
@@ -88,6 +86,10 @@ async function basicModeration(content: string): Promise<ModerationResult> {
 
 async function openaiModeration(content: string): Promise<ModerationResult> {
   try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    
     const moderation = await openai.moderations.create({
       input: content,
     });
