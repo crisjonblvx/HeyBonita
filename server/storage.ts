@@ -3,6 +3,7 @@ import {
   chatMessages, 
   generatedImages, 
   videoScripts,
+  waitlistEmails,
   type User, 
   type InsertUser,
   type ChatMessage,
@@ -10,7 +11,9 @@ import {
   type GeneratedImage,
   type InsertGeneratedImage,
   type VideoScript,
-  type InsertVideoScript
+  type InsertVideoScript,
+  type WaitlistEmail,
+  type InsertWaitlistEmail
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -34,6 +37,9 @@ export interface IStorage {
   // Video script operations
   getVideoScripts(userId: number, limit?: number): Promise<VideoScript[]>;
   createVideoScript(script: InsertVideoScript): Promise<VideoScript>;
+  
+  // Waitlist operations
+  addToWaitlist(email: InsertWaitlistEmail): Promise<WaitlistEmail>;
 }
 
 export class DatabaseStorage implements IStorage {

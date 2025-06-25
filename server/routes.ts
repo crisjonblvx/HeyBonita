@@ -253,6 +253,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Waitlist signup route
+  app.post("/api/waitlist", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: "Email is required" });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Invalid email format" });
+      }
+
+      const waitlistEntry = await storage.addToWaitlist({ email: email.toLowerCase().trim() });
+      res.json({ success: true, id: waitlistEntry.id });
+    } catch (error: any) {
+      console.error("Waitlist signup error:", error);
+      
+      // Handle duplicate email error
+      if (error.code === '23505' || error.message?.includes('duplicate') || error.message?.includes('unique')) {
+        return res.status(200).json({ success: true, message: "Email already registered" });
+      }
+      
+      res.status(500).json({ error: "Failed to join waitlist" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

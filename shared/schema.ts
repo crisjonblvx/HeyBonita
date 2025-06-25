@@ -91,6 +91,11 @@ export const insertVideoScriptSchema = createInsertSchema(videoScripts).omit({
   createdAt: true,
 });
 
+export const insertWaitlistEmailSchema = createInsertSchema(waitlistEmails).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
@@ -99,3 +104,5 @@ export type InsertGeneratedImage = z.infer<typeof insertGeneratedImageSchema>;
 export type GeneratedImage = typeof generatedImages.$inferSelect;
 export type InsertVideoScript = z.infer<typeof insertVideoScriptSchema>;
 export type VideoScript = typeof videoScripts.$inferSelect;
+export type InsertWaitlistEmail = z.infer<typeof insertWaitlistEmailSchema>;
+export type WaitlistEmail = typeof waitlistEmails.$inferSelect;
