@@ -136,13 +136,25 @@ export default function Auth({ onAuthenticated }: AuthProps) {
       }
       
       const result = await response.json();
-      localStorage.setItem('userId', result.user.id);
-      localStorage.setItem('username', result.user.username);
-      onAuthenticated(result.user);
-      toast({
-        title: "Welcome to Bonita!",
-        description: `Account created successfully! Welcome, ${result.user.username}!`,
-      });
+      
+      if (response.ok) {
+        toast({
+          title: "Welcome to Bonita!",
+          description: `Account created successfully! Welcome, ${result.user.username}!`,
+        });
+        
+        // Wait a moment for session to be established
+        setTimeout(() => {
+          onAuthenticated(result.user);
+          window.location.href = '/app';
+        }, 100);
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: result.error || "Failed to create account",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error('Registration error:', error);
       toast({

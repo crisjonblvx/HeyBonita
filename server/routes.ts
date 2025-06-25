@@ -1,6 +1,9 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import { storage } from "./storage";
+import { pool } from "./db";
 import { 
   chatWithBonita, 
   generateImage, 
@@ -32,6 +35,23 @@ import bcrypt from "bcrypt";
 const upload = multer({ storage: multer.memoryStorage() });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  const server = createServer(app);
+
+  // Session configuration for authentication
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'bonita-secret-key-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    store: new (connectPgSimple(session))({
+      pool: pool,
+      tableName: 'user_sessions'
+    }),
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
   
   // Authentication routes with rate limiting
   app.post("/api/auth/register", rateLimitMiddleware('/api/auth/register'), async (req, res) => {
