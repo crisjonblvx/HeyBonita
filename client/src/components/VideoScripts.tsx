@@ -196,9 +196,9 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="p-6 border-b border-border bg-background">
+      <div className="p-6 border-b border-border bg-background flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">{t('videoHeader')}</h2>
@@ -211,10 +211,10 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="max-w-4xl mx-auto p-6">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-6 space-y-8">
           {/* Script Templates */}
-          <div className="mb-8">
+          <div>
             <h3 className="text-lg font-semibold mb-4">{t('scriptTemplates')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {scriptTemplates.map((template) => {
@@ -236,7 +236,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
           </div>
 
           {/* Generated Script Display */}
-          <div className="mb-8">
+          <div>
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">{t('generatedScript')}</h3>
@@ -310,7 +310,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
