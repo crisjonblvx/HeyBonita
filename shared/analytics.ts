@@ -5,7 +5,7 @@ import { z } from 'zod';
 // Analytics events table
 export const analyticsEvents = pgTable('analytics_events', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: integer('user_id').references(() => users.id),
+  userId: integer('user_id'),
   sessionId: text('session_id').notNull(),
   eventType: text('event_type').notNull(), // 'page_view', 'chat_sent', 'image_generated', 'script_created', 'login', 'signup'
   eventData: text('event_data'), // JSON string for additional data
@@ -17,7 +17,7 @@ export const analyticsEvents = pgTable('analytics_events', {
 // Support tickets table
 export const supportTickets = pgTable('support_tickets', {
   id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
-  userId: integer('user_id').references(() => users.id),
+  userId: integer('user_id'),
   email: text('email').notNull(),
   subject: text('subject').notNull(),
   message: text('message').notNull(),
@@ -32,7 +32,7 @@ export const supportTickets = pgTable('support_tickets', {
 // User sessions for tracking activity
 export const userSessions = pgTable('user_sessions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: integer('user_id').references(() => users.id),
+  userId: integer('user_id'),
   sessionStart: timestamp('session_start').defaultNow().notNull(),
   sessionEnd: timestamp('session_end'),
   duration: integer('duration'), // in seconds
@@ -42,7 +42,7 @@ export const userSessions = pgTable('user_sessions', {
   ipAddress: text('ip_address'),
 });
 
-// Import users table reference
+// Import users table reference  
 import { users } from './schema';
 
 export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({

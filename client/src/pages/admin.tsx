@@ -29,17 +29,31 @@ export default function Admin() {
   const [selectedPeriod, setSelectedPeriod] = useState(7);
 
   // Fetch analytics metrics
-  const { data: metrics, isLoading: metricsLoading } = useQuery<AnalyticsMetrics>({
+  const { data: metrics, isLoading: metricsLoading, error: metricsError } = useQuery<AnalyticsMetrics>({
     queryKey: ['/api/analytics/metrics', selectedPeriod],
-    queryFn: () => fetch(`/api/analytics/metrics?days=${selectedPeriod}`).then(res => res.json()),
+    queryFn: async () => {
+      const response = await fetch(`/api/analytics/metrics?days=${selectedPeriod}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch metrics');
+      }
+      return response.json();
+    },
     refetchInterval: 30000, // Refresh every 30 seconds
+    retry: 1,
   });
 
   // Fetch support tickets
-  const { data: tickets, isLoading: ticketsLoading } = useQuery<SupportTicket[]>({
+  const { data: tickets, isLoading: ticketsLoading, error: ticketsError } = useQuery<SupportTicket[]>({
     queryKey: ['/api/support/tickets'],
-    queryFn: () => fetch('/api/support/tickets').then(res => res.json()),
+    queryFn: async () => {
+      const response = await fetch('/api/support/tickets');
+      if (!response.ok) {
+        throw new Error('Failed to fetch tickets');
+      }
+      return response.json();
+    },
     refetchInterval: 60000, // Refresh every minute
+    retry: 1,
   });
 
   if (metricsLoading || ticketsLoading) {
