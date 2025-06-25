@@ -172,8 +172,8 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
       
       if (newWindow) {
         toast({
-          title: "Image Opened",
-          description: "Right-click the image in the new tab and select 'Save image as...' to download.",
+          title: "📱 How to Save Your Image",
+          description: "1. Wait for the new tab to load\n2. Right-click on the image\n3. Select 'Save image as...' or 'Download image'\n4. Choose where to save it on your device",
         });
       } else {
         // If popup blocked, try direct link
@@ -184,8 +184,8 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
         a.click();
         
         toast({
-          title: "Image Link Opened",
-          description: "If the image didn't open, please check your popup blocker settings.",
+          title: "💡 Download Help",
+          description: "New tab opening... If blocked, check popup settings. Then right-click the image and select 'Save image as...'",
         });
       }
     } catch (error) {
@@ -195,13 +195,13 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
       try {
         await navigator.clipboard.writeText(imageUrl);
         toast({
-          title: "Image URL Copied",
-          description: "Paste the URL in a new tab to view and save the image.",
+          title: "🔗 Image Link Copied",
+          description: "1. Open a new tab\n2. Paste the link (Ctrl+V or Cmd+V)\n3. Right-click the image\n4. Select 'Save image as...'",
         });
       } catch (clipboardError) {
         toast({
-          title: "Manual Download Required",
-          description: "Please right-click the image and select 'Save image as...' to download.",
+          title: "💾 Manual Save Instructions",
+          description: "Right-click anywhere on the image → Select 'Save image as...' → Choose download location",
           variant: "destructive",
         });
       }
@@ -367,9 +367,12 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                       className="mx-auto rounded-xl shadow-lg max-w-full h-auto mb-4"
                     />
                     <div className="flex justify-center space-x-3">
-                      <Button onClick={() => downloadImage(currentImage)}>
+                      <Button 
+                        onClick={() => downloadImage(currentImage)}
+                        title="Opens image in new tab with save instructions"
+                      >
                         <Download className="mr-2 h-4 w-4" />
-                        View & Save
+                        Save Image
                       </Button>
                       <Button 
                         variant="outline" 
@@ -459,7 +462,7 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                         onError={(e) => {
                           console.log('Image load error:', image.imageUrl);
                           e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMiA4VjE2TTggMTJIMTYiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
-                          e.currentTarget.alt = 'Image unavailable';
+                          e.currentTarget.alt = 'Image unavailable - click save button to try downloading';
                         }}
                       />
                       <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
@@ -471,7 +474,7 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                               e.preventDefault();
                               downloadImage(image.imageUrl);
                             }}
-                            title="View & Save Image"
+                            title="Save Image: Opens in new tab → right-click → Save image as..."
                           >
                             <Download className="h-3 w-3" />
                           </button>
