@@ -56,6 +56,11 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
     refetchInterval: false,
     onError: (error: any) => {
       console.error('Error fetching images:', error);
+      toast({
+        title: "Image Loading Error",
+        description: "Unable to load your generated images. Please refresh the page.",
+        variant: "destructive",
+      });
     },
   });
 
