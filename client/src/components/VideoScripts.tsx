@@ -36,7 +36,7 @@ const scriptTemplates = [
   {
     id: 'youtube-intro',
     name: 'YouTube Intro',
-    description: 'Engaging video introduction',
+    description: 'Engaging video intro',
     icon: Youtube,
     platform: 'YouTube Video (5-10min)',
     topic: 'Create an engaging YouTube intro for a lifestyle channel'
@@ -44,7 +44,7 @@ const scriptTemplates = [
   {
     id: 'instagram-reel',
     name: 'Instagram Reel',
-    description: 'Short-form content script',
+    description: 'Short-form content',
     icon: Instagram,
     platform: 'Instagram Reel (15-90s)',
     topic: 'Create an Instagram Reel script about productivity tips'
@@ -223,7 +223,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
                   <Button
                     key={template.id}
                     variant="outline"
-                    className="p-4 h-auto text-left flex flex-col items-start space-y-2 min-h-[120px] w-full"
+                    className="p-4 h-auto text-left flex flex-col items-start space-y-2 min-h-[100px] w-full justify-start"
                     onClick={() => handleTemplateClick(template)}
                   >
                     <IconComponent className="h-6 w-6 mb-2 flex-shrink-0" />

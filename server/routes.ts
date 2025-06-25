@@ -15,6 +15,12 @@ import {
   insertVideoScriptSchema,
   insertUserSchema 
 } from "@shared/schema";
+import { 
+  rewardChatActivity, 
+  rewardImageGeneration, 
+  rewardScriptCreation, 
+  checkExplorerAchievement 
+} from "./gamification";
 import { z } from "zod";
 import multer from "multer";
 
