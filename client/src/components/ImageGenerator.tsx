@@ -50,12 +50,19 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
     enabled: !!userId,
     retry: 2,
     staleTime: 30000,
+    refetchOnWindowFocus: false,
+    onError: (error: any) => {
+      console.error('Error fetching images:', error);
+    },
   });
 
-  // Log any query errors
-  if (isError) {
-    console.error('Error fetching images:', error);
-  }
+  // Filter out expired images
+  const validImages = Array.isArray(images) ? images.filter((image: GeneratedImage) => {
+    const now = new Date();
+    const createdAt = new Date(image.createdAt);
+    const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+    return hoursDiff < 24; // Only show images less than 24 hours old
+  }) : [];
 
   // Generate image mutation
   const queryClient = useQueryClient();
@@ -352,11 +359,11 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
           </div>
 
           {/* Images Created Section */}
-          {Array.isArray(images) && images.length > 0 && (
+          {validImages.length > 0 && (
             <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-4">Images Created ({images.length})</h3>
+              <h3 className="text-lg font-semibold mb-4">Images Created ({validImages.length})</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {images.slice(0, 9).map((image: GeneratedImage) => (
+                {validImages.slice(0, 9).map((image: GeneratedImage) => (
                   <Card key={image.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="aspect-square relative">
                       <img 
@@ -366,7 +373,8 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
                         onClick={() => setCurrentImage(image.imageUrl)}
                         onError={(e) => {
                           console.log('Image load error:', image.imageUrl);
-                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjZjNmNGY2Ii8+CjxwYXRoIGQ9Ik0xMiA4VjE2TTggMTJIMTYiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+                          e.currentTarget.alt = 'Image unavailable';
                         }}
                       />
                       <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
@@ -375,7 +383,8 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
                             className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white rounded flex items-center justify-center"
                             onClick={(e) => {
                               e.stopPropagation();
-                              downloadImage(image.imageUrl);
+                              e.preventDefault();
+                              downloadImage(image.imageUrl).catch(err => console.error('Download failed:', err));
                             }}
                           >
                             <Download className="h-3 w-3" />
@@ -384,7 +393,8 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
                             className="h-8 w-8 p-0 bg-black/50 hover:bg-black/70 text-white rounded flex items-center justify-center"
                             onClick={(e) => {
                               e.stopPropagation();
-                              shareImage(image.imageUrl);
+                              e.preventDefault();
+                              shareImage(image.imageUrl).catch(err => console.error('Share failed:', err));
                             }}
                           >
                             <Share2 className="h-3 w-3" />
