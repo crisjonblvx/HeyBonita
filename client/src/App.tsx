@@ -5,16 +5,23 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { useIsMobile } from "@/hooks/use-mobile";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
+import MobileHome from "@/pages/mobile-home";
 import Admin from "@/pages/simple-admin";
 import NotFound from "@/pages/not-found";
+
+function AppRoute() {
+  const isMobile = useIsMobile();
+  return isMobile ? <MobileHome /> : <Home />;
+}
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
-      <Route path="/app" component={Home} />
+      <Route path="/app" component={AppRoute} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>
