@@ -4,7 +4,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useLanguage } from './LanguageProvider';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Image, 
@@ -151,9 +151,9 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="p-6 border-b border-border bg-background">
+      <div className="p-6 border-b border-border bg-background flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">{t('imageHeader')}</h2>
@@ -166,44 +166,69 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-6">
-        <div className="max-w-4xl mx-auto">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-6">
           {/* Preset Prompts */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-4">{t('quickPresets')}</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Button
-                variant="outline"
-                className="p-4 h-auto flex flex-col items-center space-y-2"
-                onClick={() => handlePresetClick('portrait')}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div
+                className="p-4 border-2 border-border rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 flex flex-col items-center space-y-2"
+                onClick={() => {
+                  console.log('Portrait preset clicked');
+                  handlePresetClick('portrait');
+                  toast({
+                    title: "Preset Selected",
+                    description: "Portrait preset loaded!",
+                  });
+                }}
               >
                 <User className="h-6 w-6" />
                 <span className="text-sm font-medium">{t('portrait')}</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="p-4 h-auto flex flex-col items-center space-y-2"
-                onClick={() => handlePresetClick('business')}
+              </div>
+              <div
+                className="p-4 border-2 border-border rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 flex flex-col items-center space-y-2"
+                onClick={() => {
+                  console.log('Business preset clicked');
+                  handlePresetClick('business');
+                  toast({
+                    title: "Preset Selected",
+                    description: "Business preset loaded!",
+                  });
+                }}
               >
                 <Briefcase className="h-6 w-6" />
                 <span className="text-sm font-medium">{t('business')}</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="p-4 h-auto flex flex-col items-center space-y-2"
-                onClick={() => handlePresetClick('lifestyle')}
+              </div>
+              <div
+                className="p-4 border-2 border-border rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 flex flex-col items-center space-y-2"
+                onClick={() => {
+                  console.log('Lifestyle preset clicked');
+                  handlePresetClick('lifestyle');
+                  toast({
+                    title: "Preset Selected",
+                    description: "Lifestyle preset loaded!",
+                  });
+                }}
               >
                 <Home className="h-6 w-6" />
                 <span className="text-sm font-medium">{t('lifestyle')}</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="p-4 h-auto flex flex-col items-center space-y-2"
-                onClick={() => handlePresetClick('creative')}
+              </div>
+              <div
+                className="p-4 border-2 border-border rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-200 flex flex-col items-center space-y-2"
+                onClick={() => {
+                  console.log('Creative preset clicked');
+                  handlePresetClick('creative');
+                  toast({
+                    title: "Preset Selected",
+                    description: "Creative preset loaded!",
+                  });
+                }}
               >
                 <Palette className="h-6 w-6" />
                 <span className="text-sm font-medium">{t('creative')}</span>
-              </Button>
+              </div>
             </div>
           </div>
 
@@ -281,7 +306,7 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
