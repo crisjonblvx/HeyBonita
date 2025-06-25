@@ -216,19 +216,19 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
           {/* Script Templates */}
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('scriptTemplates')}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
               {scriptTemplates.map((template) => {
                 const IconComponent = template.icon;
                 return (
                   <Button
                     key={template.id}
                     variant="outline"
-                    className="p-4 h-auto text-left flex flex-col items-start space-y-2"
+                    className="p-4 h-auto text-left flex flex-col items-start space-y-2 min-h-[120px] w-full"
                     onClick={() => handleTemplateClick(template)}
                   >
-                    <IconComponent className="h-6 w-6 mb-2" />
-                    <h4 className="font-semibold">{template.name}</h4>
-                    <p className="text-sm text-muted-foreground">{template.description}</p>
+                    <IconComponent className="h-6 w-6 mb-2 flex-shrink-0" />
+                    <h4 className="font-semibold text-left w-full">{template.name}</h4>
+                    <p className="text-sm text-muted-foreground text-left w-full break-words">{template.description}</p>
                   </Button>
                 );
               })}
