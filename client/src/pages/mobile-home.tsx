@@ -31,7 +31,14 @@ type ToneMode = 'sweet-nurturing' | 'tough-love';
 type ResponseMode = 'quick' | 'detailed';
 
 export default function MobileHome() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('chat');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
+    // Initialize from localStorage immediately to prevent flash
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('bonita-mobile-tab') as ActiveTab;
+      return saved || 'chat';
+    }
+    return 'chat';
+  });
   const [toneMode, setToneMode] = useState<ToneMode>('sweet-nurturing');
   const [responseMode, setResponseMode] = useState<ResponseMode>('detailed');
   const [showSettings, setShowSettings] = useState(false);
@@ -48,23 +55,15 @@ export default function MobileHome() {
     enabled: !!userId,
   });
 
-  // Load user preferences
+  // Load user preferences (excluding activeTab which is handled in useState)
   useEffect(() => {
-    console.log('MobileHome: Loading user preferences');
     const savedToneMode = localStorage.getItem('bonita-tone-mode') as ToneMode;
     const savedResponseMode = localStorage.getItem('bonita-response-mode') as ResponseMode;
     const savedVoiceMode = localStorage.getItem('bonita-voice-mode') as 'text-to-speech' | 'speech-to-speech';
-    const savedActiveTab = localStorage.getItem('bonita-active-tab') as ActiveTab;
-    
-    console.log('Saved active tab from localStorage:', savedActiveTab);
     
     if (savedToneMode) setToneMode(savedToneMode);
     if (savedResponseMode) setResponseMode(savedResponseMode);
     if (savedVoiceMode) setVoiceMode(savedVoiceMode);
-    if (savedActiveTab && savedActiveTab !== 'chat') {
-      console.log('Setting active tab to:', savedActiveTab);
-      setActiveTab(savedActiveTab);
-    }
   }, []);
 
   // Save preferences
@@ -72,7 +71,8 @@ export default function MobileHome() {
     localStorage.setItem('bonita-tone-mode', toneMode);
     localStorage.setItem('bonita-response-mode', responseMode);
     localStorage.setItem('bonita-voice-mode', voiceMode);
-    localStorage.setItem('bonita-active-tab', activeTab);
+    localStorage.setItem('bonita-mobile-tab', activeTab);
+    console.log('Mobile: Saved active tab to localStorage:', activeTab);
   }, [toneMode, responseMode, voiceMode, activeTab]);
 
   const renderActiveTab = () => {
@@ -167,10 +167,8 @@ export default function MobileHome() {
             Chat
           </button>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('Image button clicked, current tab:', activeTab, 'setting to image');
+            onClick={() => {
+              console.log('Image button clicked - switching to image tab');
               setActiveTab('image');
             }}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${

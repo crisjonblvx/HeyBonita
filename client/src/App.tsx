@@ -14,8 +14,11 @@ import NotFound from "@/pages/not-found";
 
 function AppRoute() {
   const isMobile = useIsMobile();
-  console.log('AppRoute rendering, isMobile:', isMobile);
-  return isMobile ? <MobileHome key="mobile" /> : <Home key="desktop" />;
+  
+  // Prevent component switching during hot reloads
+  const [layoutType] = useState(() => isMobile ? 'mobile' : 'desktop');
+  
+  return layoutType === 'mobile' ? <MobileHome /> : <Home />;
 }
 
 function Router() {
