@@ -44,6 +44,12 @@ export const videoScripts = pgTable("video_scripts", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const waitlistEmails = pgTable("waitlist_emails", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const userRelations = relations(users, ({ many }) => ({
   chatMessages: many(chatMessages),
   generatedImages: many(generatedImages),

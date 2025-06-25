@@ -124,6 +124,11 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return videoScript;
   }
+
+  async addToWaitlist(email: InsertWaitlistEmail): Promise<WaitlistEmail> {
+    const [newEmail] = await db.insert(waitlistEmails).values(email).returning();
+    return newEmail;
+  }
 }
 
 export const storage = new DatabaseStorage();
