@@ -172,8 +172,28 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
       
       if (newWindow) {
         toast({
-          title: "📱 How to Save Your Image",
-          description: "1. Wait for the new tab to load\n2. Right-click on the image\n3. Select 'Save image as...' or 'Download image'\n4. Choose where to save it on your device",
+          title: "How to Save Your Image",
+          description: (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">1</span>
+                <span>Wait for the new tab to load</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">2</span>
+                <span>Right-click on the image</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">3</span>
+                <span>Select "Save image as..." or "Download image"</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">4</span>
+                <span>Choose where to save it on your device</span>
+              </div>
+            </div>
+          ),
+          duration: 8000, // Show for 8 seconds
         });
       } else {
         // If popup blocked, try direct link
@@ -184,8 +204,17 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
         a.click();
         
         toast({
-          title: "💡 Download Help",
-          description: "New tab opening... If blocked, check popup settings. Then right-click the image and select 'Save image as...'",
+          title: "Download Help",
+          description: (
+            <div className="space-y-2">
+              <p>New tab opening... If blocked, check popup settings.</p>
+              <div className="flex items-center gap-2">
+                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
+                <span>Right-click the image and select "Save image as..."</span>
+              </div>
+            </div>
+          ),
+          duration: 6000,
         });
       }
     } catch (error) {
@@ -195,14 +224,50 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
       try {
         await navigator.clipboard.writeText(imageUrl);
         toast({
-          title: "🔗 Image Link Copied",
-          description: "1. Open a new tab\n2. Paste the link (Ctrl+V or Cmd+V)\n3. Right-click the image\n4. Select 'Save image as...'",
+          title: "Image Link Copied",
+          description: (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">1</span>
+                <span>Open a new tab</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">2</span>
+                <span>Paste the link (Ctrl+V or Cmd+V)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">3</span>
+                <span>Right-click the image</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">4</span>
+                <span>Select "Save image as..."</span>
+              </div>
+            </div>
+          ),
+          duration: 8000,
         });
       } catch (clipboardError) {
         toast({
-          title: "💾 Manual Save Instructions",
-          description: "Right-click anywhere on the image → Select 'Save image as...' → Choose download location",
+          title: "Manual Save Instructions",
+          description: (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-orange-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
+                <span>Right-click anywhere on the image</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-orange-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
+                <span>Select "Save image as..."</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="bg-orange-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
+                <span>Choose download location</span>
+              </div>
+            </div>
+          ),
           variant: "destructive",
+          duration: 6000,
         });
       }
     }
