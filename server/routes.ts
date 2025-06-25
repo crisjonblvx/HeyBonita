@@ -460,6 +460,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin authentication route
+  app.post("/api/admin/auth", async (req, res) => {
+    try {
+      const { password } = req.body;
+      
+      // Use environment variable for admin password, fallback to default for development
+      const adminPassword = process.env.ADMIN_PASSWORD || 'bonita2025';
+      
+      if (password === adminPassword) {
+        res.json({ success: true, message: "Authenticated" });
+      } else {
+        res.status(401).json({ success: false, message: "Invalid password" });
+      }
+    } catch (error) {
+      console.error("Admin auth error:", error);
+      res.status(500).json({ error: "Authentication failed" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, MessageSquare, Image, FileText, AlertCircle } from 'lucide-react';
+import { Users, MessageSquare, Image, FileText, AlertCircle, LogOut } from 'lucide-react';
+import AdminAuth from './admin-auth';
 
 interface SimpleMetrics {
   totalUsers: number;
@@ -12,6 +13,29 @@ interface SimpleMetrics {
 
 export default function SimpleAdmin() {
   const [selectedPeriod, setSelectedPeriod] = useState(7);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check if already authenticated
+  useState(() => {
+    const adminAuth = localStorage.getItem('admin_authenticated');
+    if (adminAuth === 'true') {
+      setIsAuthenticated(true);
+    }
+  });
+
+  const handleAuthenticated = () => {
+    localStorage.setItem('admin_authenticated', 'true');
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_authenticated');
+    setIsAuthenticated(false);
+  };
+
+  if (!isAuthenticated) {
+    return <AdminAuth onAuthenticated={handleAuthenticated} />;
+  }
 
   // Simple metrics query
   const { data: metrics, isLoading, error } = useQuery({
@@ -55,6 +79,15 @@ export default function SimpleAdmin() {
           <h1 className="text-3xl font-bold">Hey Bonita Admin</h1>
           <p className="text-muted-foreground">Analytics & Support Dashboard</p>
         </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleLogout}
+          className="flex items-center gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
         <div className="flex gap-2">
           {[7, 14, 30].map(days => (
             <Button
