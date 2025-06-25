@@ -109,20 +109,22 @@ export default function MobileHome() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSettings(true)}
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleTheme}
+            className="h-9 w-9 p-0"
           >
-            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSettings(true)}
+            className="h-9 w-9 p-0"
+          >
+            <Settings className="h-4 w-4" />
           </Button>
         </div>
       </div>
