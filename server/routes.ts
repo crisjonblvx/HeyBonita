@@ -214,6 +214,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/images", async (req, res) => {
+    try {
+      // For now, get images for user 1 (demo user)
+      const images = await storage.getGeneratedImages(1);
+      res.json(images);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch images" });
+    }
+  });
+
   app.post("/api/images/generate", async (req, res) => {
     try {
       const { userId, prompt, language = 'en' } = req.body;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useLanguage } from './LanguageProvider';
 import { Button } from '@/components/ui/button';
@@ -51,23 +51,31 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
   });
 
   // Generate image mutation
+  const queryClient = useQueryClient();
+  
   const generateImageMutation = useMutation({
     mutationFn: async (imageData: { userId: number; prompt: string; language: string }) => {
       const response = await apiRequest('POST', '/api/images/generate', imageData);
       return response.json();
     },
     onSuccess: (data) => {
-      setCurrentImage(data.imageUrl);
+      queryClient.invalidateQueries({ queryKey: ['/api/images'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/user/${userId}`] });
+      
+      if (data && data.imageUrl) {
+        setCurrentImage(data.imageUrl);
+        toast({
+          title: "Image Generated!",
+          description: "Your image is ready!",
+        });
+      }
       setPrompt('');
-      toast({
-        title: "Success",
-        description: "Image generated successfully!",
-      });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Image generation error:', error);
       toast({
         title: "Error",
-        description: "Failed to generate image. Please try again.",
+        description: error?.message || "Failed to generate image. Please try again.",
         variant: "destructive",
       });
     },
