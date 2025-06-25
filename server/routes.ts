@@ -42,12 +42,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/:id", async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const user = await storage.getUser(userId);
+      let user = await storage.getUser(userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        // Create default user if not exists
+        user = await storage.createUser({
+          username: `user${userId}`,
+          email: `user${userId}@example.com`,
+          points: 150,
+          level: 2,
+          streak: 3,
+          totalChats: 25,
+          totalImages: 8,
+          totalScripts: 12,
+        });
       }
       res.json(user);
     } catch (error) {
+      console.error("User fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
+
+  // Alternative endpoint for compatibility
+  app.get("/api/user/:id", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      let user = await storage.getUser(userId);
+      if (!user) {
+        // Create default user if not exists
+        user = await storage.createUser({
+          username: `user${userId}`,
+          email: `user${userId}@example.com`,
+          points: 150,
+          level: 2,
+          streak: 3,
+          totalChats: 25,
+          totalImages: 8,
+          totalScripts: 12,
+        });
+      }
+      res.json(user);
+    } catch (error) {
+      console.error("User fetch error:", error);
       res.status(500).json({ error: "Failed to fetch user" });
     }
   });

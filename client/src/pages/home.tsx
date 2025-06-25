@@ -52,10 +52,12 @@ export default function Home() {
   const { toast } = useToast();
 
   // Fetch user data
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['/api/user', userId],
     enabled: !!userId,
   });
+
+  console.log('User data:', user, 'Loading:', userLoading);
 
   // Load user preferences
   useEffect(() => {
@@ -105,11 +107,11 @@ export default function Home() {
       case 'video':
         return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
       case 'profile':
-        if (!user) {
+        if (userLoading || !user) {
           return (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center text-muted-foreground p-8">
-                Loading profile...
+                {userLoading ? 'Loading profile...' : 'Creating profile...'}
               </div>
             </div>
           );
