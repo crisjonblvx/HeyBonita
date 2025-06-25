@@ -18,6 +18,8 @@ function AppRoute() {
   const isMobile = useIsMobile();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Always call hooks in the same order
+  const [layoutType] = useState(() => isMobile ? 'mobile' : 'desktop');
 
   useEffect(() => {
     // For now, force authentication mode for soft launch
@@ -51,9 +53,6 @@ function AppRoute() {
     return <Auth onAuthenticated={handleAuthenticated} />;
   }
 
-  // Prevent component switching during hot reloads
-  const [layoutType] = useState(() => isMobile ? 'mobile' : 'desktop');
-  
   return layoutType === 'mobile' ? <MobileHome /> : <Home />;
 }
 
