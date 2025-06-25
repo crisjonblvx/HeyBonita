@@ -134,6 +134,18 @@ export const insertAchievementSchema = createInsertSchema(achievements).omit({
   unlockedAt: true,
 });
 
+export const insertRateLimitSchema = createInsertSchema(rateLimits).omit({
+  id: true,
+  windowStart: true,
+  lastRequest: true,
+});
+
+export const insertModerationFlagSchema = createInsertSchema(moderationFlags).omit({
+  id: true,
+  flaggedAt: true,
+  reviewedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
@@ -146,6 +158,10 @@ export type InsertWaitlistEmail = z.infer<typeof insertWaitlistEmailSchema>;
 export type WaitlistEmail = typeof waitlistEmails.$inferSelect;
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 export type Achievement = typeof achievements.$inferSelect;
+export type InsertRateLimit = z.infer<typeof insertRateLimitSchema>;
+export type RateLimit = typeof rateLimits.$inferSelect;
+export type InsertModerationFlag = z.infer<typeof insertModerationFlagSchema>;
+export type ModerationFlag = typeof moderationFlags.$inferSelect;
 
 // Export analytics tables
 export * from './analytics';

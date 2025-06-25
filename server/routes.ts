@@ -30,8 +30,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Authentication routes
-  app.post("/api/auth/register", async (req, res) => {
+  // Authentication routes with rate limiting
+  app.post("/api/auth/register", rateLimitMiddleware('/api/auth/register'), async (req, res) => {
     try {
       const { username, email, password } = req.body;
       
@@ -69,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/login", async (req, res) => {
+  app.post("/api/auth/login", rateLimitMiddleware('/api/auth/login'), async (req, res) => {
     try {
       const { username, password } = req.body;
       
