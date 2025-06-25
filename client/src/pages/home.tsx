@@ -3,6 +3,7 @@ import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
 import { GamificationPanel } from '@/components/Gamification';
+import { ExportData } from '@/components/ExportData';
 import { useLanguage } from '@/components/LanguageProvider';
 import { useTheme } from '@/components/ThemeProvider';
 import { useQuery } from '@tanstack/react-query';
@@ -33,7 +34,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-type ActiveTab = 'chat' | 'image' | 'video' | 'profile';
+type ActiveTab = 'chat' | 'image' | 'video' | 'profile' | 'export';
 type ToneMode = 'sweet-nurturing' | 'tough-love';
 type ResponseMode = 'quick' | 'detailed';
 

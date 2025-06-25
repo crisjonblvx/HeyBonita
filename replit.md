@@ -134,6 +134,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 25, 2025. Fixed mobile navigation stability issues by implementing show/hide pattern instead of conditional rendering, preventing component re-mounting and eliminating tab content flashing
 - June 25, 2025. Enhanced speech-to-speech functionality for mobile devices with improved error handling, timeout management, haptic feedback, and optimized audio timing for better mobile compatibility
 - June 25, 2025. Implemented complete authentication system for soft launch: user registration, login, password hashing with bcrypt, session management, and individual user accounts with secure data isolation
+- June 25, 2025. Added comprehensive production features: content moderation with OpenAI filtering, rate limiting protection (20 chats/min, 5 images/min, 3 scripts/min), and complete data export functionality (JSON/CSV/TXT formats) for user privacy compliance
 
 ## User Preferences
 

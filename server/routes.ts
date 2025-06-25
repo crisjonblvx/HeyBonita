@@ -22,6 +22,9 @@ import {
   checkExplorerAchievement 
 } from "./gamification";
 import { trackEvent, getAnalyticsMetrics, createSupportTicket, getSupportTickets } from "./analytics";
+import { moderateContent } from "./moderation";
+import { rateLimitMiddleware } from "./rate-limiting";
+import { exportUserData, formatAsJSON, formatAsCSV, formatAsTXT } from "./export";
 import { z } from "zod";
 import multer from "multer";
 import bcrypt from "bcrypt";
@@ -170,6 +173,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export user data endpoint
+  app.get("/api/export/:format", async (req, res) => {
+    try {
+      const userId = req.session?.userId;
+      const format = req.params.format;
+
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      if (!['json', 'csv', 'txt'].includes(format)) {
+        return res.status(400).json({ error: "Invalid format. Use json, csv, or txt" });
+      }
+
+      const exportData = await exportUserData(userId);
+      const user = await storage.getUser(userId);
+      const filename = `bonita-export-${user?.username}-${new Date().toISOString().split('T')[0]}`;
+
+      let formattedData: string;
+      let contentType: string;
+
+      switch (format) {
+        case 'json':
+          formattedData = formatAsJSON(exportData);
+          contentType = 'application/json';
+          break;
+        case 'csv':
+          formattedData = formatAsCSV(exportData);
+          contentType = 'text/csv';
+          break;
+        case 'txt':
+          formattedData = formatAsTXT(exportData);
+          contentType = 'text/plain';
+          break;
+        default:
+          return res.status(400).json({ error: "Invalid format" });
+      }
+
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}.${format}"`);
+      res.setHeader('Content-Type', contentType);
+      res.send(formattedData);
+
+    } catch (error) {
+      console.error('Export error:', error);
+      res.status(500).json({ error: "Failed to export user data" });
+    }
+  });
+
   // Chat routes
   app.get("/api/chat/:userId", async (req, res) => {
     try {
@@ -181,7 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/chat", async (req, res) => {
+  app.post("/api/chat", rateLimitMiddleware('/api/chat'), async (req, res) => {
     try {
       const { userId, message, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
       
@@ -191,6 +242,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Extract just the message text if it's wrapped in an object
       const messageText = typeof message === 'string' ? message : message.message || JSON.stringify(message);
+
+      // Content moderation check
+      const moderationResult = await moderateContent(messageText.trim(), 'chat', userId);
+      if (!moderationResult.isAllowed) {
+        return res.status(400).json({ 
+          error: "Message blocked by content filter",
+          reason: moderationResult.flagReason,
+          message: "Please rephrase your message and try again."
+        });
+      }
 
       // Save user message
       await storage.createChatMessage({
