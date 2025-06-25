@@ -164,49 +164,44 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
 
   const downloadImage = async (imageUrl: string) => {
     try {
-      // For DALL-E images, we need to handle CORS properly
-      const response = await fetch(imageUrl, {
-        mode: 'cors',
-        credentials: 'omit'
-      });
+      // For DALL-E images from OpenAI, direct download often fails due to CORS
+      // Instead, we'll use a proxy approach through our server or fallback to manual save
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // First, try opening in new tab immediately (this is the most reliable method)
+      const newWindow = window.open(imageUrl, '_blank');
+      
+      if (newWindow) {
+        toast({
+          title: "Image Opened",
+          description: "Right-click the image in the new tab and select 'Save image as...' to download.",
+        });
+      } else {
+        // If popup blocked, try direct link
+        const a = document.createElement('a');
+        a.href = imageUrl;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.click();
+        
+        toast({
+          title: "Image Link Opened",
+          description: "If the image didn't open, please check your popup blocker settings.",
+        });
       }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `bonita-generated-${Date.now()}.png`;
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 100);
-      
-      toast({
-        title: "Success",
-        description: "Image downloaded successfully!",
-      });
     } catch (error) {
       console.error('Download error:', error);
       
-      // Fallback: open image in new tab for manual download
+      // Final fallback: copy URL to clipboard
       try {
-        window.open(imageUrl, '_blank');
+        await navigator.clipboard.writeText(imageUrl);
         toast({
-          title: "Download Alternative",
-          description: "Image opened in new tab. Right-click to save.",
+          title: "Image URL Copied",
+          description: "Paste the URL in a new tab to view and save the image.",
         });
-      } catch (fallbackError) {
+      } catch (clipboardError) {
         toast({
-          title: "Download Failed",
-          description: "Unable to download image. Try right-clicking the image to save it manually.",
+          title: "Manual Download Required",
+          description: "Please right-click the image and select 'Save image as...' to download.",
           variant: "destructive",
         });
       }
@@ -374,7 +369,7 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                     <div className="flex justify-center space-x-3">
                       <Button onClick={() => downloadImage(currentImage)}>
                         <Download className="mr-2 h-4 w-4" />
-                        {t('download')}
+                        View & Save
                       </Button>
                       <Button 
                         variant="outline" 
@@ -474,8 +469,9 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();
-                              downloadImage(image.imageUrl).catch(err => console.error('Download failed:', err));
+                              downloadImage(image.imageUrl);
                             }}
+                            title="View & Save Image"
                           >
                             <Download className="h-3 w-3" />
                           </button>
@@ -484,8 +480,9 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();
-                              shareImage(image.imageUrl).catch(err => console.error('Share failed:', err));
+                              shareImage(image.imageUrl);
                             }}
+                            title="Share Image"
                           >
                             <Share2 className="h-3 w-3" />
                           </button>
