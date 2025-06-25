@@ -240,7 +240,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     
     // Pronunciation aids for browser TTS
     const corrections = {
-      "Chile": "Chil", // Pronounced like "child" without the "d"
+      "Chile": "Childe", // Pronounced like "child" with soft d
       "2025": "Twenty Twenty-five",
       "aight": "alright",
       "preciate": "appreciate",

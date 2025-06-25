@@ -90,7 +90,7 @@ export const BONITA_VOICES = {
 // Speech personality enhancements for authentic Bonita delivery
 const slangCorrections = {
   // Pronunciation corrections for ElevenLabs
-  "Chile": "Chiiiile", // pronounced like 'child' but drawn out
+  "Chile": "Childe", // pronounced like 'child' with soft d
   "2025": "Twenty Twenty-five",
   "2024": "Twenty Twenty-four",
   
