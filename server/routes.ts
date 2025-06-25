@@ -24,11 +24,81 @@ import {
 import { trackEvent, getAnalyticsMetrics, createSupportTicket, getSupportTickets } from "./analytics";
 import { z } from "zod";
 import multer from "multer";
+import bcrypt from "bcrypt";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Authentication routes
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { username, email, password } = req.body;
+      
+      if (!username || !email || !password) {
+        return res.status(400).json({ error: "Username, email, and password are required" });
+      }
+      
+      if (password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters long" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ error: "Username already exists" });
+      }
+      
+      // Hash password
+      const passwordHash = await bcrypt.hash(password, 10);
+      
+      // Create user
+      const user = await storage.createUser({
+        username,
+        email,
+        passwordHash,
+      });
+      
+      // Remove password hash from response
+      const { passwordHash: _, ...userWithoutPassword } = user;
+      
+      res.json({ user: userWithoutPassword, message: "Account created successfully" });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ error: "Failed to create account" });
+    }
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+      }
+      
+      // Get user by username
+      const user = await storage.getUserByUsername(username);
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      
+      // Verify password
+      const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      
+      // Remove password hash from response
+      const { passwordHash: _, ...userWithoutPassword } = user;
+      
+      res.json({ user: userWithoutPassword, message: "Login successful" });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
   // User routes
   app.post("/api/users", async (req, res) => {
     try {
