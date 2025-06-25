@@ -161,10 +161,12 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
 
   const handleTemplateClick = (template: typeof scriptTemplates[0]) => {
     console.log('Template clicked:', template);
+    console.log('Setting platform to:', template.platform);
+    console.log('Setting topic to:', template.topic);
     setPlatform(template.platform);
     setTopic(template.topic);
     toast({
-      title: "Template Selected",
+      title: "Template Selected", 
       description: `${template.name} template loaded. Click Generate to create your script!`,
     });
   };
@@ -237,7 +239,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 120px)' }}>
+      <div className="flex-1 overflow-y-auto" style={{ height: 'calc(100vh - 140px)' }}>
         <div className="max-w-4xl mx-auto p-6 space-y-8">
           {/* Script Templates */}
           <div>
@@ -246,23 +248,21 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
               {scriptTemplates.map((template) => {
                 const IconComponent = template.icon;
                 return (
-                  <Card
+                  <button
                     key={template.id}
-                    className="cursor-pointer hover:bg-muted/50 transition-colors min-h-[120px] border-border"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                    type="button"
+                    className="border border-border rounded-lg p-4 cursor-pointer hover:bg-muted/50 hover:border-primary/50 transition-colors min-h-[120px] flex flex-col space-y-2 text-left"
+                    onClick={() => {
+                      console.log('Button clicked, template:', template.name);
                       handleTemplateClick(template);
                     }}
                   >
-                    <CardContent className="p-4 flex flex-col space-y-2 h-full">
-                      <IconComponent className="h-6 w-6 flex-shrink-0 text-primary" />
-                      <div className="flex-1 w-full">
-                        <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    <IconComponent className="h-6 w-6 flex-shrink-0 text-primary" />
+                    <div className="flex-1 w-full">
+                      <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
+                    </div>
+                  </button>
                 );
               })}
             </div>
@@ -309,7 +309,10 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
               </label>
               <Textarea
                 value={topic}
-                onChange={(e) => setTopic(e.target.value)}
+                onChange={(e) => {
+                  console.log('Topic changed to:', e.target.value);
+                  setTopic(e.target.value);
+                }}
                 placeholder="I want to create a video about starting a side hustle..."
                 rows={3}
                 className="resize-none"
@@ -317,7 +320,10 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
             </div>
             
             <div className="flex space-x-3">
-              <Select value={platform} onValueChange={setPlatform}>
+              <Select value={platform} onValueChange={(value) => {
+                console.log('Platform changed to:', value);
+                setPlatform(value);
+              }}>
                 <SelectTrigger className="w-[200px]">
                   <SelectValue />
                 </SelectTrigger>
