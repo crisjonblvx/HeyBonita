@@ -23,6 +23,9 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+// Define Bonita avatar URL
+const bonitaAvatarUrl = "/images/bonita-logo-alpha.png";
+
 type ActiveTab = 'chat' | 'image' | 'video' | 'profile';
 type ToneMode = 'sweet-nurturing' | 'tough-love';
 type ResponseMode = 'quick' | 'detailed';
