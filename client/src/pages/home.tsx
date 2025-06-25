@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
-import { VideoScripts } from '@/components/VideoScriptsSimple';
+import { VideoScripts } from '@/components/VideoScriptsTest';
 import { GamificationPanel } from '@/components/Gamification';
 import { useLanguage } from '@/components/LanguageProvider';
 import { useTheme } from '@/components/ThemeProvider';
