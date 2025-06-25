@@ -28,7 +28,7 @@ const scriptTemplates = [
   {
     id: 'tiktok-hook',
     name: 'TikTok Hook',
-    description: 'Attention-grabbing opener',
+    description: 'Grab attention',
     icon: Play,
     platform: 'TikTok (15-60s)',
     topic: 'Create a viral TikTok hook about daily motivation'
@@ -36,7 +36,7 @@ const scriptTemplates = [
   {
     id: 'youtube-intro',
     name: 'YouTube Intro',
-    description: 'Engaging video intro',
+    description: 'Video intro',
     icon: Youtube,
     platform: 'YouTube Video (5-10min)',
     topic: 'Create an engaging YouTube intro for a lifestyle channel'
@@ -44,7 +44,7 @@ const scriptTemplates = [
   {
     id: 'instagram-reel',
     name: 'Instagram Reel',
-    description: 'Short-form content',
+    description: 'Short content',
     icon: Instagram,
     platform: 'Instagram Reel (15-90s)',
     topic: 'Create an Instagram Reel script about productivity tips'
@@ -223,12 +223,12 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
                   <Button
                     key={template.id}
                     variant="outline"
-                    className="p-4 h-auto text-left flex flex-col items-start space-y-2 min-h-[100px] w-full justify-start"
+                    className="p-3 h-auto text-left flex flex-col items-start space-y-1 h-[90px] w-full justify-start overflow-hidden"
                     onClick={() => handleTemplateClick(template)}
                   >
-                    <IconComponent className="h-6 w-6 mb-2 flex-shrink-0" />
-                    <h4 className="font-semibold text-left w-full">{template.name}</h4>
-                    <p className="text-sm text-muted-foreground text-left w-full break-words">{template.description}</p>
+                    <IconComponent className="h-5 w-5 flex-shrink-0" />
+                    <h4 className="font-semibold text-sm leading-tight">{template.name}</h4>
+                    <p className="text-xs text-muted-foreground leading-tight truncate w-full">{template.description}</p>
                   </Button>
                 );
               })}
