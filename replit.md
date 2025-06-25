@@ -143,6 +143,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 25, 2025. Added Google and Apple OAuth login integration: database schema updated with OAuth fields, authentication routes configured, login buttons added to auth page - requires Google/Apple developer credentials to activate
 - June 25, 2025. Implemented logout functionality: logout button in settings dialog, backend session destruction, user feedback and redirect to login page
 - June 25, 2025. Fixed Google OAuth configuration: added dotenv loading, proper strategy initialization, Google login now fully functional with user credentials
+- June 25, 2025. Updated Google OAuth credentials: Client ID (452337819985-h6a0qlgsktrmm71e4vgqpfd8ttc75bif.apps.googleusercontent.com) and Client Secret configured for production use
 
 ## User Preferences
 
