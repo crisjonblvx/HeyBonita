@@ -335,10 +335,75 @@ export default function MobileHome() {
               <Button 
                 variant="outline" 
                 size="sm"
+                onClick={() => setShowHelp(true)}
                 className="h-8"
               >
                 <HelpCircle className="h-4 w-4 mr-1" />
                 Help
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Help Modal */}
+      <Dialog open={showHelp} onOpenChange={setShowHelp}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Help & Support</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-lg font-semibold mb-2">Getting Started</h4>
+              <p className="text-sm text-muted-foreground">
+                Bonita is your Digital Bronx Auntie - she's here to provide advice, create images, and write video scripts. 
+                Switch between her "Sweet Nurturing" and "Tough Love" modes to get the style of guidance you need.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-lg font-semibold mb-2">Features</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start space-x-2">
+                  <MessageCircle className="h-4 w-4 text-primary mt-1" />
+                  <span><strong>Chat:</strong> Have conversations in English, Spanish, Portuguese, or French</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <Image className="h-4 w-4 text-primary mt-1" />
+                  <span><strong>Images:</strong> Generate custom images using AI technology</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <Video className="h-4 w-4 text-primary mt-1" />
+                  <span><strong>Scripts:</strong> Create video scripts for TikTok, YouTube, and Instagram</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <Mic className="h-4 w-4 text-primary mt-1" />
+                  <span><strong>Voice:</strong> Use speech-to-speech for hands-free conversations</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-semibold mb-2">Tips</h4>
+              <ul className="space-y-1 text-sm text-muted-foreground">
+                <li>• Try different tone modes to match your mood</li>
+                <li>• Use presets for quick image and script generation</li>
+                <li>• Toggle between quick and detailed responses</li>
+                <li>• Download your generated images easily</li>
+              </ul>
+            </div>
+
+            <div className="pt-4 border-t">
+              <p className="text-sm text-muted-foreground mb-3">
+                Need more help? Contact our support team:
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={() => window.open('mailto:cj@heybonita.ai', '_blank')}
+                className="w-full"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Contact Support
               </Button>
             </div>
           </div>
