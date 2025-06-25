@@ -161,12 +161,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
       if (autoSend || voiceMode === 'speech-to-speech') {
         setTimeout(() => {
           // Trigger message send
-          sendMessageMutation.mutate({
-            userId,
-            message: transcript.trim(),
-            language,
-            toneMode,
-          });
+          sendMessageMutation.mutate(transcript.trim());
         }, 100);
       }
     };
@@ -524,7 +519,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
           </div>
           {(isGeneratingResponse || sendMessageMutation.isPending) ? (
             <Button 
-              onClick={stopResponse}
+              onClick={stopGeneration}
               variant="destructive"
               className="animate-pulse"
               title="Stop Bonita's response"
