@@ -69,6 +69,30 @@ export const achievements = pgTable("achievements", {
   unlockedAt: timestamp("unlocked_at").defaultNow().notNull(),
 });
 
+// Rate limiting table
+export const rateLimits = pgTable("rate_limits", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  endpoint: varchar("endpoint", { length: 100 }).notNull(),
+  requestCount: integer("request_count").notNull().default(1),
+  windowStart: timestamp("window_start").defaultNow().notNull(),
+  lastRequest: timestamp("last_request").defaultNow().notNull(),
+});
+
+// Content moderation flags
+export const moderationFlags = pgTable("moderation_flags", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  contentType: varchar("content_type", { length: 50 }).notNull(),
+  contentId: integer("content_id"),
+  originalContent: text("original_content").notNull(),
+  flagReason: varchar("flag_reason", { length: 100 }).notNull(),
+  severity: varchar("severity", { length: 20 }).notNull().default('low'),
+  isBlocked: boolean("is_blocked").notNull().default(false),
+  reviewedAt: timestamp("reviewed_at"),
+  flaggedAt: timestamp("flagged_at").defaultNow().notNull(),
+});
+
 export const userRelations = relations(users, ({ many }) => ({
   chatMessages: many(chatMessages),
   generatedImages: many(generatedImages),

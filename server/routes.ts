@@ -311,12 +311,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/images/generate", async (req, res) => {
+  app.post("/api/images/generate", rateLimitMiddleware('/api/images'), async (req, res) => {
     try {
       const { userId, prompt, language = 'en' } = req.body;
       
       if (!userId || !prompt) {
         return res.status(400).json({ error: "User ID and prompt are required" });
+      }
+
+      // Content moderation check
+      const moderationResult = await moderateContent(prompt.trim(), 'image_prompt', userId);
+      if (!moderationResult.isAllowed) {
+        return res.status(400).json({ 
+          error: "Image prompt blocked by content filter",
+          reason: moderationResult.flagReason,
+          message: "Please try a different image idea."
+        });
       }
 
       // Generate image first (this usually works)
@@ -394,12 +404,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/scripts/generate", async (req, res) => {
+  app.post("/api/scripts/generate", rateLimitMiddleware('/api/scripts'), async (req, res) => {
     try {
       const { userId, topic, platform, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
       
       if (!userId || !topic || !platform) {
         return res.status(400).json({ error: "User ID, topic, and platform are required" });
+      }
+
+      // Content moderation check
+      const moderationResult = await moderateContent(topic.trim(), 'script', userId);
+      if (!moderationResult.isAllowed) {
+        return res.status(400).json({ 
+          error: "Script topic blocked by content filter",
+          reason: moderationResult.flagReason,
+          message: "Please choose a different topic for your video script."
+        });
       }
 
       const personality: BonitaPersonality = {
