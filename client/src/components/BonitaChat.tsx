@@ -315,11 +315,29 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     setIsUsingElevenLabs(false);
   };
 
-  const stopResponse = () => {
+  const stopGeneration = () => {
+    // Stop text generation
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       setIsGeneratingResponse(false);
     }
+    
+    // Stop speech
+    setIsSpeaking(false);
+    setIsUsingElevenLabs(false);
+    
+    // Cancel any current speech synthesis
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    
+    // Stop any playing audio
+    stopAudio();
+    
+    toast({
+      title: "Stopped",
+      description: "Bonita's response was stopped.",
+    });
   };
 
   const clearHistoryMutation = useMutation({
