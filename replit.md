@@ -138,6 +138,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 25, 2025. Fixed image loading issue - authenticated users now see only their own generated images, ensuring proper data isolation between user accounts
 - June 25, 2025. Fixed critical download functionality for generated images - improved CORS handling, added fallback options, and enhanced error handling for better user experience
 - June 25, 2025. Enhanced image download with clear step-by-step instructions for users unfamiliar with right-click saving, making the feature more accessible to all skill levels
+- June 25, 2025. Implemented server-side proxy download system for seamless image downloads - users can now download images with a single click without needing to navigate new tabs or right-click operations
 
 ## User Preferences
 

@@ -162,114 +162,32 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
     setPrompt(randomPrompt);
   };
 
-  const downloadImage = async (imageUrl: string) => {
+  const downloadImage = async (imageId: number) => {
     try {
-      // For DALL-E images from OpenAI, direct download often fails due to CORS
-      // Instead, we'll use a proxy approach through our server or fallback to manual save
+      // Use server proxy for seamless download
+      const downloadUrl = `/api/images/${imageId}/download`;
       
-      // First, try opening in new tab immediately (this is the most reliable method)
-      const newWindow = window.open(imageUrl, '_blank');
+      // Create a temporary link to trigger download
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `bonita-image-${imageId}.png`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       
-      if (newWindow) {
-        toast({
-          title: "How to Save Your Image",
-          description: (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">1</span>
-                <span>Wait for the new tab to load</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">2</span>
-                <span>Right-click on the image</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">3</span>
-                <span>Select "Save image as..." or "Download image"</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">4</span>
-                <span>Choose where to save it on your device</span>
-              </div>
-            </div>
-          ),
-          duration: 8000, // Show for 8 seconds
-        });
-      } else {
-        // If popup blocked, try direct link
-        const a = document.createElement('a');
-        a.href = imageUrl;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.click();
-        
-        toast({
-          title: "Download Help",
-          description: (
-            <div className="space-y-2">
-              <p>New tab opening... If blocked, check popup settings.</p>
-              <div className="flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
-                <span>Right-click the image and select "Save image as..."</span>
-              </div>
-            </div>
-          ),
-          duration: 6000,
-        });
-      }
+      toast({
+        title: "Download Started",
+        description: "Your image is downloading now. Check your Downloads folder.",
+      });
     } catch (error) {
       console.error('Download error:', error);
       
-      // Final fallback: copy URL to clipboard
-      try {
-        await navigator.clipboard.writeText(imageUrl);
-        toast({
-          title: "Image Link Copied",
-          description: (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">1</span>
-                <span>Open a new tab</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">2</span>
-                <span>Paste the link (Ctrl+V or Cmd+V)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">3</span>
-                <span>Right-click the image</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-green-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">4</span>
-                <span>Select "Save image as..."</span>
-              </div>
-            </div>
-          ),
-          duration: 8000,
-        });
-      } catch (clipboardError) {
-        toast({
-          title: "Manual Save Instructions",
-          description: (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="bg-orange-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
-                <span>Right-click anywhere on the image</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-orange-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
-                <span>Select "Save image as..."</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-orange-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">→</span>
-                <span>Choose download location</span>
-              </div>
-            </div>
-          ),
-          variant: "destructive",
-          duration: 6000,
-        });
-      }
+      toast({
+        title: "Download Failed",
+        description: "Unable to download image. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -433,11 +351,17 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                     />
                     <div className="flex justify-center space-x-3">
                       <Button 
-                        onClick={() => downloadImage(currentImage)}
-                        title="Opens image in new tab with save instructions"
+                        onClick={() => {
+                          // Find the current image in the images array to get its ID
+                          const currentImageData = validImages.find(img => img.imageUrl === currentImage);
+                          if (currentImageData) {
+                            downloadImage(currentImageData.id);
+                          }
+                        }}
+                        title="Download image directly to your device"
                       >
                         <Download className="mr-2 h-4 w-4" />
-                        Save Image
+                        Download
                       </Button>
                       <Button 
                         variant="outline" 
@@ -537,9 +461,9 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();
-                              downloadImage(image.imageUrl);
+                              downloadImage(image.id);
                             }}
-                            title="Save Image: Opens in new tab → right-click → Save image as..."
+                            title="Download image directly"
                           >
                             <Download className="h-3 w-3" />
                           </button>
