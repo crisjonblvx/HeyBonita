@@ -221,7 +221,17 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
             <h2 className="text-2xl font-bold">{t('imageHeader')}</h2>
             <p className="text-muted-foreground">{t('imageSubtitle')}</p>
           </div>
-          <Button variant="outline" onClick={handleSurpriseMe}>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              handleSurpriseMe();
+              toast({
+                title: "Surprise Prompt Selected!",
+                description: "Random creative prompt loaded - click Generate Image to create it.",
+              });
+            }}
+            disabled={generateImageMutation.isPending}
+          >
             <Wand2 className="mr-2 h-4 w-4" />
             {t('surpriseMe')}
           </Button>
@@ -310,8 +320,22 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
                         <Download className="mr-2 h-4 w-4" />
                         {t('download')}
                       </Button>
-                      <Button variant="outline" onClick={() => handleGenerateImage()}>
-                        <RefreshCw className="mr-2 h-4 w-4" />
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          if (prompt.trim()) {
+                            handleGenerateImage();
+                          } else {
+                            toast({
+                              title: "No prompt",
+                              description: "Enter a prompt to remix the image.",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        disabled={generateImageMutation.isPending}
+                      >
+                        <RefreshCw className={`mr-2 h-4 w-4 ${generateImageMutation.isPending ? 'animate-spin' : ''}`} />
                         {t('remix')}
                       </Button>
                       <Button variant="outline" onClick={() => shareImage(currentImage)}>
