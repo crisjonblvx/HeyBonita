@@ -44,6 +44,8 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
   const { language, t } = useLanguage();
   const { toast } = useToast();
 
+  console.log('ImageGenerator rendered with userId:', userId);
+
   // Fetch generated images
   const { data: images = [], isError, error } = useQuery({
     queryKey: ['/api/images'],
@@ -214,8 +216,8 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-border bg-background flex-shrink-0">
+      {/* Header - Hidden on mobile, shown on desktop */}
+      <div className="hidden md:block p-6 border-b border-border bg-background flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">{t('imageHeader')}</h2>
@@ -238,9 +240,31 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
         </div>
       </div>
 
+      {/* Mobile Header */}
+      <div className="md:hidden p-4 border-b border-border bg-background flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold">Generate Images</h2>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              handleSurpriseMe();
+              toast({
+                title: "Surprise Prompt Selected!",
+                description: "Random creative prompt loaded - click Generate Image to create it.",
+              });
+            }}
+            disabled={generateImageMutation.isPending}
+          >
+            <Wand2 className="mr-2 h-3 w-3" />
+            Surprise
+          </Button>
+        </div>
+      </div>
+
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-4xl mx-auto p-4 md:p-6">
           {/* Preset Prompts */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-4">{t('quickPresets')}</h3>

@@ -53,10 +53,12 @@ export default function MobileHome() {
     const savedToneMode = localStorage.getItem('bonita-tone-mode') as ToneMode;
     const savedResponseMode = localStorage.getItem('bonita-response-mode') as ResponseMode;
     const savedVoiceMode = localStorage.getItem('bonita-voice-mode') as 'text-to-speech' | 'speech-to-speech';
+    const savedActiveTab = localStorage.getItem('bonita-active-tab') as ActiveTab;
     
     if (savedToneMode) setToneMode(savedToneMode);
     if (savedResponseMode) setResponseMode(savedResponseMode);
     if (savedVoiceMode) setVoiceMode(savedVoiceMode);
+    if (savedActiveTab) setActiveTab(savedActiveTab);
   }, []);
 
   // Save preferences
@@ -64,7 +66,8 @@ export default function MobileHome() {
     localStorage.setItem('bonita-tone-mode', toneMode);
     localStorage.setItem('bonita-response-mode', responseMode);
     localStorage.setItem('bonita-voice-mode', voiceMode);
-  }, [toneMode, responseMode, voiceMode]);
+    localStorage.setItem('bonita-active-tab', activeTab);
+  }, [toneMode, responseMode, voiceMode, activeTab]);
 
   const renderActiveTab = () => {
     console.log('Rendering active tab:', activeTab);
