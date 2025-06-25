@@ -160,6 +160,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
   };
 
   const handleTemplateClick = (template: typeof scriptTemplates[0]) => {
+    console.log('Template clicked:', template);
     setPlatform(template.platform);
     setTopic(template.topic);
     toast({
@@ -245,18 +246,17 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
               {scriptTemplates.map((template) => {
                 const IconComponent = template.icon;
                 return (
-                  <Button
+                  <div
                     key={template.id}
-                    variant="outline"
-                    className="p-4 h-auto text-left flex flex-col items-start space-y-2 min-h-[120px] w-full justify-start"
+                    className="border border-border rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors min-h-[120px] flex flex-col space-y-2"
                     onClick={() => handleTemplateClick(template)}
                   >
-                    <IconComponent className="h-6 w-6 flex-shrink-0" />
+                    <IconComponent className="h-6 w-6 flex-shrink-0 text-primary" />
                     <div className="flex-1 w-full">
                       <h4 className="font-semibold text-sm mb-1">{template.name}</h4>
                       <p className="text-xs text-muted-foreground leading-relaxed">{template.description}</p>
                     </div>
-                  </Button>
+                  </div>
                 );
               })}
             </div>
