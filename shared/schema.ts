@@ -145,3 +145,6 @@ export type InsertWaitlistEmail = z.infer<typeof insertWaitlistEmailSchema>;
 export type WaitlistEmail = typeof waitlistEmails.$inferSelect;
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 export type Achievement = typeof achievements.$inferSelect;
+
+// Export analytics tables
+export * from './analytics';
