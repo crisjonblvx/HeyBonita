@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
@@ -75,77 +75,44 @@ export default function MobileHome() {
     localStorage.setItem('bonita-response-mode', responseMode);
     localStorage.setItem('bonita-voice-mode', voiceMode);
     localStorage.setItem('bonita-mobile-tab', activeTab);
-    console.log('Mobile: Saved active tab to localStorage:', activeTab);
   }, [toneMode, responseMode, voiceMode, activeTab]);
 
-  // Use refs to store component instances and prevent re-creation
-  const componentInstances = useRef<{[key: string]: JSX.Element | null}>({
-    chat: null,
-    image: null,
-    video: null,
-    profile: null
-  });
-
-  // Create components only once and store them
-  if (!componentInstances.current.chat) {
-    componentInstances.current.chat = (
-      <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />
-    );
-  }
-  
-  if (!componentInstances.current.image) {
-    componentInstances.current.image = (
-      <div className="h-full">
-        <ImageGenerator userId={userId} />
-      </div>
-    );
-  }
-  
-  if (!componentInstances.current.video) {
-    componentInstances.current.video = (
-      <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />
-    );
-  }
-  
-  // Profile component needs to handle loading states
-  const profileComponent = useMemo(() => {
-    if (userLoading) {
-      return (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center text-muted-foreground p-8">
-            Loading profile...
-          </div>
-        </div>
-      );
-    }
-    
-    if (!user) {
-      return (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center text-muted-foreground p-8">
-            Unable to load profile
-          </div>
-        </div>
-      );
-    }
-    
-    return <GamificationPanel userId={userId} user={user} />;
-  }, [userId, user, userLoading]);
-
   const renderActiveTab = () => {
-    console.log('Rendering active tab:', activeTab);
-    
     switch (activeTab) {
       case 'chat':
-        return componentInstances.current.chat;
+        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
       case 'image':
-        return componentInstances.current.image;
+        return (
+          <div className="h-full">
+            <ImageGenerator userId={userId} />
+          </div>
+        );
       case 'video':
-        return componentInstances.current.video;
+        return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
       case 'profile':
-        return profileComponent;
+        if (userLoading) {
+          return (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                Loading profile...
+              </div>
+            </div>
+          );
+        }
+        
+        if (!user) {
+          return (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                Unable to load profile
+              </div>
+            </div>
+          );
+        }
+        
+        return <GamificationPanel userId={userId} user={user} />;
       default:
-        return componentInstances.current.chat;
+        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
     }
   };
 
@@ -197,11 +164,7 @@ export default function MobileHome() {
       <div className="border-t bg-background">
         <div className="flex">
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setActiveTab('chat');
-            }}
+            onClick={() => setActiveTab('chat')}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'chat'
                 ? 'text-primary bg-primary/10'
@@ -212,10 +175,7 @@ export default function MobileHome() {
             Chat
           </button>
           <button
-            onClick={() => {
-              console.log('Image button clicked - switching to image tab');
-              setActiveTab('image');
-            }}
+            onClick={() => setActiveTab('image')}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'image'
                 ? 'text-primary bg-primary/10'
@@ -226,11 +186,7 @@ export default function MobileHome() {
             Images
           </button>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setActiveTab('video');
-            }}
+            onClick={() => setActiveTab('video')}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'video'
                 ? 'text-primary bg-primary/10'
@@ -241,11 +197,7 @@ export default function MobileHome() {
             Scripts
           </button>
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setActiveTab('profile');
-            }}
+            onClick={() => setActiveTab('profile')}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'profile'
                 ? 'text-primary bg-primary/10'
