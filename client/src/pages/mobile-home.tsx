@@ -50,15 +50,21 @@ export default function MobileHome() {
 
   // Load user preferences
   useEffect(() => {
+    console.log('MobileHome: Loading user preferences');
     const savedToneMode = localStorage.getItem('bonita-tone-mode') as ToneMode;
     const savedResponseMode = localStorage.getItem('bonita-response-mode') as ResponseMode;
     const savedVoiceMode = localStorage.getItem('bonita-voice-mode') as 'text-to-speech' | 'speech-to-speech';
     const savedActiveTab = localStorage.getItem('bonita-active-tab') as ActiveTab;
     
+    console.log('Saved active tab from localStorage:', savedActiveTab);
+    
     if (savedToneMode) setToneMode(savedToneMode);
     if (savedResponseMode) setResponseMode(savedResponseMode);
     if (savedVoiceMode) setVoiceMode(savedVoiceMode);
-    if (savedActiveTab) setActiveTab(savedActiveTab);
+    if (savedActiveTab && savedActiveTab !== 'chat') {
+      console.log('Setting active tab to:', savedActiveTab);
+      setActiveTab(savedActiveTab);
+    }
   }, []);
 
   // Save preferences
@@ -146,7 +152,11 @@ export default function MobileHome() {
       <div className="border-t bg-background">
         <div className="flex">
           <button
-            onClick={() => setActiveTab('chat')}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setActiveTab('chat');
+            }}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'chat'
                 ? 'text-primary bg-primary/10'
@@ -157,8 +167,10 @@ export default function MobileHome() {
             Chat
           </button>
           <button
-            onClick={() => {
-              console.log('Image button clicked, setting activeTab to image');
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Image button clicked, current tab:', activeTab, 'setting to image');
               setActiveTab('image');
             }}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
@@ -171,7 +183,11 @@ export default function MobileHome() {
             Images
           </button>
           <button
-            onClick={() => setActiveTab('video')}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setActiveTab('video');
+            }}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'video'
                 ? 'text-primary bg-primary/10'
@@ -182,7 +198,11 @@ export default function MobileHome() {
             Scripts
           </button>
           <button
-            onClick={() => setActiveTab('profile')}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setActiveTab('profile');
+            }}
             className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
               activeTab === 'profile'
                 ? 'text-primary bg-primary/10'
