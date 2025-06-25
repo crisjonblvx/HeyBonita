@@ -20,11 +20,16 @@ function AppRoute() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
+    // For now, force authentication mode for soft launch
+    // Clear any existing demo session
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    
+    // Check if user is already logged in with valid credentials
     const savedUserId = localStorage.getItem('userId');
     const savedUsername = localStorage.getItem('username');
     
-    if (savedUserId && savedUsername) {
+    if (savedUserId && savedUsername && savedUserId !== '1') {
       setUser({ id: parseInt(savedUserId), username: savedUsername });
     }
     setIsLoading(false);
