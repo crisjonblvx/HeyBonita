@@ -391,7 +391,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
             <Button 
               size="icon" 
               variant={(isSpeaking || isGeneratingResponse) ? "destructive" : "outline"}
-              onClick={(isSpeaking || isGeneratingResponse) ? stopSpeaking : () => {}}
+              onClick={(isSpeaking || isGeneratingResponse) ? stopGeneration : () => {}}
               className={(isSpeaking || isGeneratingResponse) ? "animate-pulse" : ""}
               title={(isSpeaking || isGeneratingResponse) ? "Stop Processing" : "Audio Ready"}
             >
