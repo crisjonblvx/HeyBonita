@@ -100,42 +100,82 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div className="p-6 border-b border-border bg-background flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Video Scripts</h2>
-            <p className="text-muted-foreground">Create engaging video content with AI</p>
-          </div>
-        </div>
+      <div style={{ padding: '24px', borderBottom: '1px solid #ccc', backgroundColor: '#fff', flexShrink: 0 }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Video Scripts - DEBUG</h2>
+        <p style={{ color: '#666', margin: '4px 0 0 0' }}>Testing click and scroll functionality</p>
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <div style={{ flex: 1, overflow: 'auto', backgroundColor: '#f9f9f9' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '24px' }}>
           
-          {/* Quick Templates - TEST VERSION */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Presets (Test)</h3>
-            <div className="space-y-2">
+          {/* Quick Templates - ULTRA SIMPLE TEST */}
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Quick Presets (Ultra Simple)</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button 
-                onClick={() => testClick('TikTok')}
-                className="w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-100"
+                onClick={() => {
+                  console.log('TikTok button clicked!');
+                  alert('TikTok template clicked!');
+                  setTopic('Create a viral TikTok hook about daily motivation');
+                  setPlatform('TikTok (15-60s)');
+                }}
+                onMouseEnter={() => console.log('Mouse entered TikTok button')}
+                onMouseLeave={() => console.log('Mouse left TikTok button')}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  textAlign: 'left',
+                  border: '2px solid #333',
+                  borderRadius: '8px',
+                  backgroundColor: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
               >
-                🎬 TikTok Hook - Test Button
+                🎬 TikTok Hook - CLICK ME
               </button>
               <button 
-                onClick={() => testClick('YouTube')}
-                className="w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-100"
+                onClick={() => {
+                  console.log('YouTube button clicked!');
+                  alert('YouTube template clicked!');
+                  setTopic('Create an engaging YouTube intro for a lifestyle channel');
+                  setPlatform('YouTube Video (5-10min)');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  textAlign: 'left',
+                  border: '2px solid #333',
+                  borderRadius: '8px',
+                  backgroundColor: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
               >
-                📺 YouTube Intro - Test Button  
+                📺 YouTube Intro - CLICK ME
               </button>
               <button 
-                onClick={() => testClick('Instagram')}
-                className="w-full p-4 text-left border border-gray-300 rounded-lg hover:bg-gray-100"
+                onClick={() => {
+                  console.log('Instagram button clicked!');
+                  alert('Instagram template clicked!');
+                  setTopic('Create an Instagram Reel script about productivity tips');
+                  setPlatform('Instagram Reel (15-90s)');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  textAlign: 'left',
+                  border: '2px solid #333',
+                  borderRadius: '8px',
+                  backgroundColor: '#fff',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
               >
-                📱 Instagram Reel - Test Button
+                📱 Instagram Reel - CLICK ME
               </button>
             </div>
           </div>
@@ -211,11 +251,20 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
           </Card>
 
           {/* Test Scrolling */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Scroll Test Content</h3>
-            {Array.from({ length: 20 }, (_, i) => (
-              <div key={i} className="p-4 bg-muted rounded-lg">
-                <p>Test content block {i + 1} - This content is here to test scrolling functionality.</p>
+          <div style={{ marginTop: '32px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>Scroll Test Content</h3>
+            {Array.from({ length: 30 }, (_, i) => (
+              <div key={i} style={{ 
+                padding: '16px', 
+                backgroundColor: '#e0e0e0', 
+                borderRadius: '8px', 
+                marginBottom: '8px',
+                border: '1px solid #ccc'
+              }}>
+                <p style={{ margin: 0, fontSize: '14px' }}>
+                  SCROLL TEST BLOCK {i + 1} - This content tests if scrolling works properly. 
+                  If you can see this and scroll through all blocks, scrolling is working!
+                </p>
               </div>
             ))}
           </div>
