@@ -157,7 +157,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         toneMode
       });
 
-      res.json(savedResponse);
+      // Award gamification points for chat activity
+      try {
+        const gamificationReward = await rewardChatActivity(userId);
+        const explorerAchievement = await checkExplorerAchievement(userId);
+        
+        if (explorerAchievement) {
+          gamificationReward.newAchievements.push(explorerAchievement);
+        }
+
+        res.json({ 
+          ...savedResponse, 
+          gamification: gamificationReward 
+        });
+      } catch (gamificationError) {
+        console.error("Gamification update failed:", gamificationError);
+        res.json(savedResponse); // Return chat without gamification data
+      }
     } catch (error) {
       console.error("Chat error:", error);
       res.status(500).json({ error: "Failed to process chat message" });
