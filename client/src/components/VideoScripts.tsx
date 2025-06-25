@@ -211,8 +211,8 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-6">
-        <div className="max-w-4xl mx-auto">
+      <ScrollArea className="flex-1">
+        <div className="max-w-4xl mx-auto p-6">
           {/* Script Templates */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-4">{t('scriptTemplates')}</h3>
@@ -240,7 +240,7 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
             <Card>
               <CardContent className="p-6">
                 <h3 className="text-lg font-semibold mb-4">{t('generatedScript')}</h3>
-                <div className="bg-muted rounded-lg p-6 font-mono text-sm leading-relaxed max-h-96 overflow-y-auto">
+                <div className="bg-muted rounded-lg p-6 font-mono text-sm leading-relaxed max-h-64 overflow-y-auto">
                   {currentScript ? (
                     <div className="space-y-2">
                       {formatScript(currentScript)}
