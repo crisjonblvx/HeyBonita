@@ -4,6 +4,7 @@ import {
   generatedImages, 
   videoScripts,
   waitlistEmails,
+  achievements,
   type User, 
   type InsertUser,
   type ChatMessage,
@@ -13,7 +14,9 @@ import {
   type VideoScript,
   type InsertVideoScript,
   type WaitlistEmail,
-  type InsertWaitlistEmail
+  type InsertWaitlistEmail,
+  type Achievement,
+  type InsertAchievement
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -40,6 +43,11 @@ export interface IStorage {
   
   // Waitlist operations
   addToWaitlist(email: InsertWaitlistEmail): Promise<WaitlistEmail>;
+  
+  // Achievement operations
+  getUserAchievements(userId: number): Promise<Achievement[]>;
+  createAchievement(achievement: InsertAchievement): Promise<Achievement>;
+  updateUserStats(userId: number, stats: Partial<User>): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -128,6 +136,28 @@ export class DatabaseStorage implements IStorage {
   async addToWaitlist(email: InsertWaitlistEmail): Promise<WaitlistEmail> {
     const [newEmail] = await db.insert(waitlistEmails).values(email).returning();
     return newEmail;
+  }
+
+  async getUserAchievements(userId: number): Promise<Achievement[]> {
+    return await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.userId, userId))
+      .orderBy(desc(achievements.unlockedAt));
+  }
+
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const [newAchievement] = await db.insert(achievements).values(achievement).returning();
+    return newAchievement;
+  }
+
+  async updateUserStats(userId: number, stats: Partial<User>): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(stats)
+      .where(eq(users.id, userId))
+      .returning();
+    return updatedUser;
   }
 }
 

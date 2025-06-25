@@ -50,10 +50,28 @@ export const waitlistEmails = pgTable("waitlist_emails", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const achievements = pgTable("achievements", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // 'first_chat', 'chat_streak_7', 'image_creator', etc.
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  points: integer("points").notNull(),
+  unlockedAt: timestamp("unlocked_at").defaultNow().notNull(),
+});
+
 export const userRelations = relations(users, ({ many }) => ({
   chatMessages: many(chatMessages),
   generatedImages: many(generatedImages),
   videoScripts: many(videoScripts),
+  achievements: many(achievements),
+}));
+
+export const achievementRelations = relations(achievements, ({ one }) => ({
+  user: one(users, {
+    fields: [achievements.userId],
+    references: [users.id],
+  }),
 }));
 
 export const chatMessageRelations = relations(chatMessages, ({ one }) => ({
@@ -102,6 +120,11 @@ export const insertWaitlistEmailSchema = createInsertSchema(waitlistEmails).omit
   createdAt: true,
 });
 
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  unlockedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
@@ -112,3 +135,5 @@ export type InsertVideoScript = z.infer<typeof insertVideoScriptSchema>;
 export type VideoScript = typeof videoScripts.$inferSelect;
 export type InsertWaitlistEmail = z.infer<typeof insertWaitlistEmailSchema>;
 export type WaitlistEmail = typeof waitlistEmails.$inferSelect;
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Achievement = typeof achievements.$inferSelect;
