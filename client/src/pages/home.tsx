@@ -45,6 +45,7 @@ export default function Home() {
   const [showHelp, setShowHelp] = useState(false);
   const [voiceMode, setVoiceMode] = useState<'text-to-speech' | 'speech-to-speech'>('text-to-speech');
   const [isListening, setIsListening] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userId] = useState(1); // Mock user ID - in real app this would come from auth
 
   const { language, setLanguage, t } = useLanguage();
