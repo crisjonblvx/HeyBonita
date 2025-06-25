@@ -364,8 +364,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/images", async (req, res) => {
     try {
-      // For now, get images for user 1 (demo user)
-      const images = await storage.getGeneratedImages(1);
+      const userId = req.session?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      
+      const images = await storage.getGeneratedImages(userId);
       res.json(images);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch images" });
