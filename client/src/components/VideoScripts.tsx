@@ -74,16 +74,22 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
       toneMode: string;
     }) => {
       const response = await apiRequest('POST', '/api/scripts/generate', scriptData);
-      return response.json();
+      const data = await response.json();
+      console.log('Script generation response:', data);
+      
+      if (!data.script) {
+        throw new Error('No script content in response');
+      }
+      
+      return data;
     },
     onSuccess: (data) => {
       console.log('Script generation success:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/scripts', userId] });
       queryClient.invalidateQueries({ queryKey: ['/api/achievements', userId] });
       
-      // Handle the script content - check if it's nested in the response
-      const scriptContent = data.script || data.content || data;
-      setCurrentScript(scriptContent);
+      // Set the script content
+      setCurrentScript(data.script);
       setTopic('');
       
       // Show gamification rewards if available
@@ -116,11 +122,12 @@ export function VideoScripts({ userId, toneMode, responseMode }: VideoScriptsPro
         });
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Script generation error:', error);
+      const errorMessage = error?.message || error?.error || "Failed to generate script. Please try again.";
       toast({
         title: "Error",
-        description: "Failed to generate script. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
