@@ -22,7 +22,6 @@ import {
   Download,
   Trash2,
   Mail,
-  MessageSquare,
   Zap,
   Heart,
   Headphones,
@@ -416,7 +415,10 @@ export default function Home() {
             </div>
             
             <div className="pt-4 border-t border-border">
-              <Button className="w-full">
+              <Button 
+                className="w-full"
+                onClick={() => window.open('mailto:cj@heybonita.ai?subject=Bonita AI Support Request', '_blank')}
+              >
                 <Mail className="mr-2 h-4 w-4" />
                 {t('contactSupport')}
               </Button>

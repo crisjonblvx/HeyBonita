@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Mic, Send, History, Volume2, VolumeX, MessageCircle, Square, MessageSquare } from 'lucide-react';
+import { Mic, Send, History, Volume2, VolumeX, MessageCircle, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { playAudio, stopAudio, isAudioPlaying } from '@/lib/audioController';
 
@@ -439,14 +439,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
             >
               {(isSpeaking || isGeneratingResponse) ? <Square className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => window.open('mailto:cj@heybonita.ai?subject=Bonita AI Feedback', '_blank')}
-              title="Send Feedback"
-            >
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Feedback
-            </Button>
+
             <Button 
               variant="outline" 
               onClick={clearHistory}
