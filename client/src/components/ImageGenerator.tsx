@@ -46,7 +46,7 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
 
   // Fetch generated images
   const { data: images = [] } = useQuery({
-    queryKey: ['/api/images', userId],
+    queryKey: ['/api/images'],
     enabled: !!userId,
   });
 
@@ -305,6 +305,61 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
               </Button>
             </div>
           </div>
+
+          {/* Images Created Section */}
+          {images.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Images Created</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {images.slice(0, 9).map((image: GeneratedImage) => (
+                  <Card key={image.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="aspect-square relative">
+                      <img 
+                        src={image.imageUrl} 
+                        alt={image.prompt}
+                        className="w-full h-full object-cover cursor-pointer"
+                        onClick={() => setCurrentImage(image.imageUrl)}
+                      />
+                      <div className="absolute top-2 right-2 opacity-0 hover:opacity-100 transition-opacity">
+                        <div className="flex space-x-1">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadImage(image.imageUrl);
+                            }}
+                          >
+                            <Download className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              shareImage(image.imageUrl);
+                            }}
+                          >
+                            <Share2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {image.prompt}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {new Date(image.createdAt).toLocaleDateString()}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
