@@ -412,6 +412,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics and Support Routes
+  app.post("/api/analytics/track", async (req, res) => {
+    try {
+      const event = req.body;
+      await trackEvent({
+        ...event,
+        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip || req.connection.remoteAddress,
+      });
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Analytics tracking error:", error);
+      res.status(500).json({ error: "Failed to track event" });
+    }
+  });
+
+  app.get("/api/analytics/metrics", async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 7;
+      const metrics = await getAnalyticsMetrics(days);
+      res.json(metrics);
+    } catch (error) {
+      console.error("Analytics metrics error:", error);
+      res.status(500).json({ error: "Failed to get metrics" });
+    }
+  });
+
+  app.post("/api/support/tickets", async (req, res) => {
+    try {
+      const ticket = await createSupportTicket(req.body);
+      res.json(ticket);
+    } catch (error) {
+      console.error("Support ticket creation error:", error);
+      res.status(500).json({ error: "Failed to create support ticket" });
+    }
+  });
+
+  app.get("/api/support/tickets", async (req, res) => {
+    try {
+      const status = req.query.status as string;
+      const tickets = await getSupportTickets(status);
+      res.json(tickets);
+    } catch (error) {
+      console.error("Support tickets fetch error:", error);
+      res.status(500).json({ error: "Failed to get support tickets" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
