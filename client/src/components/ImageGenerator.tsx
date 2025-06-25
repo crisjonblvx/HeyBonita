@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useLanguage } from './LanguageProvider';
@@ -38,7 +38,7 @@ const presetPrompts = {
   creative: "Artistic and creative composition, vibrant colors, unique perspective"
 };
 
-export function ImageGenerator({ userId }: ImageGeneratorProps) {
+const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const { language, t } = useLanguage();
@@ -478,4 +478,6 @@ export function ImageGenerator({ userId }: ImageGeneratorProps) {
       </div>
     </div>
   );
-}
+});
+
+export { ImageGenerator };

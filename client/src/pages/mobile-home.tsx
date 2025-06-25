@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
@@ -78,52 +78,63 @@ export default function MobileHome() {
     console.log('Mobile: Saved active tab to localStorage:', activeTab);
   }, [toneMode, responseMode, voiceMode, activeTab]);
 
-  const renderActiveTab = () => {
-    console.log('Rendering active tab:', activeTab);
-    
-    // Use React.memo equivalent approach to prevent unnecessary re-renders
-    if (activeTab === 'chat') {
-      return <BonitaChat key="chat" userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
-    }
-    
-    if (activeTab === 'image') {
+  // Memoize components to prevent re-rendering
+  const chatComponent = useMemo(() => 
+    <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />, 
+    [userId, toneMode, responseMode, voiceMode]
+  );
+  
+  const imageComponent = useMemo(() => 
+    <div className="h-full">
+      <ImageGenerator userId={userId} />
+    </div>, 
+    [userId]
+  );
+  
+  const videoComponent = useMemo(() => 
+    <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />, 
+    [userId, toneMode, responseMode]
+  );
+  
+  const profileComponent = useMemo(() => {
+    if (userLoading) {
       return (
-        <div key="image" className="h-full">
-          <ImageGenerator userId={userId} />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-muted-foreground p-8">
+            Loading profile...
+          </div>
         </div>
       );
     }
     
-    if (activeTab === 'video') {
-      return <VideoScripts key="video" userId={userId} toneMode={toneMode} responseMode={responseMode} />;
+    if (!user) {
+      return (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-muted-foreground p-8">
+            Unable to load profile
+          </div>
+        </div>
+      );
     }
     
-    if (activeTab === 'profile') {
-      if (userLoading) {
-        return (
-          <div key="profile-loading" className="flex-1 flex items-center justify-center">
-            <div className="text-center text-muted-foreground p-8">
-              Loading profile...
-            </div>
-          </div>
-        );
-      }
-      
-      if (!user) {
-        return (
-          <div key="profile-error" className="flex-1 flex items-center justify-center">
-            <div className="text-center text-muted-foreground p-8">
-              Unable to load profile
-            </div>
-          </div>
-        );
-      }
-      
-      return <GamificationPanel key="profile" userId={userId} user={user} />;
-    }
+    return <GamificationPanel userId={userId} user={user} />;
+  }, [userId, user, userLoading]);
+
+  const renderActiveTab = () => {
+    console.log('Rendering active tab:', activeTab);
     
-    // Default fallback
-    return <BonitaChat key="default" userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+    switch (activeTab) {
+      case 'chat':
+        return chatComponent;
+      case 'image':
+        return imageComponent;
+      case 'video':
+        return videoComponent;
+      case 'profile':
+        return profileComponent;
+      default:
+        return chatComponent;
+    }
   };
 
   return (
