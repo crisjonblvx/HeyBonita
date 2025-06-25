@@ -46,14 +46,17 @@ const ImageGenerator = memo(function ImageGenerator({ userId }: ImageGeneratorPr
 
   console.log('ImageGenerator rendered with userId:', userId);
 
-  // Fetch generated images with better caching
+  // Fetch generated images with aggressive caching
   const { data: images = [], isError, error } = useQuery({
     queryKey: ['/api/images'],
     enabled: !!userId,
-    retry: 2,
-    staleTime: 60000, // 1 minute
+    retry: 1,
+    staleTime: 300000, // 5 minutes
+    gcTime: 600000, // 10 minutes
     refetchOnWindowFocus: false,
-    refetchInterval: false, // Disable auto-refetch
+    refetchInterval: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     onError: (error: any) => {
       console.error('Error fetching images:', error);
     },

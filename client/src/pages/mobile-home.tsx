@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
@@ -78,24 +78,36 @@ export default function MobileHome() {
     console.log('Mobile: Saved active tab to localStorage:', activeTab);
   }, [toneMode, responseMode, voiceMode, activeTab]);
 
-  // Memoize components to prevent re-rendering
-  const chatComponent = useMemo(() => 
-    <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />, 
-    [userId, toneMode, responseMode, voiceMode]
-  );
+  // Use refs to store component instances and prevent re-creation
+  const componentInstances = useRef<{[key: string]: JSX.Element | null}>({
+    chat: null,
+    image: null,
+    video: null,
+    profile: null
+  });
+
+  // Create components only once and store them
+  if (!componentInstances.current.chat) {
+    componentInstances.current.chat = (
+      <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />
+    );
+  }
   
-  const imageComponent = useMemo(() => 
-    <div className="h-full">
-      <ImageGenerator userId={userId} />
-    </div>, 
-    [userId]
-  );
+  if (!componentInstances.current.image) {
+    componentInstances.current.image = (
+      <div className="h-full">
+        <ImageGenerator userId={userId} />
+      </div>
+    );
+  }
   
-  const videoComponent = useMemo(() => 
-    <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />, 
-    [userId, toneMode, responseMode]
-  );
+  if (!componentInstances.current.video) {
+    componentInstances.current.video = (
+      <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />
+    );
+  }
   
+  // Profile component needs to handle loading states
   const profileComponent = useMemo(() => {
     if (userLoading) {
       return (
@@ -125,15 +137,15 @@ export default function MobileHome() {
     
     switch (activeTab) {
       case 'chat':
-        return chatComponent;
+        return componentInstances.current.chat;
       case 'image':
-        return imageComponent;
+        return componentInstances.current.image;
       case 'video':
-        return videoComponent;
+        return componentInstances.current.video;
       case 'profile':
         return profileComponent;
       default:
-        return chatComponent;
+        return componentInstances.current.chat;
     }
   };
 
