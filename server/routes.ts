@@ -63,21 +63,29 @@ function configureOAuthStrategies() {
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log('Google OAuth callback triggered for user:', profile.id);
+        console.log('Google OAuth strategy callback triggered');
+        console.log('Profile received:', {
+          id: profile.id,
+          displayName: profile.displayName,
+          emails: profile.emails,
+          photos: profile.photos
+        });
         
         // Check if user already exists with this Google ID
         let user = await storage.getUserByGoogleId(profile.id);
         
         if (user) {
-          console.log('Found existing user with Google ID');
+          console.log('Found existing user with Google ID:', user.id);
           return done(null, user);
         }
 
         // Check if user exists with this email
         if (profile.emails && profile.emails[0]) {
-          const existingUser = await storage.getUserByUsername(profile.emails[0].value);
+          const email = profile.emails[0].value;
+          console.log('Checking for existing user with email:', email);
+          const existingUser = await storage.getUserByUsername(email);
           if (existingUser) {
-            console.log('Linking Google account to existing user');
+            console.log('Linking Google account to existing user:', existingUser.id);
             // Link Google account to existing user
             const updatedUser = await storage.updateUser(existingUser.id, {
               googleId: profile.id,
@@ -88,18 +96,27 @@ function configureOAuthStrategies() {
         }
 
         console.log('Creating new user from Google profile');
-        // Create new user
-        const newUser = await storage.createUser({
+        // Create new user with proper data
+        const userData = {
           username: profile.emails?.[0]?.value || `google_${profile.id}`,
           email: profile.emails?.[0]?.value || null,
           googleId: profile.id,
-          provider: 'google'
-        });
+          provider: 'google',
+          // Add default values for required fields
+          passwordHash: null, // OAuth users don't need password
+          language: 'en',
+          theme: 'dark',
+          colorScheme: 'red',
+          toneMode: 'sweet-nurturing'
+        };
+        
+        const newUser = await storage.createUser(userData);
+        console.log('New user created:', newUser.id);
 
         return done(null, newUser);
       } catch (error) {
-        console.error('Google OAuth error:', error);
-        return done(error, undefined);
+        console.error('Google OAuth strategy error:', error);
+        return done(error, null);
       }
     }));
   } else {
@@ -195,11 +212,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+    (req, res, next) => {
+      console.log('Google callback received with query:', req.query);
+      if (req.query.error) {
+        console.log('Google OAuth error:', req.query.error);
+        return res.redirect('/auth?error=oauth_failed');
+      }
+      next();
+    },
+    passport.authenticate('google', { 
+      failureRedirect: '/auth?error=oauth_failed',
+      failureMessage: true 
+    }),
     (req, res) => {
+      console.log('Google OAuth success! User:', req.user);
       // Set session userId for compatibility with existing auth system
       if (req.user && typeof req.user === 'object' && 'id' in req.user) {
         (req.session as any).userId = (req.user as any).id;
+        console.log('Session userId set to:', (req.user as any).id);
       }
       // Successful authentication, redirect to home
       res.redirect('/');
