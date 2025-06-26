@@ -211,7 +211,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Referer:', req.get('Referer'));
     passport.authenticate('google', { 
       scope: ['profile', 'email'],
-      prompt: 'select_account'
+      prompt: 'select_account',
+      accessType: 'offline'
     })(req, res, next);
   });
 
