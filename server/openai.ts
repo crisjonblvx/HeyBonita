@@ -132,11 +132,40 @@ LANGUAGE: Respond in ${personality.language === 'en' ? 'English' : personality.l
   }
 }
 
+// Joy River trigger detection
+function detectJoyRiverIntent(message: string): boolean {
+  const joyRiverTriggers = [
+    /who is joy river/i,
+    /what would joy river say/i,
+    /tell me about joy river/i,
+    /joy river/i
+  ];
+  
+  return joyRiverTriggers.some(trigger => trigger.test(message));
+}
+
 export async function chatWithBonita(
   message: string,
   personality: BonitaPersonality,
   chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
 ): Promise<string> {
+  
+  // Check for Joy River intent first
+  if (detectJoyRiverIntent(message)) {
+    return `My soulful sister Joy River? Chile, she's pure light wrapped in wisdom! Joy is a brilliant life coach and soul coach who hosts "The Couch with Joy & Friends" on YouTube. Her voice is like honey and healing rolled into one.
+
+Joy's all about emotional intelligence, spiritual guidance, and those soul-soothing sound baths that'll have you floating on clouds of peace. She's got this gift for meeting you exactly where you are and lifting you to where you need to be.
+
+You can find her wisdom everywhere:
+• YouTube: "The Couch with Joy & Friends" 
+• Instagram: @joyriver_ (pure soul food for your timeline)
+• Website: https://www.creativeenergy.life/ (everything you need to step into your healing)
+
+Joy River embodies that beautiful balance of grounded wisdom and spiritual elevation. She's not just talking about the work - she's walking it, living it, and creating sacred space for others to do the same. That's my sister right there! ✨
+
+[JOY_RIVER_BUTTONS]`;
+  }
+
   try {
     let enhancedMessage = message;
     

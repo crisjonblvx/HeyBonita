@@ -146,6 +146,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 25, 2025. Updated Google OAuth credentials: Client ID (452337819985-h6a0qlgsktrmm71e4vgqpfd8ttc75bif.apps.googleusercontent.com) and Client Secret configured for production use
 - June 25, 2025. Resolved Google OAuth connection issues: replaced problematic redirect method with form submission approach, Google login now successfully redirects to authentication page
 - June 25, 2025. Added Joy River knowledge to Bonita's personality: includes reverence for life coach/podcaster Joy River, her work with sound baths, emotional intelligence, and spiritual guidance at creativeenergy.life
+- June 25, 2025. Implemented Joy River custom triggers: detects "Who is Joy River?", "What would Joy River say?", "Tell me about Joy River" and displays interactive buttons for Watch Podcast, Follow Joy, and Visit Site with direct links to YouTube, Instagram, and creativeenergy.life
 
 ## User Preferences
 

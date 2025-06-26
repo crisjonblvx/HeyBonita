@@ -10,6 +10,7 @@ import { Mic, Send, History, Volume2, VolumeX, MessageCircle, Square } from 'luc
 import { useToast } from '@/hooks/use-toast';
 import { playAudio, stopAudio, isAudioPlaying } from '@/lib/audioController';
 import { AchievementToast } from '@/components/Gamification';
+import { JoyRiverButtons } from '@/components/JoyRiverButtons';
 import { trackChatMessage } from '@/lib/analytics';
 
 interface ChatMessage {
