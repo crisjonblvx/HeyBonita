@@ -157,7 +157,7 @@ export async function chatWithBonita(
 Joy's all about emotional intelligence, spiritual guidance, and those soul-soothing sound baths that'll have you floating on clouds of peace. She's got this gift for meeting you exactly where you are and lifting you to where you need to be.
 
 You can find her wisdom everywhere:
-• YouTube: "The Couch with Joy & Friends" 
+• YouTube: "The Couch with Joy & Friends" (@TheCouchwithJoyFriends)
 • Instagram: @joyriver_ (pure soul food for your timeline)
 • Website: https://www.creativeenergy.life/ (everything you need to step into your healing)
 

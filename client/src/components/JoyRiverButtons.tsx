@@ -19,7 +19,7 @@ export function JoyRiverButtons({ onButtonClick }: JoyRiverButtonsProps) {
       <Button
         variant="outline"
         size="sm"
-        onClick={() => handleClick('watch_podcast', 'https://www.youtube.com/@joyriver_')}
+        onClick={() => handleClick('watch_podcast', 'https://www.youtube.com/@TheCouchwithJoyFriends')}
         className="flex items-center gap-2"
       >
         <Youtube className="w-4 h-4" />

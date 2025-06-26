@@ -148,6 +148,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 25, 2025. Added Joy River knowledge to Bonita's personality: includes reverence for life coach/podcaster Joy River, her work with sound baths, emotional intelligence, and spiritual guidance at creativeenergy.life
 - June 25, 2025. Implemented Joy River custom triggers: detects "Who is Joy River?", "What would Joy River say?", "Tell me about Joy River" and displays interactive buttons for Watch Podcast, Follow Joy, and Visit Site with direct links to YouTube, Instagram, and creativeenergy.life
 - June 26, 2025. Diagnosed Google OAuth "refused to connect" issue: app is in Testing mode and needs to be published to Production in Google Cloud Console for unrestricted access
+- June 26, 2025. Fixed Joy River trigger system: interactive buttons now display properly, updated YouTube link to correct channel @TheCouchwithJoyFriends
 
 ## User Preferences
 
