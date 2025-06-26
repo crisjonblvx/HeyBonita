@@ -184,9 +184,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   configureOAuthStrategies();
 
   // OAuth Routes - Google
-  app.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-  );
+  app.get('/auth/google', (req, res, next) => {
+    console.log('Google OAuth initiated');
+    console.log('User-Agent:', req.get('User-Agent'));
+    console.log('Referer:', req.get('Referer'));
+    passport.authenticate('google', { 
+      scope: ['profile', 'email'],
+      prompt: 'select_account'
+    })(req, res, next);
+  });
 
   app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
