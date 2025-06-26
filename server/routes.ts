@@ -116,6 +116,10 @@ function configureOAuthStrategies() {
         return done(null, newUser);
       } catch (error) {
         console.error('Google OAuth strategy error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack
+        });
         return done(error, null);
       }
     }));
@@ -211,30 +215,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })(req, res, next);
   });
 
-  app.get('/auth/google/callback',
-    (req, res, next) => {
-      console.log('Google callback received with query:', req.query);
-      if (req.query.error) {
-        console.log('Google OAuth error:', req.query.error);
+  app.get('/auth/google/callback', (req, res, next) => {
+    console.log('Google OAuth callback route hit');
+    console.log('Query params:', req.query);
+    console.log('Session before auth:', req.session);
+    
+    if (req.query.error) {
+      console.log('Google OAuth error in query:', req.query.error);
+      return res.redirect('/auth?error=oauth_failed');
+    }
+    
+    passport.authenticate('google', (err, user, info) => {
+      console.log('Passport authenticate result:', { 
+        error: err, 
+        userExists: !!user, 
+        userDetails: user ? { id: user.id, email: user.email } : null,
+        info 
+      });
+      
+      if (err) {
+        console.error('OAuth authentication error:', err);
+        return res.redirect('/auth?error=oauth_error');
+      }
+      
+      if (!user) {
+        console.log('No user returned from OAuth strategy');
         return res.redirect('/auth?error=oauth_failed');
       }
-      next();
-    },
-    passport.authenticate('google', { 
-      failureRedirect: '/auth?error=oauth_failed',
-      failureMessage: true 
-    }),
-    (req, res) => {
-      console.log('Google OAuth success! User:', req.user);
-      // Set session userId for compatibility with existing auth system
-      if (req.user && typeof req.user === 'object' && 'id' in req.user) {
-        (req.session as any).userId = (req.user as any).id;
-        console.log('Session userId set to:', (req.user as any).id);
-      }
-      // Successful authentication, redirect to home
-      res.redirect('/');
-    }
-  );
+      
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error('req.logIn error:', loginErr);
+          return res.redirect('/auth?error=login_failed');
+        }
+        
+        console.log('User successfully logged in via Google:', user.id);
+        (req.session as any).userId = user.id;
+        console.log('Session after login:', req.session);
+        return res.redirect('/app');
+      });
+    })(req, res, next);
+  });
 
   // OAuth Routes - Apple
   app.get('/auth/apple',
