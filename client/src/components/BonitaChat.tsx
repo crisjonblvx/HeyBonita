@@ -570,7 +570,14 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-muted'
                 }`}>
-                  <p>{msg.content}</p>
+                  <p>{msg.content.replace('[JOY_RIVER_BUTTONS]', '')}</p>
+                  {msg.role === 'assistant' && msg.content.includes('[JOY_RIVER_BUTTONS]') && (
+                    <JoyRiverButtons 
+                      onButtonClick={(action) => {
+                        trackChatMessage(userId, 'joy_river_button_click', { action });
+                      }}
+                    />
+                  )}
                   <div className="flex items-center justify-between mt-1">
                     <span className={`text-xs ${
                       msg.role === 'user' 
@@ -584,7 +591,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                         size="sm"
                         variant="ghost"
                         className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-1"
-                        onClick={() => speakMessage(msg.content)}
+                        onClick={() => speakMessage(msg.content.replace('[JOY_RIVER_BUTTONS]', ''))}
                         title={t('speakMessage')}
                       >
                         <Volume2 className="h-3 w-3" />
