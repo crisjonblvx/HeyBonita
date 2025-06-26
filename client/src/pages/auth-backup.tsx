@@ -1,60 +1,69 @@
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { useLocation } from 'wouter';
-import logoPath from "@assets/Bonita logo 1 alpha_1750814378445.png";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 
-export default function AuthPage() {
+interface AuthProps {
+  onAuthenticated: (user: any) => void;
+}
+
+export default function Auth({ onAuthenticated }: AuthProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
-  const [registerData, setRegisterData] = useState({
-    username: '', email: '', password: '', confirmPassword: ''
+  const [registerData, setRegisterData] = useState({ 
+    username: '', 
+    email: '', 
+    password: '',
+    confirmPassword: ''
   });
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginData.username.trim() || !loginData.password) {
+    
+    if (!loginData.username.trim() || !loginData.password.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all fields.",
+        description: "Please enter both username and password.",
         variant: "destructive",
       });
       return;
     }
 
     setIsLoading(true);
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(loginData)
-      });
 
-      if (response.ok) {
+    try {
+      const response = await apiRequest('POST', '/api/auth/login', {
+        username: loginData.username.trim(),
+        password: loginData.password
+      });
+      
+      if (!response.ok) {
+        const result = await response.json();
         toast({
-          title: "Welcome back!",
-          description: "You've been signed in successfully.",
-        });
-        setLocation('/');
-      } else {
-        const error = await response.json();
-        toast({
-          title: "Sign In Failed",
-          description: error.error || "Invalid username or password.",
+          title: "Login Failed",
+          description: result.error || "Invalid username or password",
           variant: "destructive",
         });
+        return;
       }
+      
+      const result = await response.json();
+      localStorage.setItem('userId', result.user.id);
+      localStorage.setItem('username', result.user.username);
+      onAuthenticated(result.user);
+      toast({
+        title: "Welcome back!",
+        description: `Good to see you again, ${result.user.username}!`,
+      });
     } catch (error) {
-      console.log('Login error:', error);
+      console.error('Login error:', error);
       toast({
         title: "Connection Error",
-        description: "Unable to connect to server. Please try again.",
+        description: "Network connection failed. Please check your internet and try again.",
         variant: "destructive",
       });
     } finally {
@@ -65,7 +74,8 @@ export default function AuthPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!registerData.username.trim() || !registerData.email.trim() || !registerData.password || !registerData.confirmPassword) {
+    // Validation checks
+    if (!registerData.username.trim() || !registerData.email.trim() || !registerData.password.trim()) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields.",
@@ -114,26 +124,42 @@ export default function AuthPage() {
           password: registerData.password
         })
       });
-
-      if (response.ok) {
-        toast({
-          title: "Account Created!",
-          description: "Welcome to Bonita AI! You're now signed in.",
-        });
-        setLocation('/');
-      } else {
-        const error = await response.json();
+      
+      if (!response.ok) {
+        const result = await response.json();
         toast({
           title: "Registration Failed",
-          description: error.error || "Unable to create account. Please try again.",
+          description: result.error || "Unable to create account",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        toast({
+          title: "Welcome to Bonita!",
+          description: `Account created successfully! Welcome, ${result.user.username}!`,
+        });
+        
+        // Wait a moment for session to be established
+        setTimeout(() => {
+          onAuthenticated(result.user);
+          window.location.href = '/app';
+        }, 100);
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: result.error || "Failed to create account",
           variant: "destructive",
         });
       }
     } catch (error) {
-      console.log('Registration error:', error);
+      console.error('Registration error:', error);
       toast({
-        title: "Connection Error",
-        description: "Unable to connect to server. Please try again.",
+        title: "Connection Error", 
+        description: "Network connection failed. Please check your internet and try again.",
         variant: "destructive",
       });
     } finally {
@@ -141,34 +167,19 @@ export default function AuthPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    console.log('Initiating Google OAuth...');
-    try {
-      // Use a more direct approach that should avoid CORS issues
-      const form = document.createElement('form');
-      form.method = 'GET';
-      form.action = '/auth/google';
-      document.body.appendChild(form);
-      form.submit();
-    } catch (error) {
-      console.error('Google OAuth error:', error);
-      toast({
-        title: "Connection Error",
-        description: "Unable to connect to Google. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img src={logoPath} alt="Bonita AI" className="h-16 w-16" />
-          </div>
-          <CardTitle className="text-2xl font-bold">Welcome to Bonita AI</CardTitle>
-          <CardDescription>Your Digital Bronx Auntie is ready to help</CardDescription>
+          <img 
+            src="/images/bonita-logo-alpha.png" 
+            alt="Bonita" 
+            className="w-16 h-16 mx-auto mb-4"
+          />
+          <CardTitle className="text-2xl">Welcome to Bonita</CardTitle>
+          <CardDescription>
+            Your Digital Bronx Auntie is ready to chat, create, and inspire
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
@@ -182,7 +193,7 @@ export default function AuthPage() {
                 <div>
                   <Input
                     type="text"
-                    placeholder="Username or Email"
+                    placeholder="Username"
                     value={loginData.username}
                     onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
                     required
@@ -216,7 +227,7 @@ export default function AuthPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={handleGoogleLogin}
+                    onClick={() => window.location.href = '/auth/google'}
                     className="w-full"
                     disabled={isLoading}
                   >
@@ -247,8 +258,8 @@ export default function AuthPage() {
                     className="w-full"
                     disabled={isLoading}
                   >
-                    <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12.017 0C8.396 0 8.017.365 8.017 3.688c0 1.854.711 3.663 2.03 4.987C11.466 9.979 13.607 10.362 15.115 9.175c1.31-1.034 2.436-2.666 2.436-4.771C17.551.365 17.172 0 12.017 0zm2.706 22.771c-.546.894-1.42 1.229-2.706 1.229-1.285 0-2.159-.335-2.706-1.229-.547-.894-.888-2.066-.888-3.230s.341-2.336.888-3.230c.547-.894 1.421-1.229 2.706-1.229s2.159.335 2.706 1.229c.546.894.888 2.066.888 3.230s-.342 2.336-.888 3.230z"/>
+                    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                     </svg>
                     Apple
                   </Button>
@@ -261,11 +272,12 @@ export default function AuthPage() {
                 <div>
                   <Input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Username (try a different one)"
                     value={registerData.username}
                     onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
                     required
                     disabled={isLoading}
+                    minLength={3}
                   />
                 </div>
                 <div>
@@ -281,11 +293,12 @@ export default function AuthPage() {
                 <div>
                   <Input
                     type="password"
-                    placeholder="Password (min 6 characters)"
+                    placeholder="Password"
                     value={registerData.password}
                     onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                     required
                     disabled={isLoading}
+                    minLength={6}
                   />
                 </div>
                 <div>
@@ -296,6 +309,7 @@ export default function AuthPage() {
                     onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
                     required
                     disabled={isLoading}
+                    minLength={6}
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -315,7 +329,7 @@ export default function AuthPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={handleGoogleLogin}
+                    onClick={() => window.location.href = '/auth/google'}
                     className="w-full"
                     disabled={isLoading}
                   >
@@ -346,8 +360,8 @@ export default function AuthPage() {
                     className="w-full"
                     disabled={isLoading}
                   >
-                    <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12.017 0C8.396 0 8.017.365 8.017 3.688c0 1.854.711 3.663 2.03 4.987C11.466 9.979 13.607 10.362 15.115 9.175c1.31-1.034 2.436-2.666 2.436-4.771C17.551.365 17.172 0 12.017 0zm2.706 22.771c-.546.894-1.42 1.229-2.706 1.229-1.285 0-2.159-.335-2.706-1.229-.547-.894-.888-2.066-.888-3.230s.341-2.336.888-3.230c.547-.894 1.421-1.229 2.706-1.229s2.159.335 2.706 1.229c.546.894.888 2.066.888 3.230s-.342 2.336-.888 3.230z"/>
+                    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                     </svg>
                     Apple
                   </Button>
