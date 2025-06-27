@@ -25,9 +25,10 @@ interface BonitaChatProps {
   toneMode: 'sweet-nurturing' | 'tough-love';
   responseMode: 'quick' | 'detailed';
   voiceMode: 'text-to-speech' | 'speech-to-speech';
+  onResponseModeChange?: (mode: 'quick' | 'detailed') => void;
 }
 
-export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: BonitaChatProps) {
+export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onResponseModeChange }: BonitaChatProps) {
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -691,7 +692,11 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-muted'
                 }`}>
-                  <p>{msg.content.replace('[JOY_RIVER_BUTTONS]', '').replace(/\[Response was cut short - would you like me to continue\?\]/g, '')}</p>
+                  <p>{msg.content
+                    .replace('[JOY_RIVER_BUTTONS]', '')
+                    .replace(/\[Response was cut short - would you like me to continue\?\]/g, '')
+                    .replace('[MORE_DETAILS_AVAILABLE]', '')
+                    .trim()}</p>
                   {msg.role === 'assistant' && msg.content.includes('[JOY_RIVER_BUTTONS]') && (
                     <JoyRiverButtons 
                       onButtonClick={(action) => {
@@ -712,6 +717,40 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                         className="text-xs"
                       >
                         Continue Response
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Show more details button for quick mode responses */}
+                  {msg.role === 'assistant' && msg.content.includes('[MORE_DETAILS_AVAILABLE]') && (
+                    <div className="mt-3 flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const detailsMessage = "Please give me the detailed version of that answer.";
+                          setMessage(detailsMessage);
+                          sendMessageMutation.mutate(detailsMessage);
+                        }}
+                        className="text-xs"
+                      >
+                        Get More Details
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          // Switch to detailed mode
+                          onResponseModeChange?.('detailed');
+                          localStorage.setItem('responseMode', 'detailed');
+                          toast({
+                            title: "Switched to Detailed Mode",
+                            description: "Bonita will now give fuller, more comprehensive responses.",
+                          });
+                        }}
+                        className="text-xs"
+                      >
+                        Switch to Detailed Mode
                       </Button>
                     </div>
                   )}

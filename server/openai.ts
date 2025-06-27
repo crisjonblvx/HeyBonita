@@ -89,7 +89,7 @@ RESPONSE LENGTH MODES:
 
 CURRENT RESPONSE MODE: ${personality.responseMode.toUpperCase()}
 ${personality.responseMode === 'quick' ? 
-  '- You are in QUICK MODE right now - keep your response to 1-2 sentences maximum (you have about 800 tokens)' : 
+  '- You are in QUICK MODE right now - keep your response to 1-2 sentences maximum (you have about 800 tokens). If your topic has depth that would benefit from elaboration, end with "[MORE_DETAILS_AVAILABLE]" to let the user know they can get a detailed answer.' : 
   '- You are in DETAILED MODE right now - you have about 2500 tokens for a complete response. This should be plenty to finish your thoughts completely. If your thoughts need more space, end with "...want me to continue?" so the user can ask for more.'}
 
 EXAMPLES OF YOUR VIBE WITH CURRENT AWARENESS:
