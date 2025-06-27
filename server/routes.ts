@@ -474,7 +474,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/auth/login", async (req, res) => {
     console.log('=== LOGIN ATTEMPT ===');
+    console.log('Content-Type:', req.get('Content-Type'));
     console.log('Request body:', req.body);
+    console.log('Raw body type:', typeof req.body);
     console.log('Session ID:', req.sessionID);
     console.log('Session exists:', !!req.session);
     
