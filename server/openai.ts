@@ -197,14 +197,27 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
       { role: "user" as const, content: enhancedMessage }
     ];
 
+    const maxTokens = personality.responseMode === 'quick' ? 300 : 1200;
+    console.log(`OpenAI request - Mode: ${personality.responseMode}, Max tokens: ${maxTokens}`);
+    
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Use gpt-4o-mini for better reliability
+      model: "gpt-4o", // Use full gpt-4o for complete responses
       messages,
-      max_tokens: personality.responseMode === 'quick' ? 200 : 800,
+      max_tokens: maxTokens,
       temperature: personality.responseMode === 'quick' ? 0.6 : 0.7,
     });
 
-    return response.choices[0].message.content || "I'm sorry, I couldn't process that right now.";
+    const content = response.choices[0].message.content || "I'm sorry, I couldn't process that right now.";
+    const usage = response.usage;
+    
+    console.log(`OpenAI response - Length: ${content.length} chars, Tokens used: ${usage?.completion_tokens}/${maxTokens}, Finish reason: ${response.choices[0].finish_reason}`);
+    
+    // Check if response was truncated due to token limit
+    if (response.choices[0].finish_reason === 'length') {
+      console.warn('Response was truncated due to token limit!');
+    }
+    
+    return content;
   } catch (error) {
     console.error("Error in chatWithBonita:", error);
     // More detailed error handling
