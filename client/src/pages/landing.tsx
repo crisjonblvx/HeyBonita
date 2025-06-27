@@ -46,8 +46,10 @@ export default function Landing() {
         description: "We'll notify you about updates and premium features.",
       });
       
-      // Navigate to app after signup
-      setTimeout(() => setLocation('/app'), 1500);
+      // Navigate to deployed app
+      setTimeout(() => {
+        window.location.href = 'https://hey-bonita.replit.app/app';
+      }, 1500);
     } catch (error) {
       console.error('Waitlist signup error:', error);
       // Allow access even if waitlist fails
@@ -58,11 +60,28 @@ export default function Landing() {
   };
 
   const skipToApp = () => {
-    setLocation('/app');
+    window.location.href = 'https://hey-bonita.replit.app/app';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      {/* Access Banner */}
+      <div className="bg-primary text-primary-foreground py-3">
+        <div className="container mx-auto px-4 text-center">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+            <span className="text-sm font-medium">Ready to chat with Bonita? Access the app now!</span>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={skipToApp}
+              className="text-primary"
+            >
+              Launch Bonita <ArrowRight className="ml-1 h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <header className="border-b border-border/40 bg-background/80 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -78,7 +97,7 @@ export default function Landing() {
             </div>
           </div>
           <Button variant="ghost" onClick={skipToApp}>
-            Skip to App <ArrowRight className="ml-2 h-4 w-4" />
+            Try App <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </header>
