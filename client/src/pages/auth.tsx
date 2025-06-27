@@ -43,7 +43,8 @@ export default function AuthPage() {
           title: "Welcome back!",
           description: "You've been signed in successfully.",
         });
-        setLocation('/');
+        // Force a page reload to refresh authentication state
+        window.location.href = '/';
       } else {
         const error = await response.json();
         toast({
@@ -112,7 +113,8 @@ export default function AuthPage() {
           title: "Account Created!",
           description: "Welcome to Bonita AI! You've been signed in automatically.",
         });
-        setLocation('/');
+        // Force a page reload to refresh authentication state
+        window.location.href = '/';
       } else {
         const error = await response.json();
         toast({

@@ -456,23 +456,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Authentication status endpoint
   app.get("/api/auth/status", async (req, res) => {
-    if (req.session && req.session.userId) {
+    console.log('Auth status check - Session exists:', !!req.session);
+    console.log('Auth status check - Session userId:', req.session?.userId);
+    console.log('Auth status check - Is authenticated:', req.isAuthenticated?.());
+    
+    // Check both session and passport authentication
+    if ((req.session && req.session.userId) || req.isAuthenticated?.()) {
       try {
-        const user = await storage.getUser(req.session.userId);
-        if (user) {
-          const { passwordHash, ...userWithoutPassword } = user;
-          res.json({ 
-            authenticated: true, 
-            user: userWithoutPassword 
-          });
-        } else {
-          req.session.destroy(() => {});
-          res.json({ authenticated: false });
+        let userId = req.session?.userId;
+        
+        // If no userId in session but passport is authenticated, try to get it
+        if (!userId && req.user && typeof req.user === 'object' && 'id' in req.user) {
+          userId = (req.user as any).id;
+          // Save userId to session for future requests
+          if (req.session) {
+            req.session.userId = userId;
+          }
         }
+        
+        if (userId) {
+          const user = await storage.getUser(userId);
+          if (user) {
+            const { passwordHash, ...userWithoutPassword } = user;
+            console.log('Auth status check - User found:', userWithoutPassword.username);
+            res.json({ 
+              authenticated: true, 
+              user: userWithoutPassword 
+            });
+            return;
+          }
+        }
+        
+        console.log('Auth status check - No user found, destroying session');
+        req.session?.destroy(() => {});
+        res.json({ authenticated: false });
       } catch (error) {
+        console.error('Auth status check error:', error);
         res.json({ authenticated: false });
       }
     } else {
+      console.log('Auth status check - Not authenticated');
       res.json({ authenticated: false });
     }
   });
