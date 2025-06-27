@@ -2,6 +2,13 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
+
+// Extend session data interface
+declare module 'express-session' {
+  interface SessionData {
+    userId: number;
+  }
+}
 import { storage } from "./storage";
 import { pool } from "./db";
 import { 
