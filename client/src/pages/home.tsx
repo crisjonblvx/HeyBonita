@@ -127,39 +127,18 @@ export default function Home() {
       );
     }
 
-    switch (activeTab) {
-      case 'chat':
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
-      case 'image':
-        return <ImageGenerator userId={userId} />;
-      case 'video':
-        return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
-      case 'profile':
-        if (userLoading || !user) {
-          return (
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground p-8">
-                {userLoading ? 'Loading profile...' : 'Creating profile...'}
-              </div>
-            </div>
-          );
-        }
-        return <GamificationPanel userId={userId} user={user} />;
-      case 'export':
-        return <ExportData userId={userId} />;
-      default:
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
-    }
+    // Default to chat view since we removed navigation
+    return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Left Sidebar */}
-      <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
-      {/* Main Content */}
-      <div className="flex-1 ml-16">
-        {renderContent()}
+    <div className="min-h-screen bg-background">
+      {/* Feedback Widget with Logout */}
+      <FeedbackWidget userId={userId || 0} page="home" />
+
+      {/* Main Content with top padding for feedback bar */}
+      <div className="pt-12 flex flex-col min-h-screen">
+        {renderActiveTab()}
       </div>
 
       {/* Settings Modal */}
@@ -308,13 +287,6 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Feedback Widget with Logout */}
-      <FeedbackWidget userId={userId || 0} page="home" />
-
-      {/* Main Content with top padding for feedback bar */}
-      <div className="pt-12 flex flex-col min-h-screen">
-        {renderActiveTab()}
-      </div>
     </div>
   );
 }
