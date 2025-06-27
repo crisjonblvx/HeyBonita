@@ -53,8 +53,24 @@ export default function AuthPage() {
           description: "You've been signed in successfully.",
         });
         
-        // Redirect to trigger app re-authentication check
-        window.location.href = '/';
+        // Immediately check authentication status and force reload if needed
+        setTimeout(async () => {
+          try {
+            const authCheck = await fetch('/api/auth/status', { credentials: 'include' });
+            const authData = await authCheck.json();
+            
+            if (authData.authenticated && authData.user) {
+              // Authentication successful, reload to show home screen
+              window.location.reload();
+            } else {
+              // Session not recognized, force a hard reload
+              window.location.href = window.location.href;
+            }
+          } catch (error) {
+            // Fallback to hard reload
+            window.location.href = window.location.href;
+          }
+        }, 1000);
       } else {
         const error = await response.json();
         toast({
@@ -124,8 +140,24 @@ export default function AuthPage() {
           description: "Welcome to Bonita AI! You've been signed in automatically.",
         });
         
-        // Redirect to trigger app re-authentication check
-        window.location.href = '/';
+        // Immediately check authentication status and force reload if needed
+        setTimeout(async () => {
+          try {
+            const authCheck = await fetch('/api/auth/status', { credentials: 'include' });
+            const authData = await authCheck.json();
+            
+            if (authData.authenticated && authData.user) {
+              // Authentication successful, reload to show home screen
+              window.location.reload();
+            } else {
+              // Session not recognized, force a hard reload
+              window.location.href = window.location.href;
+            }
+          } catch (error) {
+            // Fallback to hard reload
+            window.location.href = window.location.href;
+          }
+        }, 1000);
       } else {
         const error = await response.json();
         toast({
