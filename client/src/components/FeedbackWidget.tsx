@@ -101,22 +101,22 @@ export function FeedbackWidget({ userId, page = 'unknown' }: FeedbackWidgetProps
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm">
       {!isOpen ? (
-        <div className="flex items-center justify-between py-2 px-4">
+        <div className="flex items-center justify-between py-3 px-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground mr-2">Quick feedback:</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400 mr-2">Quick feedback:</span>
             {feedbackTypes.map(({ type, icon: Icon, label, color }) => (
               <Button
                 key={type}
                 size="sm"
                 variant="ghost"
                 onClick={() => handleQuickFeedback(type)}
-                className={`h-7 px-2 text-xs hover:bg-muted transition-all duration-200 ${color}`}
+                className={`h-8 px-3 text-xs hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 ${color}`}
                 disabled={submitFeedbackMutation.isPending}
                 title={`Quick ${label}`}
               >
-                <Icon className="h-3 w-3 mr-1" />
+                <Icon className="h-4 w-4 mr-1" />
                 {label}
               </Button>
             ))}
@@ -126,10 +126,10 @@ export function FeedbackWidget({ userId, page = 'unknown' }: FeedbackWidgetProps
             size="sm"
             variant="ghost"
             onClick={handleLogout}
-            className="h-7 px-2 text-xs hover:bg-red-50 hover:text-red-700 text-muted-foreground"
+            className="h-8 px-3 text-xs hover:bg-red-50 hover:text-red-700 text-gray-600 dark:text-gray-400"
             title="Logout"
           >
-            <LogOut className="h-3 w-3 mr-1" />
+            <LogOut className="h-4 w-4 mr-1" />
             Logout
           </Button>
         </div>

@@ -159,7 +159,7 @@ export default function Home() {
       <FeedbackWidget userId={userId || 0} page="home" />
 
       {/* Main Content with top padding for feedback bar */}
-      <div className="pt-12 pb-20 flex flex-col min-h-screen">
+      <div className="pt-16 pb-20 flex flex-col min-h-screen">
         {renderActiveTab()}
       </div>
 
