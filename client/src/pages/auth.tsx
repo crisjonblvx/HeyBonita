@@ -6,9 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from 'wouter';
 import logoPath from "@assets/Bonita logo 1 alpha_1750814378445.png";
+import BonitaLoadingSpinner from '@/components/BonitaLoadingSpinner';
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [registerData, setRegisterData] = useState({
     username: '', email: '', password: '', confirmPassword: ''
@@ -358,5 +360,6 @@ export default function AuthPage() {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 }
