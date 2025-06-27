@@ -11,7 +11,7 @@ import BonitaLoadingSpinner from '@/components/BonitaLoadingSpinner';
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isQuickAccess, setIsQuickAccess] = useState(false);
+  const [isQuickAccess, setIsQuickAccess] = useState(true); // Gray out immediately
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [registerData, setRegisterData] = useState({
     username: '', email: '', password: '', confirmPassword: ''
@@ -213,7 +213,7 @@ export default function AuthPage() {
         });
         
         setTimeout(() => {
-          setLocation('/app');
+          window.location.href = '/app';
         }, 1000);
       } else {
         throw new Error('Quick access failed');
