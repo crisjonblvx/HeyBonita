@@ -96,11 +96,11 @@ export function FeedbackWidget({ userId, page = 'unknown' }: FeedbackWidgetProps
   ];
 
   return (
-    <div className="fixed bottom-20 right-4 z-50">
+    <div className="fixed left-4 top-1/2 -translate-y-1/2 z-50">
       {!isOpen ? (
         <div className="flex flex-col gap-2">
           {/* Quick feedback buttons */}
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
             {feedbackTypes.map(({ type, icon: Icon, label, color }) => (
               <Button
                 key={type}
