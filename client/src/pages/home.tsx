@@ -202,6 +202,15 @@ export default function Home() {
             <Heart className="h-4 w-4" />
             <span className="text-xs">Profile</span>
           </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSettings(true)}
+            className="flex-1 max-w-20 flex flex-col items-center gap-1 py-3 px-2"
+          >
+            <Settings className="h-4 w-4" />
+            <span className="text-xs">Settings</span>
+          </Button>
         </div>
       </div>
 
