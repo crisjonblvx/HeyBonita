@@ -50,7 +50,7 @@ function AppRoute() {
   }
 
   if (!user) {
-    return <Auth onAuthenticated={handleAuthenticated} />;
+    return <Auth />;
   }
 
   return (

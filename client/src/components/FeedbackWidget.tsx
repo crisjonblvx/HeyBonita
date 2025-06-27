@@ -96,7 +96,7 @@ export function FeedbackWidget({ userId, page = 'unknown' }: FeedbackWidgetProps
   ];
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-20 right-4 z-50">
       {!isOpen ? (
         <div className="flex flex-col gap-2">
           {/* Quick feedback buttons */}
