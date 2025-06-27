@@ -5,6 +5,7 @@ import { VideoScripts } from '@/components/VideoScripts';
 import { GamificationPanel } from '@/components/Gamification';
 import { ExportData } from '@/components/ExportData';
 import { LeftSidebar } from '@/components/LeftSidebar';
+import { FeedbackWidget } from '@/components/FeedbackWidget';
 import { useLanguage } from '@/components/LanguageProvider';
 import { useTheme } from '@/components/ThemeProvider';
 import { useQuery } from '@tanstack/react-query';
