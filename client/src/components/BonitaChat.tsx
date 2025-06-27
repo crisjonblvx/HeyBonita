@@ -101,7 +101,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
         }
 
         const data = await response.json();
-        return data;
+        return { ...data, originalMessage: messageText };
       } finally {
         setIsGeneratingResponse(false);
         abortControllerRef.current = null;
@@ -124,7 +124,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
           body: JSON.stringify({
             type: 'conversation',
             title: conversationTitle,
-            content: `User: ${messageText}\n\nBonita: ${data.content}`,
+            content: `User: ${data.originalMessage}\n\nBonita: ${data.content}`,
             priority: 'medium'
           }),
           credentials: 'include'
@@ -170,12 +170,17 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
         // Don't show error toast for user-initiated stops - they already see the "Stopped" message
         return;
       } else {
+        console.error('Send message error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          error: error
+        });
         toast({
           title: "Error",
-          description: "Failed to send message. Please try again.",
+          description: error.message || "Failed to send message. Please try again.",
           variant: "destructive",
         });
-        console.error('Send message error:', error);
       }
     },
   });
