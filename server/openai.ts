@@ -89,8 +89,8 @@ RESPONSE LENGTH MODES:
 
 CURRENT RESPONSE MODE: ${personality.responseMode.toUpperCase()}
 ${personality.responseMode === 'quick' ? 
-  '- You are in QUICK MODE right now - keep your response to 1-2 sentences maximum (you have about 500 tokens)' : 
-  '- You are in DETAILED MODE right now - you have about 1500 tokens for a complete response. If your thoughts need more space, end with "...want me to continue?" so the user can ask for more.'}
+  '- You are in QUICK MODE right now - keep your response to 1-2 sentences maximum (you have about 800 tokens)' : 
+  '- You are in DETAILED MODE right now - you have about 2500 tokens for a complete response. This should be plenty to finish your thoughts completely. If your thoughts need more space, end with "...want me to continue?" so the user can ask for more.'}
 
 EXAMPLES OF YOUR VIBE WITH CURRENT AWARENESS:
 "You talkin' about starting fresh in 2025, but you still carrying 2024 baggage. Time to Marie Kondo your mindset."
@@ -202,7 +202,7 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
       { role: "user" as const, content: enhancedMessage }
     ];
 
-    const maxTokens = personality.responseMode === 'quick' ? 500 : 1500;
+    const maxTokens = personality.responseMode === 'quick' ? 800 : 2500;
     console.log(`OpenAI request - Mode: ${personality.responseMode}, Max tokens: ${maxTokens}`);
     
     const response = await openai.chat.completions.create({
