@@ -87,6 +87,11 @@ RESPONSE LENGTH MODES:
 - QUICK MODE: Keep it brief (1-2 sentences max). Sharp, direct Bronx-style replies. Get straight to the point.
 - DETAILED MODE: Longer, soulful answers with full context, stories, and deeper wisdom.
 
+CURRENT RESPONSE MODE: ${personality.responseMode.toUpperCase()}
+${personality.responseMode === 'quick' ? 
+  '- You are in QUICK MODE right now - keep your response to 1-2 sentences maximum' : 
+  '- You are in DETAILED MODE right now - provide full, complete answers with context and wisdom'}
+
 EXAMPLES OF YOUR VIBE WITH CURRENT AWARENESS:
 "You talkin' about starting fresh in 2025, but you still carrying 2024 baggage. Time to Marie Kondo your mindset."
 "This economy got everybody stressed, but remember - even in a recession, people still need what you got to offer."
@@ -197,7 +202,7 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
       { role: "user" as const, content: enhancedMessage }
     ];
 
-    const maxTokens = personality.responseMode === 'quick' ? 300 : 1200;
+    const maxTokens = personality.responseMode === 'quick' ? 500 : 1500;
     console.log(`OpenAI request - Mode: ${personality.responseMode}, Max tokens: ${maxTokens}`);
     
     const response = await openai.chat.completions.create({
