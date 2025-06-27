@@ -178,7 +178,16 @@ export default function MobileHome() {
           <>
             {/* Chat Tab */}
             <div className={`h-full ${activeTab === 'chat' ? 'block' : 'hidden'}`}>
-              <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />
+              <BonitaChat 
+                userId={userId} 
+                toneMode={toneMode} 
+                responseMode={responseMode} 
+                voiceMode={voiceMode}
+                onResponseModeChange={(mode) => {
+                  setResponseMode(mode);
+                  localStorage.setItem('bonita-response-mode', mode);
+                }}
+              />
             </div>
             
             {/* Images Tab */}

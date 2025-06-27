@@ -172,6 +172,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Enhanced Receipts system with automatic conversation capture: meaningful chats with Bonita (over 50 characters) now automatically create conversation receipts including both user questions and Bonita's responses, organized with clean titles and medium priority for easy reference and accountability tracking
 - June 27, 2025. Extended speech-to-speech recording duration from 15 to 25 seconds: users now have additional time to collect their thoughts during voice input, improving the speech-to-speech conversation experience
 - June 27, 2025. Fixed message sending errors and response truncation: resolved variable scope issues in chat mutation, upgraded from gpt-4o-mini to full gpt-4o model, increased token limits to 2500 for detailed mode (800 for quick mode), made Bonita aware of her current response mode and token limits through dynamic system prompts, implemented automatic truncation detection with "Continue Response" button, and added comprehensive logging to track response completion
+- June 27, 2025. Implemented smart continuation system for Quick Mode: Bonita now detects when her brief responses could benefit from elaboration and displays "Get More Details" and "Switch to Detailed Mode" buttons, enabling seamless transitions between response modes for optimal user experience
 
 ## User Preferences
 

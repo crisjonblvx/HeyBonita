@@ -132,7 +132,16 @@ export default function Home() {
 
     switch (activeTab) {
       case 'chat':
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+        return <BonitaChat 
+          userId={userId} 
+          toneMode={toneMode} 
+          responseMode={responseMode} 
+          voiceMode={voiceMode}
+          onResponseModeChange={(mode) => {
+            setResponseMode(mode);
+            localStorage.setItem('bonita-response-mode', mode);
+          }}
+        />;
       case 'image':
         return <ImageGenerator userId={userId} />;
       case 'video':
@@ -162,7 +171,16 @@ export default function Home() {
             </div>
           );
         }
-        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+        return <BonitaChat 
+          userId={userId} 
+          toneMode={toneMode} 
+          responseMode={responseMode} 
+          voiceMode={voiceMode}
+          onResponseModeChange={(mode) => {
+            setResponseMode(mode);
+            localStorage.setItem('bonita-response-mode', mode);
+          }}
+        />;
     }
   };
 
