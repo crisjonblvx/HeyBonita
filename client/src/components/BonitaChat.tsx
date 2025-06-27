@@ -167,6 +167,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
 
   const startVoiceRecording = (autoSend = false) => {
     console.log('startVoiceRecording called with autoSend:', autoSend);
+    console.log('Browser info:', navigator.userAgent);
     console.log('Speech API support check...');
     console.log('webkitSpeechRecognition:', 'webkitSpeechRecognition' in window);
     console.log('SpeechRecognition:', 'SpeechRecognition' in window);
@@ -174,8 +175,8 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     // Check for Web Speech API support
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
-        title: "Not Supported",
-        description: "Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.",
+        title: "Voice Not Supported",
+        description: "Speech recognition isn't available in the Replit browser. Try opening this app in Chrome, Edge, or Safari for voice features.",
         variant: "destructive",
       });
       return;
