@@ -96,28 +96,28 @@ export function FeedbackWidget({ userId, page = 'unknown' }: FeedbackWidgetProps
   ];
 
   return (
-    <div className="fixed left-4 top-1/2 -translate-y-1/2 z-50">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       {!isOpen ? (
-        <div className="flex flex-col gap-2">
-          {/* Quick feedback buttons */}
-          <div className="flex flex-col gap-2">
-            {feedbackTypes.map(({ type, icon: Icon, label, color }) => (
-              <Button
-                key={type}
-                size="sm"
-                variant="outline"
-                onClick={() => handleQuickFeedback(type)}
-                className={`${color} hover:bg-muted transition-all duration-200 shadow-lg`}
-                disabled={submitFeedbackMutation.isPending}
-                title={`Quick ${label}`}
-              >
-                <Icon className="h-4 w-4" />
-              </Button>
-            ))}
-          </div>
+        <div className="flex items-center justify-center gap-2 py-2 px-4">
+          <span className="text-xs text-muted-foreground mr-2">Quick feedback:</span>
+          {feedbackTypes.map(({ type, icon: Icon, label, color }) => (
+            <Button
+              key={type}
+              size="sm"
+              variant="ghost"
+              onClick={() => handleQuickFeedback(type)}
+              className={`h-7 px-2 text-xs hover:bg-muted transition-all duration-200 ${color}`}
+              disabled={submitFeedbackMutation.isPending}
+              title={`Quick ${label}`}
+            >
+              <Icon className="h-3 w-3 mr-1" />
+              {label}
+            </Button>
+          ))}
         </div>
       ) : (
-        <Card className="w-80 shadow-lg">
+        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2">
+          <Card className="w-80 shadow-lg">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold">
@@ -192,6 +192,7 @@ export function FeedbackWidget({ userId, page = 'unknown' }: FeedbackWidgetProps
             </div>
           </CardContent>
         </Card>
+        </div>
       )}
     </div>
   );
