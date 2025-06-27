@@ -209,6 +209,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Google OAuth initiated');
     console.log('User-Agent:', req.get('User-Agent'));
     console.log('Referer:', req.get('Referer'));
+    console.log('Host:', req.get('Host'));
+    console.log('Protocol:', req.protocol);
+    console.log('Full URL would be:', `${req.protocol}://${req.get('Host')}/auth/google/callback`);
     passport.authenticate('google', { 
       scope: ['profile', 'email'],
       prompt: 'select_account',
