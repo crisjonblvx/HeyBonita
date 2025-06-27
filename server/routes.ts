@@ -446,7 +446,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/login", rateLimitMiddleware('/api/auth/login'), async (req, res) => {
+  // Test endpoint to verify routing
+  app.get("/api/test", (req, res) => {
+    console.log('Test endpoint hit');
+    res.json({ message: "API is working" });
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
     console.log('=== LOGIN ATTEMPT ===');
     console.log('Request body:', req.body);
     console.log('Session ID:', req.sessionID);

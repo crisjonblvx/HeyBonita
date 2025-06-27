@@ -41,6 +41,11 @@ export default function AuthPage() {
       });
       
       console.log('Frontend: Login response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Frontend: Login error response:', errorText);
+      }
 
       if (response.ok) {
         toast({
