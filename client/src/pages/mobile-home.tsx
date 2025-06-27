@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
+import { ReceiptsFolder } from '@/components/ReceiptsFolder';
 import { GamificationPanel } from '@/components/Gamification';
 import { ExportData } from '@/components/ExportData';
 import { useLanguage } from '@/components/LanguageProvider';
@@ -14,6 +15,7 @@ import {
   MessageCircle, 
   Image, 
   Video, 
+  FileText,
   Settings, 
   HelpCircle, 
   Mic, 
@@ -29,7 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 // Define Bonita avatar URL
 const bonitaAvatarUrl = "/images/bonita-logo-alpha.png";
 
-type ActiveTab = 'chat' | 'image' | 'video' | 'profile' | 'export';
+type ActiveTab = 'chat' | 'image' | 'video' | 'receipts' | 'profile' | 'export';
 type ToneMode = 'sweet-nurturing' | 'tough-love';
 type ResponseMode = 'quick' | 'detailed';
 
@@ -189,6 +191,11 @@ export default function MobileHome() {
               <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />
             </div>
             
+            {/* Receipts Tab */}
+            <div className={`h-full ${activeTab === 'receipts' ? 'block' : 'hidden'}`}>
+              <ReceiptsFolder />
+            </div>
+            
             {/* Profile Tab */}
             <div className={`h-full ${activeTab === 'profile' ? 'block' : 'hidden'}`}>
               {userLoading ? (
@@ -251,6 +258,17 @@ export default function MobileHome() {
           >
             <Video className="h-5 w-5 mb-1" />
             Scripts
+          </button>
+          <button
+            onClick={() => setActiveTab('receipts')}
+            className={`flex-1 flex flex-col items-center justify-center py-3 px-2 text-xs transition-colors ${
+              activeTab === 'receipts'
+                ? 'text-primary bg-primary/10'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <FileText className="h-5 w-5 mb-1" />
+            Receipts
           </button>
           <button
             onClick={() => setActiveTab('profile')}
