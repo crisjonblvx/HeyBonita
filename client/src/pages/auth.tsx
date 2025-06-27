@@ -145,25 +145,33 @@ export default function AuthPage() {
 
   const handleGoogleLogin = () => {
     console.log('Initiating Google OAuth...');
-    try {
-      // Use a more direct approach that should avoid CORS issues
-      const form = document.createElement('form');
-      form.method = 'GET';
-      form.action = '/auth/google';
-      document.body.appendChild(form);
-      form.submit();
-    } catch (error) {
-      console.error('Google OAuth error:', error);
-      toast({
-        title: "Connection Error",
-        description: "Unable to connect to Google. Please try again.",
-        variant: "destructive",
-      });
-    }
+    setIsGoogleLoading(true);
+    
+    // Show loading animation for 2 seconds before redirecting
+    setTimeout(() => {
+      try {
+        window.location.href = '/auth/google';
+      } catch (error) {
+        console.error('Google OAuth error:', error);
+        setIsGoogleLoading(false);
+        toast({
+          title: "Connection Error",
+          description: "Unable to connect to Google. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }, 2000);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4">
+    <>
+      {isGoogleLoading && (
+        <BonitaLoadingSpinner 
+          message="Connecting to Google..." 
+          subMessage="Hold tight while we set up your secure login!"
+        />
+      )}
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
