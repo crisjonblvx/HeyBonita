@@ -154,48 +154,13 @@ export default function Home() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <div className="w-80 bg-muted/30 border-r border-border flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-12 h-12 pulse-slow border-2 border-primary rounded-full flex items-center justify-center bg-background">
-                  <img 
-                    src="/images/bonita-logo-alpha.png" 
-                    alt="Bonita AI" 
-                    className="w-10 h-10 object-contain"
-                  />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background"></div>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-primary">Bonita AI</h1>
-                <p className="text-sm text-muted-foreground">Digital Bronx Auntie</p>
-              </div>
-            </div>
-            
-            <Button size="icon" variant="ghost" onClick={toggleTheme}>
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-          </div>
-          
-          {/* Language Selector */}
-          <div className="flex space-x-1 bg-muted rounded-full p-1">
-            {['en', 'es', 'pt', 'fr'].map((lang) => (
-              <Button
-                key={lang}
-                size="sm"
-                variant={language === lang ? "default" : "ghost"}
-                className="rounded-full"
-                onClick={() => handleLanguageChange(lang as any)}
-              >
-                {lang.toUpperCase()}
-              </Button>
-            ))}
-          </div>
-        </div>
+      {/* Left Sidebar */}
+      <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      {/* Main Content */}
+      <div className="flex-1 ml-16">
+        {renderContent()}
+      </div>
         
         {/* Navigation */}
         <nav className="flex-1 p-3">

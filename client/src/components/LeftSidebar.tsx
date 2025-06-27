@@ -2,9 +2,11 @@ import React from 'react';
 import { MessageSquare, Image, Video, User, LogOut, ThumbsUp, ThumbsDown, Bug, Lightbulb, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+type ActiveTab = 'chat' | 'image' | 'video' | 'profile' | 'export';
+
 interface LeftSidebarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab: ActiveTab;
+  setActiveTab: (tab: ActiveTab) => void;
 }
 
 export function LeftSidebar({ activeTab, setActiveTab }: LeftSidebarProps) {
