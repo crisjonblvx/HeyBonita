@@ -167,6 +167,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Fixed Apple Sign In blank screen error: disabled Apple authentication strategy due to missing credentials, updated auth buttons to show proper error messages instead of causing authentication failures, Apple login now shows "Coming Soon" status with user-friendly messaging
 - June 27, 2025. Implemented comprehensive "Receipts" folder system: tracks conversations by project (auto-sorted), stores dropped ideas with timestamps, manages scripts/drafts/breakdowns, logs tasks and decisions, provides accountability tracking with "receipts" of commitments, includes voice notes storage, features project organization with color coding, offers search and filtering capabilities, displays overdue commitments with Bonita's loving accountability reminders
 - June 27, 2025. Fixed misleading "Network Error" messages in chat: identified speech recognition initialization as the source of false network error toasts, improved error handling to only show speech-related errors when users actively attempt voice input, cleaned up chat loading and error states for better user experience
+- June 27, 2025. Resolved voice recording functionality: confirmed speech recognition works perfectly in Chrome, Safari, and Edge browsers with proper speech detection and transcription, added browser compatibility messaging for users in environments with limited speech API support (like Replit's embedded browser)
 
 ## User Preferences
 

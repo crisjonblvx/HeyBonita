@@ -40,6 +40,20 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Add global error handler for unhandled promise rejections
+  useEffect(() => {
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      // Check if this is an abort error that we can safely ignore
+      if (event.reason?.name === 'AbortError' || event.reason?.message?.includes('aborted')) {
+        event.preventDefault(); // Prevent the error from being logged to console
+        return;
+      }
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+  }, []);
+
   // Fetch chat history
   const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['/api/chat', userId],
@@ -132,11 +146,10 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
       }
     },
     onError: (error: any) => {
-      if (error.name === 'AbortError') {
-        toast({
-          title: "Response Stopped",
-          description: "Bonita's response was stopped.",
-        });
+      // Check if this is an abort error (user stopped the request)
+      if (error.name === 'AbortError' || error.message?.includes('aborted') || error.code === 20) {
+        // Don't show error toast for user-initiated stops - they already see the "Stopped" message
+        return;
       } else {
         toast({
           title: "Error",
@@ -166,17 +179,11 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   };
 
   const startVoiceRecording = (autoSend = false) => {
-    console.log('startVoiceRecording called with autoSend:', autoSend);
-    console.log('Browser info:', navigator.userAgent);
-    console.log('Speech API support check...');
-    console.log('webkitSpeechRecognition:', 'webkitSpeechRecognition' in window);
-    console.log('SpeechRecognition:', 'SpeechRecognition' in window);
-    
     // Check for Web Speech API support
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
-        title: "Voice Not Supported",
-        description: "Speech recognition isn't available in the Replit browser. Try opening this app in Chrome, Edge, or Safari for voice features.",
+        title: "Voice Not Available",
+        description: "Speech recognition isn't supported in this browser. Open this app in Chrome, Safari, or Edge to use voice features.",
         variant: "destructive",
       });
       return;
@@ -719,11 +726,6 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                 voiceMode === 'speech-to-speech' ? 'bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800' : ''
               }`}
               onClick={() => {
-                console.log('Microphone button clicked');
-                console.log('Voice mode:', voiceMode);
-                console.log('Is listening:', isListening);
-                console.log('Send mutation pending:', sendMessageMutation.isPending);
-                
                 // Add haptic feedback for mobile
                 if ('vibrate' in navigator) {
                   navigator.vibrate(50);
