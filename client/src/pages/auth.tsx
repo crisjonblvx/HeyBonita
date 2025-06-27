@@ -56,29 +56,11 @@ export default function AuthPage() {
           description: "You've been signed in successfully.",
         });
         
-        // Immediately check authentication status and force reload if needed
-        setTimeout(async () => {
-          try {
-            console.log('Frontend: Checking auth status after login...');
-            const authCheck = await fetch('/api/auth/status', { credentials: 'include' });
-            const authData = await authCheck.json();
-            console.log('Frontend: Auth check result:', authData);
-            
-            if (authData.authenticated && authData.user) {
-              console.log('Frontend: Authentication confirmed, reloading page');
-              // Authentication successful, reload to show home screen
-              window.location.reload();
-            } else {
-              console.log('Frontend: Auth check failed, forcing hard reload');
-              // Session not recognized, force a hard reload
-              window.location.href = window.location.href;
-            }
-          } catch (error) {
-            console.error('Frontend: Auth check error:', error);
-            // Fallback to hard reload
-            window.location.href = window.location.href;
-          }
-        }, 1000);
+        // Authentication successful, immediately reload to show Bonita home screen
+        console.log('Frontend: Login successful, redirecting to home screen...');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       } else {
         const error = await response.json();
         toast({
