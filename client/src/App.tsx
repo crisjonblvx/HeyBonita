@@ -56,7 +56,6 @@ function AppRoute() {
   return (
     <>
       {layoutType === 'mobile' ? <MobileHome /> : <Home />}
-      <FeedbackWidget userId={user.id} page={window.location.pathname} />
     </>
   );
 }

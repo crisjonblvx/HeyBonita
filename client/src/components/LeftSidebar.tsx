@@ -1,29 +1,28 @@
 import React from 'react';
-import { Link, useLocation } from 'wouter';
 import { MessageSquare, Image, Video, User, LogOut, ThumbsUp, ThumbsDown, Bug, Lightbulb, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { FeedbackWidget } from './FeedbackWidget';
 
-export function LeftSidebar() {
-  const [location] = useLocation();
-  const { user } = useAuth();
+interface LeftSidebarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}
 
+export function LeftSidebar({ activeTab, setActiveTab }: LeftSidebarProps) {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       window.location.href = '/auth';
     } catch (error) {
       console.error('Logout failed:', error);
-      window.location.href = '/auth'; // Fallback redirect
+      window.location.href = '/auth';
     }
   };
 
   const navigation = [
-    { name: 'Chat', href: '/app', icon: MessageSquare },
-    { name: 'Images', href: '/app/images', icon: Image },
-    { name: 'Scripts', href: '/app/scripts', icon: Video },
-    { name: 'Profile', href: '/app/profile', icon: User },
+    { name: 'Chat', tab: 'chat', icon: MessageSquare },
+    { name: 'Images', tab: 'images', icon: Image },
+    { name: 'Scripts', tab: 'scripts', icon: Video },
+    { name: 'Profile', tab: 'profile', icon: User },
   ];
 
   return (
@@ -31,53 +30,68 @@ export function LeftSidebar() {
       {/* Navigation Items */}
       <div className="flex flex-col items-center py-4 space-y-4">
         {navigation.map((item) => {
-          const isActive = location === item.href || (item.href === '/app' && location === '/');
+          const isActive = activeTab === item.tab;
           const Icon = item.icon;
           
           return (
-            <Link key={item.name} href={item.href}>
-              <Button
-                variant={isActive ? "default" : "ghost"}
-                size="sm"
-                className="w-10 h-10 p-0 rounded-lg"
-                title={item.name}
-              >
-                <Icon className="h-5 w-5" />
-              </Button>
-            </Link>
+            <Button
+              key={item.name}
+              variant={isActive ? "default" : "ghost"}
+              size="sm"
+              className="w-10 h-10 p-0 rounded-lg"
+              title={item.name}
+              onClick={() => setActiveTab(item.tab)}
+            >
+              <Icon className="h-5 w-5" />
+            </Button>
           );
         })}
       </div>
 
       {/* Bottom Section with Feedback and Logout */}
       <div className="flex flex-col items-center pb-4 space-y-4">
-        {/* Feedback Widget - Vertical Stack */}
+        {/* Feedback Buttons - Vertical Stack */}
         <div className="flex flex-col space-y-2">
-          <FeedbackWidget 
-            type="like" 
-            className="w-10 h-10 p-0 rounded-lg" 
-            icon={<ThumbsUp className="h-4 w-4" />}
-          />
-          <FeedbackWidget 
-            type="dislike" 
-            className="w-10 h-10 p-0 rounded-lg" 
-            icon={<ThumbsDown className="h-4 w-4" />}
-          />
-          <FeedbackWidget 
-            type="bug" 
-            className="w-10 h-10 p-0 rounded-lg" 
-            icon={<Bug className="h-4 w-4" />}
-          />
-          <FeedbackWidget 
-            type="suggestion" 
-            className="w-10 h-10 p-0 rounded-lg" 
-            icon={<Lightbulb className="h-4 w-4" />}
-          />
-          <FeedbackWidget 
-            type="general" 
-            className="w-10 h-10 p-0 rounded-lg" 
-            icon={<MessageCircle className="h-4 w-4" />}
-          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-10 h-10 p-0 rounded-lg"
+            title="Like"
+          >
+            <ThumbsUp className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-10 h-10 p-0 rounded-lg"
+            title="Dislike"
+          >
+            <ThumbsDown className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-10 h-10 p-0 rounded-lg"
+            title="Report Bug"
+          >
+            <Bug className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-10 h-10 p-0 rounded-lg"
+            title="Suggestion"
+          >
+            <Lightbulb className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-10 h-10 p-0 rounded-lg"
+            title="General Feedback"
+          >
+            <MessageCircle className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Logout Button */}
