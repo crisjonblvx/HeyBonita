@@ -113,19 +113,19 @@ export const userFeedback = pgTable("user_feedback", {
 export const receipts = pgTable("receipts", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
-  receiptType: text("receipt_type").notNull(), // 'conversation', 'idea', 'script', 'task', 'decision', 'voice_note', 'commitment'
-  projectName: text("project_name"), // auto-detected or user-assigned project
+  projectId: integer("project_id"),
+  type: text("type").notNull(), // 'conversation', 'idea', 'script', 'task', 'decision', 'voice_note', 'commitment'
   title: text("title").notNull(),
   content: text("content").notNull(),
-  tags: text("tags").array(), // for categorization and search
-  priority: text("priority").default("medium"), // 'low', 'medium', 'high', 'urgent'
-  status: text("status").default("active"), // 'active', 'completed', 'dropped', 'archived'
-  relatedReceiptId: integer("related_receipt_id"), // for linking related items
-  voiceNoteUrl: text("voice_note_url"), // for voice recordings
   metadata: jsonb("metadata"), // flexible data for additional context
-  reminderDate: timestamp("reminder_date"), // when to remind user about this
+  tags: text("tags").array(), // for categorization and search
+  isFavorite: boolean("is_favorite").default(false),
+  isArchived: boolean("is_archived").default(false),
+  priority: text("priority").default("medium"), // 'low', 'medium', 'high', 'urgent'
+  dueDate: timestamp("due_date"),
   completedAt: timestamp("completed_at"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Conversations organized by project
@@ -183,10 +183,6 @@ export const receiptRelations = relations(receipts, ({ one }) => ({
   user: one(users, {
     fields: [receipts.userId],
     references: [users.id],
-  }),
-  relatedReceipt: one(receipts, {
-    fields: [receipts.relatedReceiptId],
-    references: [receipts.id],
   }),
 }));
 

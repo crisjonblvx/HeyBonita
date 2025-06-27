@@ -34,7 +34,7 @@ import {
   type InsertCommitment
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -240,17 +240,17 @@ export class DatabaseStorage implements IStorage {
 
   // Receipts system operations
   async getReceipts(userId: number, receiptType?: string, projectName?: string, limit: number = 50): Promise<Receipt[]> {
-    let query = db.select().from(receipts).where(eq(receipts.userId, userId));
+    let baseQuery = db.select().from(receipts).where(eq(receipts.userId, userId));
     
     if (receiptType) {
-      query = query.where(eq(receipts.type, receiptType));
+      baseQuery = baseQuery.where(eq(receipts.type, receiptType));
     }
     
     if (projectName) {
-      query = query.where(eq(receipts.projectId, projectName));
+      baseQuery = baseQuery.where(eq(receipts.projectId, parseInt(projectName)));
     }
     
-    return await query.orderBy(desc(receipts.createdAt)).limit(limit);
+    return await baseQuery.orderBy(desc(receipts.createdAt)).limit(limit);
   }
 
   async createReceipt(receipt: InsertReceipt): Promise<Receipt> {
