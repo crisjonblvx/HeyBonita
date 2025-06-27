@@ -70,7 +70,8 @@ function Router() {
     <Switch>
       <Route path="/admin" component={Admin} />
       <Route path="/app" component={AppRoute} />
-      <Route path="/" component={AppRoute} />
+      <Route path="/landing" component={Landing} />
+      <Route path="/" component={Landing} />
       <Route component={NotFound} />
     </Switch>
   );

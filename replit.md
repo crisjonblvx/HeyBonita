@@ -182,6 +182,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Fixed critical authentication system issue: resolved Vite middleware conflicts preventing login by creating bypass route `/auth-login`, session management now working properly with PostgreSQL storage, users can successfully authenticate and access Bonita home screen with complete user data persistence
 - June 27, 2025. Completed authentication system overhaul: fixed session cookie configuration (changed from custom name to standard `connect.sid`, disabled httpOnly for debugging, proper path settings), authentication flow now seamless from login to Bonita home screen with full user data loading, all API endpoints responding correctly post-authentication
 - June 27, 2025. Configured landing page redirect system: all call-to-action buttons now redirect to deployed app at https://hey-bonita.replit.app/app, added prominent access banner and multiple entry points, landing page serves as effective showcase while providing seamless access to fully functional Bonita experience
+- June 27, 2025. Restored landing page to deployment: fixed routing to display landing page at root path with proper navigation to `/app` route, updated all call-to-action buttons to use local routing instead of external URLs, created comprehensive HeyBonita.ai domain setup guide with DNS configuration steps and Google OAuth updates
 
 ## User Preferences
 

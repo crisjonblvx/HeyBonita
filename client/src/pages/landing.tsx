@@ -46,9 +46,9 @@ export default function Landing() {
         description: "We'll notify you about updates and premium features.",
       });
       
-      // Navigate to deployed app
+      // Navigate to app
       setTimeout(() => {
-        window.location.href = 'https://hey-bonita.replit.app/app';
+        setLocation('/app');
       }, 1500);
     } catch (error) {
       console.error('Waitlist signup error:', error);
@@ -60,7 +60,7 @@ export default function Landing() {
   };
 
   const skipToApp = () => {
-    window.location.href = 'https://hey-bonita.replit.app/app';
+    setLocation('/app');
   };
 
   return (
