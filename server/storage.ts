@@ -58,6 +58,27 @@ export interface IStorage {
   createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback>;
   getFeedback(limit?: number): Promise<UserFeedback[]>;
   updateFeedbackStatus(id: number, resolved: boolean): Promise<UserFeedback>;
+  
+  // Receipts system operations
+  getReceipts(userId: number, receiptType?: string, projectName?: string, limit?: number): Promise<Receipt[]>;
+  createReceipt(receipt: InsertReceipt): Promise<Receipt>;
+  updateReceipt(id: number, updates: Partial<InsertReceipt>): Promise<Receipt>;
+  deleteReceipt(id: number): Promise<void>;
+  
+  // Conversation Projects
+  getConversationProjects(userId: number): Promise<ConversationProject[]>;
+  createConversationProject(project: InsertConversationProject): Promise<ConversationProject>;
+  updateConversationProject(id: number, updates: Partial<InsertConversationProject>): Promise<ConversationProject>;
+  
+  // Dropped Ideas
+  getDroppedIdeas(userId: number, projectId?: number, limit?: number): Promise<DroppedIdea[]>;
+  createDroppedIdea(idea: InsertDroppedIdea): Promise<DroppedIdea>;
+  markIdeaRediscovered(id: number): Promise<DroppedIdea>;
+  
+  // Commitments & Accountability
+  getCommitments(userId: number, status?: string, limit?: number): Promise<Commitment[]>;
+  createCommitment(commitment: InsertCommitment): Promise<Commitment>;
+  updateCommitment(id: number, updates: Partial<InsertCommitment>): Promise<Commitment>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -203,6 +224,127 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userFeedback.id, id))
       .returning();
     return feedback;
+  }
+
+  // Receipts system operations
+  async getReceipts(userId: number, receiptType?: string, projectName?: string, limit: number = 50): Promise<Receipt[]> {
+    let query = db.select().from(receipts).where(eq(receipts.userId, userId));
+    
+    if (receiptType) {
+      query = query.where(eq(receipts.receiptType, receiptType));
+    }
+    
+    if (projectName) {
+      query = query.where(eq(receipts.projectName, projectName));
+    }
+    
+    return await query.orderBy(desc(receipts.createdAt)).limit(limit);
+  }
+
+  async createReceipt(receipt: InsertReceipt): Promise<Receipt> {
+    const [newReceipt] = await db
+      .insert(receipts)
+      .values(receipt)
+      .returning();
+    return newReceipt;
+  }
+
+  async updateReceipt(id: number, updates: Partial<InsertReceipt>): Promise<Receipt> {
+    const [updatedReceipt] = await db
+      .update(receipts)
+      .set(updates)
+      .where(eq(receipts.id, id))
+      .returning();
+    return updatedReceipt;
+  }
+
+  async deleteReceipt(id: number): Promise<void> {
+    await db.delete(receipts).where(eq(receipts.id, id));
+  }
+
+  // Conversation Projects
+  async getConversationProjects(userId: number): Promise<ConversationProject[]> {
+    return await db
+      .select()
+      .from(conversationProjects)
+      .where(eq(conversationProjects.userId, userId))
+      .orderBy(desc(conversationProjects.lastActivityAt));
+  }
+
+  async createConversationProject(project: InsertConversationProject): Promise<ConversationProject> {
+    const [newProject] = await db
+      .insert(conversationProjects)
+      .values(project)
+      .returning();
+    return newProject;
+  }
+
+  async updateConversationProject(id: number, updates: Partial<InsertConversationProject>): Promise<ConversationProject> {
+    const [updatedProject] = await db
+      .update(conversationProjects)
+      .set({ ...updates, lastActivityAt: new Date() })
+      .where(eq(conversationProjects.id, id))
+      .returning();
+    return updatedProject;
+  }
+
+  // Dropped Ideas
+  async getDroppedIdeas(userId: number, projectId?: number, limit: number = 50): Promise<DroppedIdea[]> {
+    let query = db.select().from(droppedIdeas).where(eq(droppedIdeas.userId, userId));
+    
+    if (projectId) {
+      query = query.where(eq(droppedIdeas.projectId, projectId));
+    }
+    
+    return await query.orderBy(desc(droppedIdeas.createdAt)).limit(limit);
+  }
+
+  async createDroppedIdea(idea: InsertDroppedIdea): Promise<DroppedIdea> {
+    const [newIdea] = await db
+      .insert(droppedIdeas)
+      .values(idea)
+      .returning();
+    return newIdea;
+  }
+
+  async markIdeaRediscovered(id: number): Promise<DroppedIdea> {
+    const [updatedIdea] = await db
+      .update(droppedIdeas)
+      .set({ 
+        isRediscovered: true, 
+        rediscoveredAt: new Date() 
+      })
+      .where(eq(droppedIdeas.id, id))
+      .returning();
+    return updatedIdea;
+  }
+
+  // Commitments & Accountability
+  async getCommitments(userId: number, status?: string, limit: number = 50): Promise<Commitment[]> {
+    let query = db.select().from(commitments).where(eq(commitments.userId, userId));
+    
+    if (status) {
+      query = query.where(eq(commitments.status, status));
+    }
+    
+    return await query.orderBy(desc(commitments.createdAt)).limit(limit);
+  }
+
+  async createCommitment(commitment: InsertCommitment): Promise<Commitment> {
+    const [newCommitment] = await db
+      .insert(commitments)
+      .values(commitment)
+      .returning();
+    return newCommitment;
+  }
+
+  async updateCommitment(id: number, updates: Partial<InsertCommitment>): Promise<Commitment> {
+    const [updatedCommitment] = await db
+      .update(commitments)
+      .set(updates)
+      .where(eq(commitments.id, id))
+      .returning();
+    return updatedCommitment;
   }
 }
 
