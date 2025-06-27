@@ -467,20 +467,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Logout endpoint
-  app.post("/api/auth/logout", (req, res) => {
+  // Logout endpoint - support both GET and POST
+  const logoutHandler = (req, res) => {
     if (req.session) {
       req.session.destroy((err) => {
         if (err) {
           return res.status(500).json({ error: "Failed to logout" });
         }
         res.clearCookie('connect.sid');
-        res.json({ message: "Logged out successfully" });
+        // Redirect to app route which will show Auth component when no user is authenticated
+        res.redirect('/app');
       });
     } else {
-      res.json({ message: "Already logged out" });
+      res.redirect('/app');
     }
-  });
+  };
+  
+  app.post("/api/auth/logout", logoutHandler);
+  app.get("/api/logout", logoutHandler);
 
   // User routes
   app.post("/api/users", async (req, res) => {
