@@ -21,10 +21,10 @@ export function LeftSidebar({ activeTab, setActiveTab }: LeftSidebarProps) {
   };
 
   const navigation = [
-    { name: 'Chat', tab: 'chat', icon: MessageSquare },
-    { name: 'Images', tab: 'image', icon: Image },
-    { name: 'Scripts', tab: 'video', icon: Video },
-    { name: 'Profile', tab: 'profile', icon: User },
+    { name: 'Chat', tab: 'chat' as ActiveTab, icon: MessageSquare },
+    { name: 'Images', tab: 'image' as ActiveTab, icon: Image },
+    { name: 'Scripts', tab: 'video' as ActiveTab, icon: Video },
+    { name: 'Profile', tab: 'profile' as ActiveTab, icon: User },
   ];
 
   return (

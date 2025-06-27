@@ -161,179 +161,6 @@ export default function Home() {
       <div className="flex-1 ml-16">
         {renderContent()}
       </div>
-        
-        {/* Navigation */}
-        <nav className="flex-1 p-3">
-          <div className="space-y-1">
-            <Button
-              variant={activeTab === 'chat' ? "default" : "ghost"}
-              className="w-full justify-start h-9 text-sm"
-              onClick={() => setActiveTab('chat')}
-              title="Chat with Bonita"
-            >
-              <MessageCircle className="mr-2 h-4 w-4" />
-              Chat
-            </Button>
-            <Button
-              variant={activeTab === 'image' ? "default" : "ghost"}
-              className="w-full justify-start h-9 text-sm"
-              onClick={() => setActiveTab('image')}
-              title="Generate Images"
-            >
-              <Image className="mr-2 h-4 w-4" />
-              Images
-            </Button>
-            <Button
-              variant={activeTab === 'video' ? "default" : "ghost"}
-              className="w-full justify-start h-9 text-sm"
-              onClick={() => setActiveTab('video')}
-              title="Create Scripts"
-            >
-              <Video className="mr-2 h-4 w-4" />
-              Scripts
-            </Button>
-            <Button
-              variant={activeTab === 'profile' ? "default" : "ghost"}
-              className="w-full justify-start h-9 text-sm"
-              onClick={() => setActiveTab('profile')}
-              title="View Profile & Achievements"
-            >
-              <Trophy className="mr-2 h-4 w-4" />
-              Profile
-            </Button>
-            <Button
-              variant={activeTab === 'export' ? "default" : "ghost"}
-              className="w-full justify-start h-9 text-sm"
-              onClick={() => setActiveTab('export')}
-              title="Export Your Data"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </div>
-          
-          {/* Control Panel */}
-          <div className="mt-6 p-3 bg-muted rounded-lg">
-            <h3 className="text-xs font-semibold mb-3 text-muted-foreground uppercase tracking-wide">Settings</h3>
-            
-            {/* Tone Mode */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <Heart className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                <span className="text-xs truncate">Tone</span>
-              </div>
-              <div className="flex bg-muted-foreground/10 rounded-lg p-0.5 flex-shrink-0">
-                <button
-                  onClick={() => setToneMode('sweet-nurturing')}
-                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
-                    toneMode === 'sweet-nurturing' 
-                      ? 'bg-background text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Sweet & Nurturing"
-                >
-                  Sweet
-                </button>
-                <button
-                  onClick={() => setToneMode('tough-love')}
-                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
-                    toneMode === 'tough-love' 
-                      ? 'bg-background text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Tough Love"
-                >
-                  Tough
-                </button>
-              </div>
-            </div>
-
-            {/* Response Mode */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <Zap className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                <span className="text-xs truncate">Speed</span>
-              </div>
-              <div className="flex bg-muted-foreground/10 rounded-lg p-0.5 flex-shrink-0">
-                <button
-                  onClick={() => setResponseMode('detailed')}
-                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
-                    responseMode === 'detailed' 
-                      ? 'bg-background text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Detailed & Poetic"
-                >
-                  Deep
-                </button>
-                <button
-                  onClick={() => setResponseMode('quick')}
-                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
-                    responseMode === 'quick' 
-                      ? 'bg-background text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Quick & Real"
-                >
-                  Quick
-                </button>
-              </div>
-            </div>
-
-            {/* Voice Mode */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 min-w-0">
-                <Headphones className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                <span className="text-xs truncate">Voice</span>
-              </div>
-              <div className="flex bg-muted-foreground/10 rounded-lg p-0.5 flex-shrink-0">
-                <button
-                  onClick={() => setVoiceMode('text-to-speech')}
-                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
-                    voiceMode === 'text-to-speech' 
-                      ? 'bg-background text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Text-to-Speech"
-                >
-                  TTS
-                </button>
-                <button
-                  onClick={() => setVoiceMode('speech-to-speech')}
-                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
-                    voiceMode === 'speech-to-speech' 
-                      ? 'bg-background text-foreground shadow-sm' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                  title="Speech-to-Speech"
-                >
-                  STS
-                </button>
-              </div>
-            </div>
-          </div>
-        </nav>
-        
-        {/* Footer Controls */}
-        <div className="p-3 border-t border-border">
-          <div className="flex justify-center gap-2">
-            <Button size="sm" variant="ghost" onClick={() => setShowSettings(true)} title="Settings" className="h-8 w-8 p-0">
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowHelp(true)} title="Help" className="h-8 w-8 p-0">
-              <HelpCircle className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="ghost" onClick={toggleTheme} title="Toggle Theme" className="h-8 w-8 p-0">
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {renderActiveTab()}
-      </div>
 
       {/* Settings Modal */}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
@@ -360,44 +187,91 @@ export default function Home() {
                     size="icon"
                     variant={colorScheme === scheme.name ? "default" : "outline"}
                     className={`w-12 h-12 rounded-full ${scheme.color} hover:scale-110 transition-transform`}
-                    onClick={() => handleColorSchemeChange(scheme.name as any)}
+                    onClick={() => handleColorSchemeChange(scheme.name)}
                   />
                 ))}
               </div>
             </div>
-            
-            {/* Voice Settings */}
+
+            {/* Tone Mode */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">Voice Mode</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Text-to-Speech</span>
-                  <Switch 
-                    checked={voiceMode === 'text-to-speech'} 
-                    onCheckedChange={(checked) => setVoiceMode(checked ? 'text-to-speech' : 'speech-to-speech')} 
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Speech-to-Speech</span>
-                  <Switch 
-                    checked={voiceMode === 'speech-to-speech'} 
-                    onCheckedChange={(checked) => setVoiceMode(checked ? 'speech-to-speech' : 'text-to-speech')} 
-                  />
-                </div>
+              <h4 className="text-sm font-semibold mb-3">{t('toneMode')}</h4>
+              <div className="flex space-x-2">
+                <Button
+                  variant={toneMode === 'sweet-nurturing' ? "default" : "outline"}
+                  onClick={() => {
+                    setToneMode('sweet-nurturing');
+                    localStorage.setItem('bonita-tone-mode', 'sweet-nurturing');
+                  }}
+                  className="flex-1"
+                >
+                  💖 {t('sweetNurturing')}
+                </Button>
+                <Button
+                  variant={toneMode === 'tough-love' ? "default" : "outline"}
+                  onClick={() => {
+                    setToneMode('tough-love');
+                    localStorage.setItem('bonita-tone-mode', 'tough-love');
+                  }}
+                  className="flex-1"
+                >
+                  💪 {t('toughLove')}
+                </Button>
               </div>
             </div>
-            
-            {/* Data Settings */}
+
+            {/* Response Mode */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">{t('dataPrivacy')}</h4>
-              <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
-                  <Download className="mr-2 h-4 w-4" />
-                  {t('exportChatHistory')}
+              <h4 className="text-sm font-semibold mb-3">{t('responseMode')}</h4>
+              <div className="flex space-x-2">
+                <Button
+                  variant={responseMode === 'quick' ? "default" : "outline"}
+                  onClick={() => {
+                    setResponseMode('quick');
+                    localStorage.setItem('bonita-response-mode', 'quick');
+                  }}
+                  className="flex-1"
+                >
+                  ⚡ {t('quick')}
                 </Button>
-                <Button variant="destructive" className="w-full justify-start">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  {t('clearAllData')}
+                <Button
+                  variant={responseMode === 'detailed' ? "default" : "outline"}
+                  onClick={() => {
+                    setResponseMode('detailed');
+                    localStorage.setItem('bonita-response-mode', 'detailed');
+                  }}
+                  className="flex-1"
+                >
+                  📝 {t('detailed')}
+                </Button>
+              </div>
+            </div>
+
+            {/* Voice Mode */}
+            <div>
+              <h4 className="text-sm font-semibold mb-3">{t('voiceMode')}</h4>
+              <div className="flex space-x-2">
+                <Button
+                  variant={voiceMode === 'text-to-speech' ? "default" : "outline"}
+                  onClick={() => {
+                    setVoiceMode('text-to-speech');
+                    localStorage.setItem('bonita-voice-mode', 'text-to-speech');
+                  }}
+                  className="flex-1"
+                >
+                  <VolumeX className="mr-2 h-4 w-4" />
+                  {t('textToSpeech')}
+                </Button>
+                <Button
+                  variant={voiceMode === 'speech-to-speech' ? "default" : "outline"}
+                  onClick={() => {
+                    setVoiceMode('speech-to-speech');
+                    localStorage.setItem('bonita-voice-mode', 'speech-to-speech');
+                  }}
+                  className="flex-1"
+                >
+                  <Headphones className="mr-2 h-4 w-4" />
+                  {t('speechToSpeech')}
                 </Button>
               </div>
             </div>
@@ -407,55 +281,24 @@ export default function Home() {
 
       {/* Help Modal */}
       <Dialog open={showHelp} onOpenChange={setShowHelp}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t('helpSupport')}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-lg font-semibold mb-2">{t('gettingStarted')}</h4>
-              <p className="text-sm text-muted-foreground">
-                Bonita is your Digital Bronx Auntie - she's here to provide advice, create images, and write video scripts. 
-                Switch between her "Sweet Nurturing" and "Tough Love" modes to get the style of guidance you need.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="text-lg font-semibold mb-2">{t('features')}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start space-x-2">
-                  <MessageCircle className="h-4 w-4 text-primary mt-1" />
-                  <span><strong>Chat:</strong> Have conversations in English, Spanish, Portuguese, or French</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <Image className="h-4 w-4 text-primary mt-1" />
-                  <span><strong>Images:</strong> Generate custom images using DALL-E 3 technology</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <Video className="h-4 w-4 text-primary mt-1" />
-                  <span><strong>Scripts:</strong> Create engaging video scripts for social media</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <Mic className="h-4 w-4 text-primary mt-1" />
-                  <span><strong>Voice:</strong> Use voice input and text-to-speech features</span>
-                </li>
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground">
+              <p className="mb-3">{t('needHelp')}</p>
+              <ul className="space-y-2 list-disc pl-5">
+                <li>{t('helpChat')}</li>
+                <li>{t('helpImages')}</li>
+                <li>{t('helpScripts')}</li>
+                <li>{t('helpProfile')}</li>
               </ul>
             </div>
-            
-            <div>
-              <h4 className="text-lg font-semibold mb-2">{t('tipsForBetter')}</h4>
-              <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>• Be specific in your image prompts for better results</li>
-                <li>• Use the preset templates for quick script generation</li>
-                <li>• Try different color schemes to personalize your experience</li>
-                <li>• Switch language modes to practice multilingual conversations</li>
-              </ul>
-            </div>
-            
             <div className="pt-4 border-t border-border">
               <Button 
+                onClick={() => window.open('mailto:cj@heybonita.ai?subject=Bonita Support Request', '_blank')}
                 className="w-full"
-                onClick={() => window.open('mailto:cj@heybonita.ai?subject=Bonita AI Support Request', '_blank')}
               >
                 <Mail className="mr-2 h-4 w-4" />
                 {t('contactSupport')}
@@ -464,6 +307,17 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Left Sidebar */}
+      <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Main Content */}
+      <div className="ml-16 flex-1 flex flex-col">
+        {renderActiveTab()}
+      </div>
+    </div>
+  );
+}
     </div>
   );
 }
