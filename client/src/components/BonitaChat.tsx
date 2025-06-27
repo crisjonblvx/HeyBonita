@@ -28,7 +28,6 @@ interface BonitaChatProps {
 }
 
 export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: BonitaChatProps) {
-  console.log('BonitaChat rendered with userId:', userId);
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -45,24 +44,18 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['/api/chat', userId],
     queryFn: async () => {
-      console.log('Fetching chat for userId:', userId);
       const response = await fetch(`/api/chat/${userId}`, {
-        credentials: 'include' // Include cookies for authentication
+        credentials: 'include'
       });
-      console.log('Chat response status:', response.status);
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Chat fetch error:', response.status, errorText);
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      console.log('Chat data received:', data);
-      return data;
+      return response.json();
     },
     enabled: !!userId,
-    staleTime: 0, // Always refetch to keep messages fresh
-    retry: 1, // Reduce retries to see errors faster
-    retryDelay: 500
+    staleTime: 0,
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Send message mutation with abort controller
@@ -261,6 +254,11 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
         console.error('Speech recognition error:', event.error, event);
         setIsListening(false);
         
+        // Only show toast errors when user is actively trying to use speech recognition
+        if (!isListening) {
+          return; // Don't show errors if user isn't actively using speech
+        }
+        
         let errorMessage = "Voice recognition failed. Please try again.";
         let title = "Voice Recognition Error";
         
@@ -274,8 +272,8 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
             errorMessage = "Please speak clearly into your microphone and try again.";
             break;
           case 'network':
-            title = "Network Error";
-            errorMessage = "Please check your internet connection and try again.";
+            title = "Voice Service Unavailable";
+            errorMessage = "Speech recognition service is temporarily unavailable. Please try typing your message instead.";
             break;
           case 'audio-capture':
             title = "Microphone Error";
@@ -546,22 +544,18 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   }
 
   if (error) {
-    console.error('Chat component error:', error);
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="text-muted-foreground">
             <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-medium">Connection Issue</h3>
+            <h3 className="text-lg font-medium">Chat Unavailable</h3>
             <p className="text-sm max-w-md mx-auto">
-              Unable to load chat history. Error: {error?.message || 'Unknown error'}
+              Unable to load chat history. Please try refreshing the page.
             </p>
           </div>
           <Button 
-            onClick={() => {
-              console.log('Retrying chat fetch...');
-              queryClient.refetchQueries({ queryKey: ['/api/chat', userId] });
-            }}
+            onClick={() => queryClient.refetchQueries({ queryKey: ['/api/chat', userId] })}
             variant="outline"
           >
             Try Again
