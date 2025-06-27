@@ -128,8 +128,29 @@ export default function Home() {
       );
     }
 
-    // Default to chat view since we removed navigation
-    return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+    switch (activeTab) {
+      case 'chat':
+        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+      case 'image':
+        return <ImageGenerator userId={userId} />;
+      case 'video':
+        return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
+      case 'profile':
+        if (userLoading || !user) {
+          return (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                {userLoading ? 'Loading profile...' : 'Creating profile...'}
+              </div>
+            </div>
+          );
+        }
+        return <GamificationPanel userId={userId} user={user} />;
+      case 'export':
+        return <ExportData userId={userId} />;
+      default:
+        return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
+    }
   };
 
   return (
@@ -138,8 +159,50 @@ export default function Home() {
       <FeedbackWidget userId={userId || 0} page="home" />
 
       {/* Main Content with top padding for feedback bar */}
-      <div className="pt-12 flex flex-col min-h-screen">
+      <div className="pt-12 pb-20 flex flex-col min-h-screen">
         {renderActiveTab()}
+      </div>
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-40">
+        <div className="flex justify-around items-center py-2 px-4">
+          <Button
+            variant={activeTab === 'chat' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('chat')}
+            className="flex-1 max-w-20 flex flex-col items-center gap-1 py-3 px-2"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span className="text-xs">Chat</span>
+          </Button>
+          <Button
+            variant={activeTab === 'image' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('image')}
+            className="flex-1 max-w-20 flex flex-col items-center gap-1 py-3 px-2"
+          >
+            <Image className="h-4 w-4" />
+            <span className="text-xs">Images</span>
+          </Button>
+          <Button
+            variant={activeTab === 'video' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('video')}
+            className="flex-1 max-w-20 flex flex-col items-center gap-1 py-3 px-2"
+          >
+            <Video className="h-4 w-4" />
+            <span className="text-xs">Scripts</span>
+          </Button>
+          <Button
+            variant={activeTab === 'profile' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('profile')}
+            className="flex-1 max-w-20 flex flex-col items-center gap-1 py-3 px-2"
+          >
+            <Heart className="h-4 w-4" />
+            <span className="text-xs">Profile</span>
+          </Button>
+        </div>
       </div>
 
       {/* Settings Modal */}
