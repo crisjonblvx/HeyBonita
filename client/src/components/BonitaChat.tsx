@@ -110,7 +110,26 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/chat', userId] });
       queryClient.invalidateQueries({ queryKey: ['/api/achievements', userId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/receipts', userId] });
       setMessage('');
+      
+      // Auto-create receipt for meaningful conversations
+      if (data.content && data.content.length > 50) {
+        const conversationTitle = data.content.substring(0, 60).replace(/[^\w\s]/g, '').trim() + '...';
+        
+        // Create receipt entry for this conversation
+        fetch('/api/receipts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'conversation',
+            title: conversationTitle,
+            content: `User: ${messageText}\n\nBonita: ${data.content}`,
+            priority: 'medium'
+          }),
+          credentials: 'include'
+        }).catch(err => console.log('Receipt creation error:', err));
+      }
       
       // Show gamification rewards
       if (data.gamification) {
