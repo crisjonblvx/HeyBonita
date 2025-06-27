@@ -137,6 +137,8 @@ export default function Home() {
         return <ImageGenerator userId={userId} />;
       case 'video':
         return <VideoScripts userId={userId} toneMode={toneMode} responseMode={responseMode} />;
+      case 'receipts':
+        return <ReceiptsFolder />;
       case 'profile':
         if (userLoading || !user) {
           return (
@@ -194,6 +196,15 @@ export default function Home() {
           >
             <Video className="h-4 w-4" />
             <span className="text-xs">Scripts</span>
+          </Button>
+          <Button
+            variant={activeTab === 'receipts' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setActiveTab('receipts')}
+            className="flex-1 max-w-20 flex flex-col items-center gap-1 py-3 px-2"
+          >
+            <FileText className="h-4 w-4" />
+            <span className="text-xs">Receipts</span>
           </Button>
           <Button
             variant={activeTab === 'profile' ? 'default' : 'ghost'}
