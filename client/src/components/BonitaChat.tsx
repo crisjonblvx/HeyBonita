@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { playAudio, stopAudio, isAudioPlaying } from '@/lib/audioController';
 import { AchievementToast } from '@/components/Gamification';
 import { JoyRiverButtons } from '@/components/JoyRiverButtons';
-import { trackChatMessage } from '@/lib/analytics';
+import { trackEvent } from '@/lib/analytics';
 
 interface ChatMessage {
   id: number;
@@ -620,7 +620,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                   {msg.role === 'assistant' && msg.content.includes('[JOY_RIVER_BUTTONS]') && (
                     <JoyRiverButtons 
                       onButtonClick={(action) => {
-                        trackChatMessage(userId, 'joy_river_button_click', { action });
+                        trackEvent('joy_river_button_click', { action }, userId);
                       }}
                     />
                   )}
