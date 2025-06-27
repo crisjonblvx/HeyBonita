@@ -31,12 +31,16 @@ export default function AuthPage() {
 
     setIsLoading(true);
     try {
+      console.log('Frontend: Attempting login with:', { username: loginData.username, hasPassword: !!loginData.password });
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(loginData)
       });
+      
+      console.log('Frontend: Login response status:', response.status);
 
       if (response.ok) {
         toast({
