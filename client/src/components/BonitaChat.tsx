@@ -166,6 +166,11 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   };
 
   const startVoiceRecording = (autoSend = false) => {
+    console.log('startVoiceRecording called with autoSend:', autoSend);
+    console.log('Speech API support check...');
+    console.log('webkitSpeechRecognition:', 'webkitSpeechRecognition' in window);
+    console.log('SpeechRecognition:', 'SpeechRecognition' in window);
+    
     // Check for Web Speech API support
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast({
@@ -252,11 +257,12 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
 
       recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error, event);
+        const wasListening = isListening; // Capture state before changing it
         setIsListening(false);
         
-        // Only show toast errors when user is actively trying to use speech recognition
-        if (!isListening) {
-          return; // Don't show errors if user isn't actively using speech
+        // Only show toast errors when user was actively trying to use speech recognition
+        if (!wasListening) {
+          return; // Don't show errors if user wasn't actively using speech
         }
         
         let errorMessage = "Voice recognition failed. Please try again.";
@@ -712,6 +718,11 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                 voiceMode === 'speech-to-speech' ? 'bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800' : ''
               }`}
               onClick={() => {
+                console.log('Microphone button clicked');
+                console.log('Voice mode:', voiceMode);
+                console.log('Is listening:', isListening);
+                console.log('Send mutation pending:', sendMessageMutation.isPending);
+                
                 // Add haptic feedback for mobile
                 if ('vibrate' in navigator) {
                   navigator.vibrate(50);
