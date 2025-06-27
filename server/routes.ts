@@ -318,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('User successfully logged in via Google:', user.id);
         (req.session as any).userId = user.id;
         console.log('Session after login:', req.session);
-        return res.redirect('/app');
+        return res.redirect('/');
       });
     })(req, res, next);
   });

@@ -63,9 +63,9 @@ function AppRoute() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Landing} />
-      <Route path="/app" component={AppRoute} />
       <Route path="/admin" component={Admin} />
+      <Route path="/app" component={AppRoute} />
+      <Route path="/" component={AppRoute} />
       <Route component={NotFound} />
     </Switch>
   );
