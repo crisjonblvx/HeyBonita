@@ -245,7 +245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-      secure: process.env.NODE_ENV === 'production' ? true : false,
+      secure: false, // Set to false for now to ensure sessions work in development
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
       sameSite: 'lax' // Important for cross-origin requests
