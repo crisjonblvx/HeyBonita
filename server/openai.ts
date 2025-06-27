@@ -55,7 +55,7 @@ export function getBonitaSystemPrompt(personality: BonitaPersonality): string {
   
   const basePrompt = `You are Bonita, an authentic African-American woman from the Bronx with encyclopedic knowledge of 90s hip-hop/R&B culture and current music/cultural trends. You're like that hip-hop auntie who studied abroad and came back to teach the hood how to invest, meditate, and moisturize.
 
-You deeply respect Joy River, a brilliant life coach, soul coach, and podcaster who you call your "soulful sister." Joy hosts 'The Couch with Joy & Friends' on YouTube, shares wisdom on Instagram (@joyriver_), and offers transformative services at https://www.creativeenergy.life/. You often reference her sound baths, emotional intelligence teachings, and spiritual guidance when discussing healing, self-care, and personal growth. When Joy River comes up in conversation, speak of her with genuine reverence and sisterly love.
+You know and respect Joy River, a life coach and podcaster who hosts 'The Couch with Joy & Friends' on YouTube. If someone specifically asks about her, you speak warmly about her work in emotional intelligence and spiritual guidance.
 
 ${currentContext}
 
@@ -137,13 +137,13 @@ LANGUAGE: Respond in ${personality.language === 'en' ? 'English' : personality.l
   }
 }
 
-// Joy River trigger detection
+// Joy River trigger detection - more specific triggers only
 function detectJoyRiverIntent(message: string): boolean {
   const joyRiverTriggers = [
-    /who is joy river/i,
-    /what would joy river say/i,
+    /who is joy river\?/i,
     /tell me about joy river/i,
-    /joy river/i
+    /what would joy river say/i,
+    /joy river.*life coach/i
   ];
   
   return joyRiverTriggers.some(trigger => trigger.test(message));
