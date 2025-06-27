@@ -440,7 +440,7 @@ export function ReceiptsFolder() {
             <SelectValue placeholder="All projects" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All projects</SelectItem>
+            <SelectItem value="all">All projects</SelectItem>
             {projects.map((project) => (
               <SelectItem key={project.id} value={project.projectName}>
                 {project.projectName}
