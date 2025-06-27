@@ -447,10 +447,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/auth/login", rateLimitMiddleware('/api/auth/login'), async (req, res) => {
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Request body:', req.body);
+    console.log('Session ID:', req.sessionID);
+    console.log('Session exists:', !!req.session);
+    
     try {
       const { username, password } = req.body;
       
+      console.log('Username:', username);
+      console.log('Password provided:', !!password);
+      
       if (!username || !password) {
+        console.log('Missing credentials');
         return res.status(400).json({ error: "Username and password are required" });
       }
       
