@@ -499,7 +499,6 @@ export default function Home() {
           </div>
         </DialogContent>
       </Dialog>
-      </div>
     </div>
   );
 }
