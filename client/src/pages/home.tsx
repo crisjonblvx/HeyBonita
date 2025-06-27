@@ -153,6 +153,15 @@ export default function Home() {
       case 'export':
         return <ExportData userId={userId} />;
       default:
+        if (!userId) {
+          return (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-muted-foreground p-8">
+                Loading authentication...
+              </div>
+            </div>
+          );
+        }
         return <BonitaChat userId={userId} toneMode={toneMode} responseMode={responseMode} voiceMode={voiceMode} />;
     }
   };

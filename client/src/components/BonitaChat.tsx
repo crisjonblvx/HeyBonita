@@ -28,6 +28,7 @@ interface BonitaChatProps {
 }
 
 export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: BonitaChatProps) {
+  console.log('BonitaChat rendered with userId:', userId);
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -44,16 +45,24 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['/api/chat', userId],
     queryFn: async () => {
-      const response = await fetch(`/api/chat/${userId}`);
+      console.log('Fetching chat for userId:', userId);
+      const response = await fetch(`/api/chat/${userId}`, {
+        credentials: 'include' // Include cookies for authentication
+      });
+      console.log('Chat response status:', response.status);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Chat fetch error:', response.status, errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
-      return response.json();
+      const data = await response.json();
+      console.log('Chat data received:', data);
+      return data;
     },
     enabled: !!userId,
     staleTime: 0, // Always refetch to keep messages fresh
-    retry: 3,
-    retryDelay: 1000
+    retry: 1, // Reduce retries to see errors faster
+    retryDelay: 500
   });
 
   // Send message mutation with abort controller
@@ -537,6 +546,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   }
 
   if (error) {
+    console.error('Chat component error:', error);
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -544,11 +554,14 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
             <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <h3 className="text-lg font-medium">Connection Issue</h3>
             <p className="text-sm max-w-md mx-auto">
-              Unable to load chat history. Please check your connection and try again.
+              Unable to load chat history. Error: {error?.message || 'Unknown error'}
             </p>
           </div>
           <Button 
-            onClick={() => queryClient.refetchQueries({ queryKey: ['/api/chat', userId] })}
+            onClick={() => {
+              console.log('Retrying chat fetch...');
+              queryClient.refetchQueries({ queryKey: ['/api/chat', userId] });
+            }}
             variant="outline"
           >
             Try Again
