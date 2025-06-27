@@ -159,6 +159,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Moved feedback widget to left sidebar (left-4 top-1/2) to avoid overlapping with navigation options, arranged buttons vertically for better accessibility
 - June 27, 2025. Created playful loading spinner with Bonita character interaction featuring animated avatar, rotating messages, floating hearts, sparkles, and music notes for enhanced user experience during OAuth authentication
 - June 27, 2025. Added test login endpoint to debug Google OAuth "refused to connect" issue - allows temporary access while resolving OAuth production publishing requirements
+- June 27, 2025. Restructured UI layout: moved Chat, Images, Scripts, and Profile navigation to left sidebar with feedback and logout buttons at bottom, removing duplicate tab navigation from header for cleaner desktop experience
 
 ## User Preferences
 

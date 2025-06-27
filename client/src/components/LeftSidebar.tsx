@@ -20,8 +20,8 @@ export function LeftSidebar({ activeTab, setActiveTab }: LeftSidebarProps) {
 
   const navigation = [
     { name: 'Chat', tab: 'chat', icon: MessageSquare },
-    { name: 'Images', tab: 'images', icon: Image },
-    { name: 'Scripts', tab: 'scripts', icon: Video },
+    { name: 'Images', tab: 'image', icon: Image },
+    { name: 'Scripts', tab: 'video', icon: Video },
     { name: 'Profile', tab: 'profile', icon: User },
   ];
 
