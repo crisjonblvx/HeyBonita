@@ -336,7 +336,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
       // Start recognition with error handling
       recognition.start();
       
-      // Auto-stop after 15 seconds to prevent hanging
+      // Auto-stop after 25 seconds to give users time to collect thoughts
       setTimeout(() => {
         if (isListening) {
           try {
@@ -345,7 +345,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
             console.warn('Error stopping recognition:', e);
           }
         }
-      }, 15000);
+      }, 25000);
       
     } catch (error) {
       console.error('Failed to initialize speech recognition:', error);

@@ -170,6 +170,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Resolved voice recording functionality: confirmed speech recognition works perfectly in Chrome, Safari, and Edge browsers with proper speech detection and transcription, added browser compatibility messaging for users in environments with limited speech API support (like Replit's embedded browser)
 - June 27, 2025. Fixed unhandled promise rejection errors when stopping Bonita's response: improved abort controller error handling, added global promise rejection handler for abort errors, eliminated console errors during user-initiated stops
 - June 27, 2025. Enhanced Receipts system with automatic conversation capture: meaningful chats with Bonita (over 50 characters) now automatically create conversation receipts including both user questions and Bonita's responses, organized with clean titles and medium priority for easy reference and accountability tracking
+- June 27, 2025. Extended speech-to-speech recording duration from 15 to 25 seconds: users now have additional time to collect their thoughts during voice input, improving the speech-to-speech conversation experience
 
 ## User Preferences
 
