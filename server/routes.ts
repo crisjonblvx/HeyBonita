@@ -73,12 +73,14 @@ function configureOAuthStrategies() {
       return `${protocol}://${host}/auth/google/callback`;
     };
     
-    // We'll configure the strategy dynamically in the route handler
-    // For now, use a placeholder that will be overridden
+    // Use the correct callback URL that matches Google Cloud Console
+    const callbackURL = 'https://hey-bonita.replit.app/auth/google/callback';
+    console.log('Using Google OAuth callback URL:', callbackURL);
+    
     passport.use('google', new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'https://placeholder.com/auth/google/callback' // Will be overridden
+      callbackURL: callbackURL
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -341,10 +343,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })(req, res, next);
   });
 
-  // Test login endpoint for OAuth debugging
-  app.post('/api/test-login', async (req, res) => {
+  // Quick access login endpoint (temporary workaround)
+  app.post('/api/quick-login', async (req, res) => {
     try {
-      const { email, name } = req.body;
+      const email = 'crisjonbeatz@gmail.com';
+      const name = 'CrisJon';
       
       if (!email) {
         return res.status(400).json({ error: 'Email required' });

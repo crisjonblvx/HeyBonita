@@ -195,6 +195,39 @@ export default function AuthPage() {
     });
   };
 
+  const handleQuickAccess = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/quick-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Access Granted",
+          description: "Welcome back to Bonita AI!",
+        });
+        
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        throw new Error('Quick access failed');
+      }
+    } catch (error) {
+      console.error('Quick access error:', error);
+      toast({
+        title: "Access Error",
+        description: "Quick access failed. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       {isGoogleLoading && (
