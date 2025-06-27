@@ -446,10 +446,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Test endpoint to verify routing
-  app.get("/api/test", (req, res) => {
-    console.log('Test endpoint hit');
-    res.json({ message: "API is working" });
+  // Test password verification
+  app.post("/api/test-password", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      console.log('Testing password for:', username);
+      
+      const user = await storage.getUserByUsername(username);
+      if (!user || !user.passwordHash) {
+        return res.json({ error: "User not found or no password" });
+      }
+      
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      console.log('Password valid:', isValid);
+      
+      res.json({ 
+        userExists: !!user,
+        hasPassword: !!user.passwordHash,
+        passwordValid: isValid,
+        userId: user.id
+      });
+    } catch (error) {
+      console.error('Password test error:', error);
+      res.json({ error: error.message });
+    }
   });
 
   app.post("/api/auth/login", async (req, res) => {
