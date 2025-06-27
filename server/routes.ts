@@ -472,8 +472,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/login", async (req, res) => {
-    console.log('=== LOGIN ATTEMPT ===');
+  // Create a completely non-API route to bypass Vite
+  app.post("/auth-login", async (req, res) => {
+    console.log('=== LOGIN ATTEMPT (BYPASS ROUTE) ===');
     console.log('Content-Type:', req.get('Content-Type'));
     console.log('Request body:', req.body);
     console.log('Raw body type:', typeof req.body);
@@ -494,12 +495,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user by username
       const user = await storage.getUserByUsername(username);
       if (!user || !user.passwordHash) {
+        console.log('User not found or no password hash');
         return res.status(401).json({ error: "Invalid username or password" });
       }
       
       // Verify password
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
       if (!isValidPassword) {
+        console.log('Password verification failed');
         return res.status(401).json({ error: "Invalid username or password" });
       }
       
@@ -529,11 +532,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Remove password hash from response
       const { passwordHash: _, ...userWithoutPassword } = user;
       
+      console.log('Login completed successfully for user:', userWithoutPassword.username);
       res.json({ user: userWithoutPassword, message: "Login successful" });
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ error: "Login failed" });
     }
+  });
+
+  // Keep the original route for backward compatibility but add debugging
+  app.post("/api/auth/login", async (req, res) => {
+    console.log('=== ORIGINAL LOGIN ROUTE - DEBUGGING ===');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('Content-Type:', req.get('Content-Type'));
+    
+    // Redirect to working route
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password are required" });
+      }
+      
+      // Get user by username
+      const user = await storage.getUserByUsername(username);
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      
+      // Verify password
+      const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      
+      // Create session
+      if (req.session) {
+        req.session.userId = user.id;
+        
+        // Force session save
+        await new Promise((resolve, reject) => {
+          req.session.save((err) => {
+            if (err) {
+              console.error('Session save error:', err);
+              reject(err);
+            } else {
+              console.log('Session saved successfully via original route');
+              resolve(true);
+            }
+          });
+        });
+      }
+      
+      // Remove password hash from response
+      const { passwordHash: _, ...userWithoutPassword } = user;
+      
+      res.json({ user: userWithoutPassword, message: "Login successful" });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  // Session debug endpoint
+  app.get("/api/debug/session", (req, res) => {
+    res.json({
+      sessionExists: !!req.session,
+      sessionId: req.sessionID,
+      userId: req.session?.userId,
+      isAuthenticated: req.isAuthenticated?.(),
+      userExists: !!req.user,
+      sessionData: req.session
+    });
   });
 
   // Authentication status endpoint

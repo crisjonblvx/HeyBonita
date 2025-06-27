@@ -33,7 +33,7 @@ export default function AuthPage() {
     try {
       console.log('Frontend: Attempting login with:', { username: loginData.username, hasPassword: !!loginData.password });
       
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/login-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
