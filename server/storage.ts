@@ -5,6 +5,7 @@ import {
   videoScripts,
   waitlistEmails,
   achievements,
+  userFeedback,
   type User, 
   type InsertUser,
   type ChatMessage,
@@ -16,7 +17,9 @@ import {
   type WaitlistEmail,
   type InsertWaitlistEmail,
   type Achievement,
-  type InsertAchievement
+  type InsertAchievement,
+  type UserFeedback,
+  type InsertUserFeedback
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -175,6 +178,31 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return updatedUser;
+  }
+
+  async createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback> {
+    const [newFeedback] = await db
+      .insert(userFeedback)
+      .values(feedback)
+      .returning();
+    return newFeedback;
+  }
+
+  async getFeedback(limit: number = 50): Promise<UserFeedback[]> {
+    return await db
+      .select()
+      .from(userFeedback)
+      .orderBy(desc(userFeedback.createdAt))
+      .limit(limit);
+  }
+
+  async updateFeedbackStatus(id: number, resolved: boolean): Promise<UserFeedback> {
+    const [feedback] = await db
+      .update(userFeedback)
+      .set({ resolved })
+      .where(eq(userFeedback.id, id))
+      .returning();
+    return feedback;
   }
 }
 

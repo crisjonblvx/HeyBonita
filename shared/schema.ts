@@ -97,6 +97,18 @@ export const moderationFlags = pgTable("moderation_flags", {
   flaggedAt: timestamp("flagged_at").defaultNow().notNull(),
 });
 
+export const userFeedback = pgTable("user_feedback", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  feedbackType: text("feedback_type").notNull(), // 'like', 'dislike', 'bug', 'suggestion', 'general'
+  feedbackText: text("feedback_text"),
+  rating: integer("rating"), // 1-5 stars
+  page: text("page"), // which page/feature the feedback is about
+  userAgent: text("user_agent"),
+  resolved: boolean("resolved").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const userRelations = relations(users, ({ many }) => ({
   chatMessages: many(chatMessages),
   generatedImages: many(generatedImages),

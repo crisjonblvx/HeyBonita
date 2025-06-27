@@ -946,6 +946,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Feedback submission
+  app.post('/api/feedback', async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const { feedbackType, feedbackText, rating, page, userAgent } = req.body;
+      
+      const feedback = await storage.createFeedback({
+        userId: req.session.userId,
+        feedbackType,
+        feedbackText,
+        rating,
+        page,
+        userAgent
+      });
+
+      // Track feedback submission for analytics
+      await trackEvent({
+        userId: req.session.userId,
+        event: 'feedback_submitted',
+        properties: { 
+          feedbackType, 
+          page,
+          hasText: !!feedbackText,
+          hasRating: !!rating
+        },
+        userAgent: req.get('User-Agent') || 'unknown',
+        ipAddress: req.ip || 'unknown'
+      });
+
+      res.json(feedback);
+    } catch (error) {
+      console.error('Feedback submission error:', error);
+      res.status(500).json({ message: 'Failed to submit feedback' });
+    }
+  });
+
+  // Get all feedback (admin only)
+  app.get('/api/feedback', async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      // Simple admin check - you might want to implement proper role-based access
+      const user = await storage.getUser(req.session.userId);
+      if (user?.email !== 'cj@contentcreator.ai') {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const feedback = await storage.getFeedback();
+      res.json(feedback);
+    } catch (error) {
+      console.error('Get feedback error:', error);
+      res.status(500).json({ message: 'Failed to get feedback' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

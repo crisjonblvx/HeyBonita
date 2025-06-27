@@ -13,6 +13,7 @@ import MobileHome from "@/pages/mobile-home";
 import Admin from "@/pages/simple-admin";
 import Auth from "@/pages/auth";
 import NotFound from "@/pages/not-found";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 function AppRoute() {
   const isMobile = useIsMobile();
@@ -52,7 +53,12 @@ function AppRoute() {
     return <Auth onAuthenticated={handleAuthenticated} />;
   }
 
-  return layoutType === 'mobile' ? <MobileHome /> : <Home />;
+  return (
+    <>
+      {layoutType === 'mobile' ? <MobileHome /> : <Home />}
+      <FeedbackWidget userId={user.id} page={window.location.pathname} />
+    </>
+  );
 }
 
 function Router() {
