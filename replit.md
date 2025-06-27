@@ -179,6 +179,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Resolved authentication state synchronization issue: login succeeded but frontend showed landing page until manual navigation - implemented callback system where Auth component communicates login success directly to App component, eliminating redirect loops and providing seamless login → home screen transition
 - June 27, 2025. Simplified authentication flow with redirect-based approach: replaced complex callback system with simple `window.location.href = '/'` after successful login/registration, allowing App component to naturally re-check authentication status and display appropriate UI - provides clean separation between authentication logic and UI state management
 - June 27, 2025. Enhanced authentication flow with session verification: implemented explicit authentication status check after login/registration, system now waits 1 second then verifies session exists via `/api/auth/status` before reloading page, includes fallback mechanisms for robust session handling
+- June 27, 2025. Fixed critical authentication system issue: resolved Vite middleware conflicts preventing login by creating bypass route `/auth-login`, session management now working properly with PostgreSQL storage, users can successfully authenticate and access Bonita home screen with complete user data persistence
 
 ## User Preferences
 
