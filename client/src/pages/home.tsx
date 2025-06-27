@@ -308,11 +308,11 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Left Sidebar */}
-      <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      {/* Feedback Widget with Logout */}
+      <FeedbackWidget userId={userId || 0} page="home" />
 
-      {/* Main Content */}
-      <div className="ml-16 flex-1 flex flex-col">
+      {/* Main Content with top padding for feedback bar */}
+      <div className="pt-12 flex flex-col min-h-screen">
         {renderActiveTab()}
       </div>
     </div>

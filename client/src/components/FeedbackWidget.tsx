@@ -13,7 +13,8 @@ import {
   Lightbulb,
   Star,
   X,
-  Send
+  Send,
+  LogOut
 } from 'lucide-react';
 
 interface FeedbackWidgetProps {
@@ -95,25 +96,42 @@ export function FeedbackWidget({ userId, page = 'unknown' }: FeedbackWidgetProps
     { type: 'general' as FeedbackType, icon: MessageSquare, label: 'General', color: 'text-gray-600' },
   ];
 
+  const handleLogout = () => {
+    window.location.href = '/api/logout';
+  };
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       {!isOpen ? (
-        <div className="flex items-center justify-center gap-2 py-2 px-4">
-          <span className="text-xs text-muted-foreground mr-2">Quick feedback:</span>
-          {feedbackTypes.map(({ type, icon: Icon, label, color }) => (
-            <Button
-              key={type}
-              size="sm"
-              variant="ghost"
-              onClick={() => handleQuickFeedback(type)}
-              className={`h-7 px-2 text-xs hover:bg-muted transition-all duration-200 ${color}`}
-              disabled={submitFeedbackMutation.isPending}
-              title={`Quick ${label}`}
-            >
-              <Icon className="h-3 w-3 mr-1" />
-              {label}
-            </Button>
-          ))}
+        <div className="flex items-center justify-between py-2 px-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground mr-2">Quick feedback:</span>
+            {feedbackTypes.map(({ type, icon: Icon, label, color }) => (
+              <Button
+                key={type}
+                size="sm"
+                variant="ghost"
+                onClick={() => handleQuickFeedback(type)}
+                className={`h-7 px-2 text-xs hover:bg-muted transition-all duration-200 ${color}`}
+                disabled={submitFeedbackMutation.isPending}
+                title={`Quick ${label}`}
+              >
+                <Icon className="h-3 w-3 mr-1" />
+                {label}
+              </Button>
+            ))}
+          </div>
+          
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleLogout}
+            className="h-7 px-2 text-xs hover:bg-red-50 hover:text-red-700 text-muted-foreground"
+            title="Logout"
+          >
+            <LogOut className="h-3 w-3 mr-1" />
+            Logout
+          </Button>
         </div>
       ) : (
         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2">
