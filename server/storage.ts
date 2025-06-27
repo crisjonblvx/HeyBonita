@@ -7,6 +7,7 @@ import {
   achievements,
   userFeedback,
   receipts,
+  receiptFolders,
   conversationProjects,
   droppedIdeas,
   commitments,
@@ -26,6 +27,8 @@ import {
   type InsertUserFeedback,
   type Receipt,
   type InsertReceipt,
+  type ReceiptFolder,
+  type InsertReceiptFolder,
   type ConversationProject,
   type InsertConversationProject,
   type DroppedIdea,
@@ -72,10 +75,17 @@ export interface IStorage {
   updateFeedbackStatus(id: number, resolved: boolean): Promise<UserFeedback>;
   
   // Receipts system operations
-  getReceipts(userId: number, receiptType?: string, projectName?: string, limit?: number): Promise<Receipt[]>;
+  getReceipts(userId: number, receiptType?: string, projectName?: string, folderId?: number, limit?: number): Promise<Receipt[]>;
   createReceipt(receipt: InsertReceipt): Promise<Receipt>;
   updateReceipt(id: number, updates: Partial<InsertReceipt>): Promise<Receipt>;
   deleteReceipt(id: number): Promise<void>;
+  
+  // Receipt folder operations
+  getReceiptFolders(userId: number): Promise<ReceiptFolder[]>;
+  createReceiptFolder(folder: InsertReceiptFolder): Promise<ReceiptFolder>;
+  updateReceiptFolder(id: number, updates: Partial<InsertReceiptFolder>): Promise<ReceiptFolder>;
+  deleteReceiptFolder(id: number): Promise<void>;
+  moveReceiptToFolder(receiptId: number, folderId: number | null): Promise<Receipt>;
   
   // Conversation Projects
   getConversationProjects(userId: number): Promise<ConversationProject[]>;
@@ -239,9 +249,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Receipts system operations
-  async getReceipts(userId: number, receiptType?: string, projectName?: string, limit: number = 50): Promise<Receipt[]> {
-    return await db.select().from(receipts)
-      .where(eq(receipts.userId, userId))
+  async getReceipts(userId: number, receiptType?: string, projectName?: string, folderId?: number, limit: number = 50): Promise<Receipt[]> {
+    let query = db.select().from(receipts).where(eq(receipts.userId, userId));
+    
+    if (folderId !== undefined) {
+      query = query.where(eq(receipts.folderId, folderId));
+    }
+    
+    return await query
       .orderBy(desc(receipts.createdAt))
       .limit(limit);
   }
