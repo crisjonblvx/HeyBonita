@@ -8,7 +8,11 @@ import { useLocation } from 'wouter';
 import logoPath from "@assets/Bonita logo 1 alpha_1750814378445.png";
 import BonitaLoadingSpinner from '@/components/BonitaLoadingSpinner';
 
-export default function AuthPage() {
+interface AuthPageProps {
+  onAuthenticated?: (user: any) => void;
+}
+
+export default function AuthPage({ onAuthenticated }: AuthPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
@@ -48,12 +52,19 @@ export default function AuthPage() {
       }
 
       if (response.ok) {
+        const result = await response.json();
         toast({
           title: "Welcome back!",
           description: "You've been signed in successfully.",
         });
-        // Force a page reload to refresh authentication state
-        window.location.href = '/';
+        
+        // Use callback to update app state instead of redirecting
+        if (onAuthenticated && result.user) {
+          onAuthenticated(result.user);
+        } else {
+          // Fallback to redirect if no callback
+          window.location.href = '/';
+        }
       } else {
         const error = await response.json();
         toast({
@@ -118,12 +129,19 @@ export default function AuthPage() {
       });
 
       if (response.ok) {
+        const result = await response.json();
         toast({
           title: "Account Created!",
           description: "Welcome to Bonita AI! You've been signed in automatically.",
         });
-        // Force a page reload to refresh authentication state
-        window.location.href = '/';
+        
+        // Use callback to update app state instead of redirecting
+        if (onAuthenticated && result.user) {
+          onAuthenticated(result.user);
+        } else {
+          // Fallback to redirect if no callback
+          window.location.href = '/';
+        }
       } else {
         const error = await response.json();
         toast({
