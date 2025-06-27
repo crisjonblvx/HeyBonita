@@ -109,10 +109,23 @@ export const userFeedback = pgTable("user_feedback", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Folders for organizing receipts
+export const receiptFolders = pgTable("receipt_folders", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  color: text("color").default("blue"), // visual organization
+  isArchived: boolean("is_archived").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Receipts folder system - tracks everything Bonita does for accountability
 export const receipts = pgTable("receipts", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
+  folderId: integer("folder_id").references(() => receiptFolders.id), // organize into folders
   projectId: integer("project_id"),
   type: text("type").notNull(), // 'conversation', 'idea', 'script', 'task', 'decision', 'voice_note', 'commitment'
   title: text("title").notNull(),
@@ -174,15 +187,28 @@ export const userRelations = relations(users, ({ many }) => ({
   videoScripts: many(videoScripts),
   achievements: many(achievements),
   receipts: many(receipts),
+  receiptFolders: many(receiptFolders),
   conversationProjects: many(conversationProjects),
   droppedIdeas: many(droppedIdeas),
   commitments: many(commitments),
+}));
+
+export const receiptFolderRelations = relations(receiptFolders, ({ one, many }) => ({
+  user: one(users, {
+    fields: [receiptFolders.userId],
+    references: [users.id],
+  }),
+  receipts: many(receipts),
 }));
 
 export const receiptRelations = relations(receipts, ({ one }) => ({
   user: one(users, {
     fields: [receipts.userId],
     references: [users.id],
+  }),
+  folder: one(receiptFolders, {
+    fields: [receipts.folderId],
+    references: [receiptFolders.id],
   }),
 }));
 
@@ -292,6 +318,12 @@ export const insertUserFeedbackSchema = createInsertSchema(userFeedback).omit({
   createdAt: true,
 });
 
+export const insertReceiptFolderSchema = createInsertSchema(receiptFolders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertReceiptSchema = createInsertSchema(receipts).omit({
   id: true,
   createdAt: true,
@@ -337,6 +369,8 @@ export type InsertUserFeedback = z.infer<typeof insertUserFeedbackSchema>;
 export type UserFeedback = typeof userFeedback.$inferSelect;
 
 // Receipts system types
+export type InsertReceiptFolder = z.infer<typeof insertReceiptFolderSchema>;
+export type ReceiptFolder = typeof receiptFolders.$inferSelect;
 export type InsertReceipt = z.infer<typeof insertReceiptSchema>;
 export type Receipt = typeof receipts.$inferSelect;
 export type InsertConversationProject = z.infer<typeof insertConversationProjectSchema>;
