@@ -177,6 +177,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Configured application for HeyBonita.ai custom domain: updated Google OAuth callback URLs to automatically use production domain (heybonita.ai) when deployed, maintained development URLs for testing, created comprehensive domain setup guide with DNS configuration steps and Google Cloud Console updates required for launch
 - June 27, 2025. Fixed authentication redirect flow: resolved issue where users were redirected to landing page after successful Google OAuth login instead of home screen, updated routing structure to properly handle authenticated users at root path, confirmed all user data and features loading correctly post-authentication
 - June 27, 2025. Resolved authentication state synchronization issue: login succeeded but frontend showed landing page until manual navigation - implemented callback system where Auth component communicates login success directly to App component, eliminating redirect loops and providing seamless login → home screen transition
+- June 27, 2025. Simplified authentication flow with redirect-based approach: replaced complex callback system with simple `window.location.href = '/'` after successful login/registration, allowing App component to naturally re-check authentication status and display appropriate UI - provides clean separation between authentication logic and UI state management
 
 ## User Preferences
 

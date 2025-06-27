@@ -37,10 +37,6 @@ function AppRoute() {
       });
   }, []);
 
-  const handleAuthenticated = (authenticatedUser: any) => {
-    setUser(authenticatedUser);
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -50,7 +46,7 @@ function AppRoute() {
   }
 
   if (!user) {
-    return <Auth onAuthenticated={handleAuthenticated} />;
+    return <Auth />;
   }
 
   return (

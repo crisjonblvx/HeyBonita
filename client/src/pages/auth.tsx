@@ -8,11 +8,7 @@ import { useLocation } from 'wouter';
 import logoPath from "@assets/Bonita logo 1 alpha_1750814378445.png";
 import BonitaLoadingSpinner from '@/components/BonitaLoadingSpinner';
 
-interface AuthPageProps {
-  onAuthenticated?: (user: any) => void;
-}
-
-export default function AuthPage({ onAuthenticated }: AuthPageProps) {
+export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
@@ -52,19 +48,13 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
       }
 
       if (response.ok) {
-        const result = await response.json();
         toast({
           title: "Welcome back!",
           description: "You've been signed in successfully.",
         });
         
-        // Use callback to update app state instead of redirecting
-        if (onAuthenticated && result.user) {
-          onAuthenticated(result.user);
-        } else {
-          // Fallback to redirect if no callback
-          window.location.href = '/';
-        }
+        // Redirect to trigger app re-authentication check
+        window.location.href = '/';
       } else {
         const error = await response.json();
         toast({
@@ -129,19 +119,13 @@ export default function AuthPage({ onAuthenticated }: AuthPageProps) {
       });
 
       if (response.ok) {
-        const result = await response.json();
         toast({
           title: "Account Created!",
           description: "Welcome to Bonita AI! You've been signed in automatically.",
         });
         
-        // Use callback to update app state instead of redirecting
-        if (onAuthenticated && result.user) {
-          onAuthenticated(result.user);
-        } else {
-          // Fallback to redirect if no callback
-          window.location.href = '/';
-        }
+        // Redirect to trigger app re-authentication check
+        window.location.href = '/';
       } else {
         const error = await response.json();
         toast({
