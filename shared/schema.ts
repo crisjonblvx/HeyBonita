@@ -186,6 +186,11 @@ export const insertModerationFlagSchema = createInsertSchema(moderationFlags).om
   reviewedAt: true,
 });
 
+export const insertUserFeedbackSchema = createInsertSchema(userFeedback).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;

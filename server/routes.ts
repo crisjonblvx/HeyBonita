@@ -965,14 +965,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Track feedback submission for analytics
       await trackEvent({
+        sessionId: req.sessionID || 'unknown',
+        eventType: 'feedback_submitted',
         userId: req.session.userId,
-        event: 'feedback_submitted',
-        properties: { 
+        eventData: JSON.stringify({ 
           feedbackType, 
           page,
           hasText: !!feedbackText,
           hasRating: !!rating
-        },
+        }),
         userAgent: req.get('User-Agent') || 'unknown',
         ipAddress: req.ip || 'unknown'
       });
