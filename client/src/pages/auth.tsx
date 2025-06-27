@@ -11,6 +11,7 @@ import BonitaLoadingSpinner from '@/components/BonitaLoadingSpinner';
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isQuickAccess, setIsQuickAccess] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [registerData, setRegisterData] = useState({
     username: '', email: '', password: '', confirmPassword: ''
@@ -197,6 +198,7 @@ export default function AuthPage() {
 
   const handleQuickAccess = async () => {
     setIsLoading(true);
+    setIsQuickAccess(true);
     try {
       const response = await fetch('/api/quick-login', {
         method: 'POST',
@@ -211,7 +213,7 @@ export default function AuthPage() {
         });
         
         setTimeout(() => {
-          window.location.href = '/';
+          setLocation('/app');
         }, 1000);
       } else {
         throw new Error('Quick access failed');
@@ -223,6 +225,7 @@ export default function AuthPage() {
         description: "Quick access failed. Please try again.",
         variant: "destructive",
       });
+      setIsQuickAccess(false);
     } finally {
       setIsLoading(false);
     }
@@ -258,11 +261,12 @@ export default function AuthPage() {
               Bypass login while we fix Google OAuth
             </p>
           </div>
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Sign In</TabsTrigger>
-              <TabsTrigger value="register">Sign Up</TabsTrigger>
-            </TabsList>
+          <div className={isQuickAccess ? "opacity-50 pointer-events-none" : ""}>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Sign In</TabsTrigger>
+                <TabsTrigger value="register">Sign Up</TabsTrigger>
+              </TabsList>
             
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
@@ -441,7 +445,56 @@ export default function AuthPage() {
                 </div>
               </form>
             </TabsContent>
-          </Tabs>
+            
+            <TabsContent value="register">
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="Username"
+                    value={registerData.username}
+                    onChange={(e) => setRegisterData({ ...registerData, username: e.target.value })}
+                    required
+                    disabled={isLoading || isQuickAccess}
+                  />
+                </div>
+                <div>
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={registerData.email}
+                    onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                    required
+                    disabled={isLoading || isQuickAccess}
+                  />
+                </div>
+                <div>
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={registerData.password}
+                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                    required
+                    disabled={isLoading || isQuickAccess}
+                  />
+                </div>
+                <div>
+                  <Input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={registerData.confirmPassword}
+                    onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                    required
+                    disabled={isLoading || isQuickAccess}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading || isQuickAccess}>
+                  {isLoading ? "Creating Account..." : "Sign Up"}
+                </Button>
+              </form>
+            </TabsContent>
+            </Tabs>
+          </div>
         </CardContent>
       </Card>
     </div>
