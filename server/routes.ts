@@ -59,7 +59,7 @@ function configureOAuthStrategies() {
     passport.use('google', new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `https://${process.env.REPLIT_DOMAINS}/auth/google/callback`
+      callbackURL: `https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback`
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -181,6 +181,28 @@ function configureOAuthStrategies() {
 export async function registerRoutes(app: Express): Promise<Server> {
   const server = createServer(app);
 
+  // Trust proxy for correct HTTPS detection
+  app.set('trust proxy', true);
+  
+  // Force HTTPS protocol detection middleware
+  app.use((req, res, next) => {
+    // Force HTTPS for OAuth callbacks on Replit
+    if (req.get('Host')?.includes('replit.dev')) {
+      // Override the protocol getter to return 'https'
+      Object.defineProperty(req, 'protocol', {
+        value: 'https',
+        writable: false,
+        configurable: true
+      });
+      Object.defineProperty(req, 'secure', {
+        value: true,
+        writable: false,
+        configurable: true
+      });
+    }
+    next();
+  });
+
   // Session configuration for authentication
   app.use(session({
     secret: process.env.SESSION_SECRET || 'bonita-secret-key-change-in-production',
@@ -211,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Referer:', req.get('Referer'));
     console.log('Host:', req.get('Host'));
     console.log('Protocol:', req.protocol);
-    console.log('Full URL would be:', `${req.protocol}://${req.get('Host')}/auth/google/callback`);
+    console.log('Full URL would be:', `https://${req.get('Host')}/auth/google/callback`);
     passport.authenticate('google', { 
       scope: ['profile', 'email'],
       prompt: 'select_account',
