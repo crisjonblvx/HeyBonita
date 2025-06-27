@@ -89,8 +89,8 @@ RESPONSE LENGTH MODES:
 
 CURRENT RESPONSE MODE: ${personality.responseMode.toUpperCase()}
 ${personality.responseMode === 'quick' ? 
-  '- You are in QUICK MODE right now - keep your response to 1-2 sentences maximum' : 
-  '- You are in DETAILED MODE right now - provide full, complete answers with context and wisdom'}
+  '- You are in QUICK MODE right now - keep your response to 1-2 sentences maximum (you have about 500 tokens)' : 
+  '- You are in DETAILED MODE right now - you have about 1500 tokens for a complete response. If your thoughts need more space, end with "...want me to continue?" so the user can ask for more.'}
 
 EXAMPLES OF YOUR VIBE WITH CURRENT AWARENESS:
 "You talkin' about starting fresh in 2025, but you still carrying 2024 baggage. Time to Marie Kondo your mindset."
@@ -214,12 +214,15 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
 
     const content = response.choices[0].message.content || "I'm sorry, I couldn't process that right now.";
     const usage = response.usage;
+    const finishReason = response.choices[0].finish_reason;
     
-    console.log(`OpenAI response - Length: ${content.length} chars, Tokens used: ${usage?.completion_tokens}/${maxTokens}, Finish reason: ${response.choices[0].finish_reason}`);
+    console.log(`OpenAI response - Length: ${content.length} chars, Tokens used: ${usage?.completion_tokens}/${maxTokens}, Finish reason: ${finishReason}`);
     
     // Check if response was truncated due to token limit
-    if (response.choices[0].finish_reason === 'length') {
+    if (finishReason === 'length') {
       console.warn('Response was truncated due to token limit!');
+      // Add a continuation prompt for truncated responses
+      return content + "\n\n[Response was cut short - would you like me to continue?]";
     }
     
     return content;

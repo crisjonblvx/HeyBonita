@@ -691,13 +691,29 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
                     ? 'bg-primary text-primary-foreground' 
                     : 'bg-muted'
                 }`}>
-                  <p>{msg.content.replace('[JOY_RIVER_BUTTONS]', '')}</p>
+                  <p>{msg.content.replace('[JOY_RIVER_BUTTONS]', '').replace(/\[Response was cut short - would you like me to continue\?\]/g, '')}</p>
                   {msg.role === 'assistant' && msg.content.includes('[JOY_RIVER_BUTTONS]') && (
                     <JoyRiverButtons 
                       onButtonClick={(action) => {
                         trackEvent('joy_river_button_click', { action }, userId);
                       }}
                     />
+                  )}
+                  {msg.role === 'assistant' && msg.content.includes('[Response was cut short - would you like me to continue?]') && (
+                    <div className="mt-3">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const continueMessage = "Please continue your previous response.";
+                          setMessage(continueMessage);
+                          sendMessageMutation.mutate(continueMessage);
+                        }}
+                        className="text-xs"
+                      >
+                        Continue Response
+                      </Button>
+                    </div>
                   )}
                   <div className="flex items-center justify-between mt-1">
                     <span className={`text-xs ${
