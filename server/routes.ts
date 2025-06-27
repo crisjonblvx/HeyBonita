@@ -60,32 +60,25 @@ function configureOAuthStrategies() {
     }
   });
 
-  // Google OAuth Strategy
+  // Google OAuth Strategy - Dynamic callback URL
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     console.log('Configuring Google OAuth strategy');
     console.log('Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
     console.log('Client Secret exists:', !!process.env.GOOGLE_CLIENT_SECRET);
-    // Use the actual deployment URL - check if we're on deployed Replit
-    const isDeployed = process.env.REPLIT_DEPLOYMENT === 'true' || process.env.RAILWAY_ENVIRONMENT;
-    const deploymentDomain = process.env.REPLIT_DOMAINS?.split(',')[0] || '144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev';
     
-    let callbackURL;
-    if (process.env.NODE_ENV === 'production') {
-      callbackURL = 'https://heybonita.ai/auth/google/callback';
-    } else if (isDeployed) {
-      // Use deployment URL
-      callbackURL = `https://${deploymentDomain}/auth/google/callback`;
-    } else {
-      // Use development URL
-      callbackURL = `https://${deploymentDomain}/auth/google/callback`;
-    }
+    // Create a function to get the correct callback URL based on request
+    const getCallbackURL = (req: any) => {
+      const protocol = req.get('X-Forwarded-Proto') || req.protocol || 'https';
+      const host = req.get('Host') || req.hostname;
+      return `${protocol}://${host}/auth/google/callback`;
+    };
     
-    console.log('Using callback URL:', callbackURL);
-    
+    // We'll configure the strategy dynamically in the route handler
+    // For now, use a placeholder that will be overridden
     passport.use('google', new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: callbackURL
+      callbackURL: 'https://placeholder.com/auth/google/callback' // Will be overridden
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -285,7 +278,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test route to debug OAuth redirect manually
   app.get('/auth/google/test', (req, res) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
-    const redirectUri = encodeURIComponent('https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback');
+    // Get dynamic redirect URI based on current request
+    const protocol = req.get('X-Forwarded-Proto') || req.protocol || 'https';
+    const host = req.get('Host') || req.hostname;
+    const dynamicRedirectUri = `${protocol}://${host}/auth/google/callback`;
+    const redirectUri = encodeURIComponent(dynamicRedirectUri);
+    
+    console.log('Using dynamic redirect URI:', dynamicRedirectUri);
     const scope = encodeURIComponent('profile email');
     
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
