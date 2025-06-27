@@ -50,6 +50,11 @@ export interface IStorage {
   getUserAchievements(userId: number): Promise<Achievement[]>;
   createAchievement(achievement: InsertAchievement): Promise<Achievement>;
   updateUserStats(userId: number, stats: Partial<User>): Promise<User>;
+  
+  // Feedback operations
+  createFeedback(feedback: InsertUserFeedback): Promise<UserFeedback>;
+  getFeedback(limit?: number): Promise<UserFeedback[]>;
+  updateFeedbackStatus(id: number, resolved: boolean): Promise<UserFeedback>;
 }
 
 export class DatabaseStorage implements IStorage {

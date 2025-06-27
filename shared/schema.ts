@@ -190,6 +190,8 @@ export type InsertRateLimit = z.infer<typeof insertRateLimitSchema>;
 export type RateLimit = typeof rateLimits.$inferSelect;
 export type InsertModerationFlag = z.infer<typeof insertModerationFlagSchema>;
 export type ModerationFlag = typeof moderationFlags.$inferSelect;
+export type InsertUserFeedback = z.infer<typeof insertUserFeedbackSchema>;
+export type UserFeedback = typeof userFeedback.$inferSelect;
 
 // Export analytics tables
 export * from './analytics';
