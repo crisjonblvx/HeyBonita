@@ -348,22 +348,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // OAuth Routes - Apple
-  app.get('/auth/apple',
-    passport.authenticate('apple')
-  );
+  // OAuth Routes - Apple (Disabled - requires Apple Developer credentials)
+  app.get('/auth/apple', (req, res) => {
+    res.status(503).json({ 
+      error: 'Apple Sign In is temporarily unavailable',
+      message: 'Please use Google Sign In or create an account with email/password'
+    });
+  });
 
-  app.get('/auth/apple/callback',
-    passport.authenticate('apple', { failureRedirect: '/login' }),
-    (req, res) => {
-      // Set session userId for compatibility with existing auth system
-      if (req.user && typeof req.user === 'object' && 'id' in req.user) {
-        (req.session as any).userId = (req.user as any).id;
-      }
-      // Successful authentication, redirect to home
-      res.redirect('/');
-    }
-  );
+  app.get('/auth/apple/callback', (req, res) => {
+    res.redirect('/app?error=apple_unavailable');
+  });
   
   // Authentication routes with rate limiting
   app.post("/api/auth/register", rateLimitMiddleware('/api/auth/register'), async (req, res) => {
