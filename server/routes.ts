@@ -208,14 +208,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Session configuration for authentication
+  const sessionStore = new (connectPgSimple(session))({
+    pool: pool,
+    tableName: 'user_sessions',
+    createTableIfMissing: true,
+    errorLog: (error: any) => {
+      console.error('Session store error:', error);
+    }
+  });
+
   app.use(session({
     secret: process.env.SESSION_SECRET || 'bonita-secret-key-change-in-production',
     resave: false,
     saveUninitialized: false,
-    store: new (connectPgSimple(session))({
-      pool: pool,
-      tableName: 'user_sessions'
-    }),
+    store: sessionStore,
     cookie: {
       secure: false, // Set to true in production with HTTPS
       httpOnly: true,
