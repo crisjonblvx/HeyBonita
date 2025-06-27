@@ -10,16 +10,15 @@ The "accounts.google.com refused to connect" error occurs because the OAuth app 
 - Select your project with the OAuth credentials
 
 ### 2. Navigate to OAuth Consent Screen
-- In the left sidebar, click on "OAuth consent screen" (not Overview)
+- In the left sidebar, click on "OAuth consent screen" > "Audience" (as shown in your screenshot)
 - You should see your app configuration with a "Publishing status" section
 
 ### 3. Publish App to Production
-- Look for the "Publishing status" section
-- If the app shows "Testing", click "PUBLISH APP" button
-- If you don't see a publish button, click "EDIT APP" first
-- Scroll down to "Publishing status" and click "PUBLISH APP"
+- Look for the "Publishing status" section (visible in your screenshot)
+- Click the blue "Publish app" button next to "Testing"
 - Confirm that you want to make the app available to all users
 - Status should change from "Testing" to "In production"
+- This will remove the 100 user limit and allow unrestricted Google OAuth access
 
 ### 4. Verify Settings
 - User Type: External
