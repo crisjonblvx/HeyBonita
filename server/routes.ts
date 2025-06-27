@@ -1100,11 +1100,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: 'Not authenticated' });
     }
     try {
-      const { type, project, limit } = req.query;
+      const { type, project, folderId, limit } = req.query;
       const receipts = await storage.getReceipts(
         req.session.userId, 
         type as string, 
-        project as string, 
+        project as string,
+        folderId ? parseInt(folderId as string) : undefined,
         limit ? parseInt(limit as string) : undefined
       );
       res.json(receipts);
@@ -1153,6 +1154,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Receipt deletion error:", error);
       res.status(500).json({ error: "Failed to delete receipt" });
+    }
+  });
+
+  // Receipt folder management routes
+  app.get("/api/receipt-folders", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const folders = await storage.getReceiptFolders(req.session.userId);
+      res.json(folders);
+    } catch (error) {
+      console.error("Receipt folders fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch folders" });
+    }
+  });
+
+  app.post("/api/receipt-folders", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const { name, color, description } = req.body;
+      if (!name?.trim()) {
+        return res.status(400).json({ message: 'Folder name is required' });
+      }
+      
+      const folder = await storage.createReceiptFolder({
+        userId: req.session.userId,
+        name: name.trim(),
+        color: color || 'blue',
+        description: description?.trim() || null
+      });
+      res.json(folder);
+    } catch (error) {
+      console.error("Receipt folder creation error:", error);
+      res.status(500).json({ error: "Failed to create folder" });
+    }
+  });
+
+  app.put("/api/receipt-folders/:id", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const folderId = parseInt(req.params.id);
+      const { name, color, description, archived } = req.body;
+      
+      const updatedFolder = await storage.updateReceiptFolder(folderId, {
+        name: name?.trim(),
+        color,
+        description: description?.trim() || null,
+        isArchived: archived
+      });
+      res.json(updatedFolder);
+    } catch (error) {
+      console.error("Receipt folder update error:", error);
+      res.status(500).json({ error: "Failed to update folder" });
+    }
+  });
+
+  app.delete("/api/receipt-folders/:id", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const folderId = parseInt(req.params.id);
+      await storage.deleteReceiptFolder(folderId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Receipt folder deletion error:", error);
+      res.status(500).json({ error: "Failed to delete folder" });
+    }
+  });
+
+  app.post("/api/receipts/:id/move", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const receiptId = parseInt(req.params.id);
+      const { folderId } = req.body;
+      
+      const updatedReceipt = await storage.moveReceiptToFolder(
+        receiptId, 
+        folderId === null ? null : parseInt(folderId)
+      );
+      res.json(updatedReceipt);
+    } catch (error) {
+      console.error("Receipt move error:", error);
+      res.status(500).json({ error: "Failed to move receipt" });
     }
   });
 

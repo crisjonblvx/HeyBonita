@@ -250,13 +250,16 @@ export class DatabaseStorage implements IStorage {
 
   // Receipts system operations
   async getReceipts(userId: number, receiptType?: string, projectName?: string, folderId?: number, limit: number = 50): Promise<Receipt[]> {
-    let query = db.select().from(receipts).where(eq(receipts.userId, userId));
+    const conditions = [eq(receipts.userId, userId)];
     
     if (folderId !== undefined) {
-      query = query.where(eq(receipts.folderId, folderId));
+      conditions.push(eq(receipts.folderId, folderId));
     }
     
-    return await query
+    return await db
+      .select()
+      .from(receipts)
+      .where(and(...conditions))
       .orderBy(desc(receipts.createdAt))
       .limit(limit);
   }
@@ -280,6 +283,52 @@ export class DatabaseStorage implements IStorage {
 
   async deleteReceipt(id: number): Promise<void> {
     await db.delete(receipts).where(eq(receipts.id, id));
+  }
+
+  // Receipt folder operations
+  async getReceiptFolders(userId: number): Promise<ReceiptFolder[]> {
+    return await db
+      .select()
+      .from(receiptFolders)
+      .where(eq(receiptFolders.userId, userId))
+      .orderBy(desc(receiptFolders.createdAt));
+  }
+
+  async createReceiptFolder(folder: InsertReceiptFolder): Promise<ReceiptFolder> {
+    const [newFolder] = await db
+      .insert(receiptFolders)
+      .values(folder)
+      .returning();
+    return newFolder;
+  }
+
+  async updateReceiptFolder(id: number, updates: Partial<InsertReceiptFolder>): Promise<ReceiptFolder> {
+    const [updatedFolder] = await db
+      .update(receiptFolders)
+      .set(updates)
+      .where(eq(receiptFolders.id, id))
+      .returning();
+    return updatedFolder;
+  }
+
+  async deleteReceiptFolder(id: number): Promise<void> {
+    // First move all receipts out of this folder
+    await db
+      .update(receipts)
+      .set({ folderId: null })
+      .where(eq(receipts.folderId, id));
+    
+    // Then delete the folder
+    await db.delete(receiptFolders).where(eq(receiptFolders.id, id));
+  }
+
+  async moveReceiptToFolder(receiptId: number, folderId: number | null): Promise<Receipt> {
+    const [updatedReceipt] = await db
+      .update(receipts)
+      .set({ folderId })
+      .where(eq(receipts.id, receiptId))
+      .returning();
+    return updatedReceipt;
   }
 
   // Conversation Projects

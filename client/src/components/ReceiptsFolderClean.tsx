@@ -27,8 +27,19 @@ interface Receipt {
   title: string;
   content: string;
   projectId?: number;
+  folderId?: number;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   isArchived: boolean;
+  createdAt: Date;
+}
+
+interface ReceiptFolder {
+  id: number;
+  userId: number;
+  name: string;
+  description?: string;
+  color: string;
+  archived: boolean;
   createdAt: Date;
 }
 
