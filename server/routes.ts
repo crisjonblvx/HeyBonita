@@ -56,6 +56,8 @@ function configureOAuthStrategies() {
   // Google OAuth Strategy
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     console.log('Configuring Google OAuth strategy');
+    console.log('Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
+    console.log('Client Secret exists:', !!process.env.GOOGLE_CLIENT_SECRET);
     console.log('Using callback URL: https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback');
     
     passport.use('google', new GoogleStrategy({
@@ -236,11 +238,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Host:', req.get('Host'));
     console.log('Protocol:', req.protocol);
     console.log('Full URL would be:', `https://${req.get('Host')}/auth/google/callback`);
-    passport.authenticate('google', { 
-      scope: ['profile', 'email'],
-      prompt: 'select_account',
-      accessType: 'offline'
-    })(req, res, next);
+    
+    try {
+      passport.authenticate('google', { 
+        scope: ['profile', 'email'],
+        prompt: 'select_account',
+        accessType: 'offline'
+      })(req, res, next);
+    } catch (error) {
+      console.error('Google OAuth initiation error:', error);
+      res.redirect('/auth?error=oauth_init_failed');
+    }
+  });
+
+  // Test route to debug OAuth redirect manually
+  app.get('/auth/google/test', (req, res) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const redirectUri = encodeURIComponent('https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback');
+    const scope = encodeURIComponent('profile email');
+    
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${redirectUri}&` +
+      `scope=${scope}&` +
+      `response_type=code&` +
+      `access_type=offline&` +
+      `prompt=select_account`;
+    
+    console.log('Manual Google OAuth URL:', googleAuthUrl);
+    res.redirect(googleAuthUrl);
   });
 
   app.get('/auth/google/callback', (req, res, next) => {
