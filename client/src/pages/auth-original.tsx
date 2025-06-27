@@ -53,9 +53,10 @@ export default function AuthPage() {
         });
       }
     } catch (error) {
+      console.log('Login error:', error);
       toast({
         title: "Connection Error",
-        description: "Unable to connect to the server. Please try again.",
+        description: "Unable to connect to server. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -66,11 +67,19 @@ export default function AuthPage() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!registerData.username.trim() || !registerData.email.trim() || 
-        !registerData.password || !registerData.confirmPassword) {
+    if (!registerData.username.trim() || !registerData.email.trim() || !registerData.password || !registerData.confirmPassword) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all fields.",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (registerData.username.trim().length < 3) {
+      toast({
+        title: "Username too short",
+        description: "Username must be at least 3 characters long.",
         variant: "destructive",
       });
       return;
@@ -78,8 +87,8 @@ export default function AuthPage() {
 
     if (registerData.password !== registerData.confirmPassword) {
       toast({
-        title: "Password Mismatch",
-        description: "Passwords do not match.",
+        title: "Password mismatch",
+        description: "Passwords do not match. Please try again.",
         variant: "destructive",
       });
       return;
@@ -87,7 +96,7 @@ export default function AuthPage() {
 
     if (registerData.password.length < 6) {
       toast({
-        title: "Password Too Short",
+        title: "Password too short",
         description: "Password must be at least 6 characters long.",
         variant: "destructive",
       });
@@ -95,14 +104,15 @@ export default function AuthPage() {
     }
 
     setIsLoading(true);
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          username: registerData.username,
-          email: registerData.email,
+          username: registerData.username.trim(),
+          email: registerData.email.trim(),
           password: registerData.password
         })
       });
@@ -110,7 +120,7 @@ export default function AuthPage() {
       if (response.ok) {
         toast({
           title: "Account Created!",
-          description: "Welcome to Bonita AI! You've been signed in automatically.",
+          description: "Welcome to Bonita AI! You're now signed in.",
         });
         setLocation('/');
       } else {
@@ -122,9 +132,10 @@ export default function AuthPage() {
         });
       }
     } catch (error) {
+      console.log('Registration error:', error);
       toast({
         title: "Connection Error",
-        description: "Unable to connect to the server. Please try again.",
+        description: "Unable to connect to server. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -150,14 +161,6 @@ export default function AuthPage() {
         });
       }
     }, 2000);
-  };
-
-  const handleAppleLogin = () => {
-    toast({
-      title: "Apple Sign In Unavailable",
-      description: "Apple Sign In requires additional setup. Please use Google or create an account.",
-      variant: "destructive",
-    });
   };
 
   return (
@@ -219,7 +222,7 @@ export default function AuthPage() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
                   <Button
                     type="button"
                     variant="outline"
@@ -245,19 +248,19 @@ export default function AuthPage() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    Continue with Google
+                    Google
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={handleAppleLogin}
-                    className="w-full opacity-75"
-                    disabled={true}
+                    onClick={() => window.location.href = '/auth/apple'}
+                    className="w-full"
+                    disabled={isLoading}
                   >
                     <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12.017 0C8.396 0 8.017.365 8.017 3.688c0 1.854.711 3.663 2.03 4.987C11.466 9.979 13.607 10.362 15.115 9.175c1.31-1.034 2.436-2.666 2.436-4.771C17.551.365 17.172 0 12.017 0zm2.706 22.771c-.546.894-1.42 1.229-2.706 1.229-1.285 0-2.159-.335-2.706-1.229-.547-.894-.888-2.066-.888-3.230s.341-2.336.888-3.230c.547-.894 1.421-1.229 2.706-1.229s2.159.335 2.706 1.229c.546.894.888 2.066.888 3.230s-.342 2.336-.888 3.230z"/>
                     </svg>
-                    Apple (Coming Soon)
+                    Apple
                   </Button>
                 </div>
               </form>
@@ -318,7 +321,7 @@ export default function AuthPage() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
                   <Button
                     type="button"
                     variant="outline"
@@ -344,19 +347,19 @@ export default function AuthPage() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    Continue with Google
+                    Google
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={handleAppleLogin}
-                    className="w-full opacity-75"
-                    disabled={true}
+                    onClick={() => window.location.href = '/auth/apple'}
+                    className="w-full"
+                    disabled={isLoading}
                   >
                     <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12.017 0C8.396 0 8.017.365 8.017 3.688c0 1.854.711 3.663 2.03 4.987C11.466 9.979 13.607 10.362 15.115 9.175c1.31-1.034 2.436-2.666 2.436-4.771C17.551.365 17.172 0 12.017 0zm2.706 22.771c-.546.894-1.42 1.229-2.706 1.229-1.285 0-2.159-.335-2.706-1.229-.547-.894-.888-2.066-.888-3.230s.341-2.336.888-3.230c.547-.894 1.421-1.229 2.706-1.229s2.159.335 2.706 1.229c.546.894.888 2.066.888 3.230s-.342 2.336-.888 3.230z"/>
                     </svg>
-                    Apple (Coming Soon)
+                    Apple
                   </Button>
                 </div>
               </form>

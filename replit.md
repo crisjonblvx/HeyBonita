@@ -164,6 +164,7 @@ Bonita AI is a full-stack web application built with React/TypeScript frontend a
 - June 27, 2025. Fixed critical WebSocket connection issues with Neon database: optimized connection pooling, improved timeout handling, enhanced session store configuration, and implemented proper error recovery - application now starts successfully
 - June 27, 2025. Resolved feedback system database error: created missing user_feedback table, enabling full functionality of Like/Dislike/Bug/Suggestion/General feedback collection system
 - June 27, 2025. Restored settings button to desktop navigation bar: users can now access all personalization options including color schemes, tone modes, voice settings, and language preferences
+- June 27, 2025. Fixed Apple Sign In blank screen error: disabled Apple authentication strategy due to missing credentials, updated auth buttons to show proper error messages instead of causing authentication failures, Apple login now shows "Coming Soon" status with user-friendly messaging
 
 ## User Preferences
 
