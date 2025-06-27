@@ -246,6 +246,18 @@ export default function AuthPage() {
           <CardDescription>Your Digital Bronx Auntie is ready to help</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-6">
+            <Button
+              onClick={handleQuickAccess}
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3"
+              disabled={isLoading}
+            >
+              🚀 Quick Access (Temporary)
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Bypass login while we fix Google OAuth
+            </p>
+          </div>
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Sign In</TabsTrigger>
