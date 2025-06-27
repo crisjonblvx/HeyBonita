@@ -43,9 +43,17 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
   // Fetch chat history
   const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['/api/chat', userId],
-    queryFn: () => fetch(`/api/chat/${userId}`).then(res => res.json()),
+    queryFn: async () => {
+      const response = await fetch(`/api/chat/${userId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    },
     enabled: !!userId,
-    staleTime: 0 // Always refetch to keep messages fresh
+    staleTime: 0, // Always refetch to keep messages fresh
+    retry: 3,
+    retryDelay: 1000
   });
 
   // Send message mutation with abort controller
@@ -524,6 +532,28 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode }: Bonita
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-muted-foreground">
+            <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-medium">Connection Issue</h3>
+            <p className="text-sm max-w-md mx-auto">
+              Unable to load chat history. Please check your connection and try again.
+            </p>
+          </div>
+          <Button 
+            onClick={() => queryClient.refetchQueries({ queryKey: ['/api/chat', userId] })}
+            variant="outline"
+          >
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }
