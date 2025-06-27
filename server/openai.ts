@@ -200,7 +200,7 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini", // Use gpt-4o-mini for better reliability
       messages,
-      max_tokens: personality.responseMode === 'quick' ? 150 : 350,
+      max_tokens: personality.responseMode === 'quick' ? 200 : 800,
       temperature: personality.responseMode === 'quick' ? 0.6 : 0.7,
     });
 
