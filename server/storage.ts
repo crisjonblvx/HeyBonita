@@ -243,11 +243,11 @@ export class DatabaseStorage implements IStorage {
     let query = db.select().from(receipts).where(eq(receipts.userId, userId));
     
     if (receiptType) {
-      query = query.where(eq(receipts.receiptType, receiptType));
+      query = query.where(eq(receipts.type, receiptType));
     }
     
     if (projectName) {
-      query = query.where(eq(receipts.projectName, projectName));
+      query = query.where(eq(receipts.projectId, projectName));
     }
     
     return await query.orderBy(desc(receipts.createdAt)).limit(limit);

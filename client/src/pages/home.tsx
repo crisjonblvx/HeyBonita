@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
-import { ReceiptsFolder } from '@/components/ReceiptsFolder';
+import { ReceiptsFolderClean as ReceiptsFolder } from '@/components/ReceiptsFolderClean';
 import { GamificationPanel } from '@/components/Gamification';
 import { ExportData } from '@/components/ExportData';
 import { LeftSidebar } from '@/components/LeftSidebar';
