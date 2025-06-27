@@ -240,17 +240,10 @@ export class DatabaseStorage implements IStorage {
 
   // Receipts system operations
   async getReceipts(userId: number, receiptType?: string, projectName?: string, limit: number = 50): Promise<Receipt[]> {
-    let baseQuery = db.select().from(receipts).where(eq(receipts.userId, userId));
-    
-    if (receiptType) {
-      baseQuery = baseQuery.where(eq(receipts.type, receiptType));
-    }
-    
-    if (projectName) {
-      baseQuery = baseQuery.where(eq(receipts.projectId, parseInt(projectName)));
-    }
-    
-    return await baseQuery.orderBy(desc(receipts.createdAt)).limit(limit);
+    return await db.select().from(receipts)
+      .where(eq(receipts.userId, userId))
+      .orderBy(desc(receipts.createdAt))
+      .limit(limit);
   }
 
   async createReceipt(receipt: InsertReceipt): Promise<Receipt> {
