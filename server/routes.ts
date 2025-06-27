@@ -58,12 +58,16 @@ function configureOAuthStrategies() {
     console.log('Configuring Google OAuth strategy');
     console.log('Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
     console.log('Client Secret exists:', !!process.env.GOOGLE_CLIENT_SECRET);
-    console.log('Using callback URL: https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback');
+    const callbackURL = process.env.NODE_ENV === 'production' 
+      ? 'https://heybonita.ai/auth/google/callback'
+      : `https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback`;
+    
+    console.log('Using callback URL:', callbackURL);
     
     passport.use('google', new GoogleStrategy({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback`
+      callbackURL: callbackURL
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
