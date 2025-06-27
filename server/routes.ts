@@ -238,10 +238,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-      secure: false, // Set to true in production with HTTPS
+      secure: process.env.NODE_ENV === 'production' ? true : false,
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax' // Important for cross-origin requests
+    },
+    name: 'bonita.session' // Custom session name
   }));
 
   // Initialize passport
@@ -407,6 +409,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create session for new user
       if (req.session) {
         req.session.userId = user.id;
+        console.log('Registration successful - Session created:', { 
+          sessionId: req.sessionID, 
+          userId: user.id,
+          username: user.username 
+        });
+        
+        // Force session save
+        await new Promise((resolve, reject) => {
+          req.session.save((err) => {
+            if (err) {
+              console.error('Registration session save error:', err);
+              reject(err);
+            } else {
+              console.log('Registration session saved successfully');
+              resolve(true);
+            }
+          });
+        });
       }
       
       // Remove password hash from response
@@ -442,6 +462,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create session
       if (req.session) {
         req.session.userId = user.id;
+        console.log('Login successful - Session created:', { 
+          sessionId: req.sessionID, 
+          userId: user.id,
+          username: user.username 
+        });
+        
+        // Force session save
+        await new Promise((resolve, reject) => {
+          req.session.save((err) => {
+            if (err) {
+              console.error('Session save error:', err);
+              reject(err);
+            } else {
+              console.log('Session saved successfully');
+              resolve(true);
+            }
+          });
+        });
       }
       
       // Remove password hash from response
