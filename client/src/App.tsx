@@ -23,16 +23,25 @@ function AppRoute() {
   const [layoutType] = useState(() => isMobile ? 'mobile' : 'desktop');
 
   useEffect(() => {
+    console.log('App.tsx: Checking authentication status...');
     // Check authentication status via server session
     fetch('/api/auth/status', { credentials: 'include' })
-      .then(res => res.json())
+      .then(res => {
+        console.log('App.tsx: Auth status response:', res.status, res.headers.get('content-type'));
+        return res.json();
+      })
       .then(data => {
+        console.log('App.tsx: Auth status data:', data);
         if (data.authenticated && data.user) {
+          console.log('App.tsx: User authenticated, setting user:', data.user.username);
           setUser(data.user);
+        } else {
+          console.log('App.tsx: User not authenticated');
         }
         setIsLoading(false);
       })
-      .catch(() => {
+      .catch(error => {
+        console.error('App.tsx: Auth status check failed:', error);
         setIsLoading(false);
       });
   }, []);

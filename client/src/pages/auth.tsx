@@ -48,6 +48,9 @@ export default function AuthPage() {
       }
 
       if (response.ok) {
+        const loginResult = await response.json();
+        console.log('Frontend: Login successful, got user:', loginResult.user);
+        
         toast({
           title: "Welcome back!",
           description: "You've been signed in successfully.",
@@ -56,17 +59,22 @@ export default function AuthPage() {
         // Immediately check authentication status and force reload if needed
         setTimeout(async () => {
           try {
+            console.log('Frontend: Checking auth status after login...');
             const authCheck = await fetch('/api/auth/status', { credentials: 'include' });
             const authData = await authCheck.json();
+            console.log('Frontend: Auth check result:', authData);
             
             if (authData.authenticated && authData.user) {
+              console.log('Frontend: Authentication confirmed, reloading page');
               // Authentication successful, reload to show home screen
               window.location.reload();
             } else {
+              console.log('Frontend: Auth check failed, forcing hard reload');
               // Session not recognized, force a hard reload
               window.location.href = window.location.href;
             }
           } catch (error) {
+            console.error('Frontend: Auth check error:', error);
             // Fallback to hard reload
             window.location.href = window.location.href;
           }

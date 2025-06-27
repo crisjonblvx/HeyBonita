@@ -245,12 +245,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-      secure: false, // Set to false for now to ensure sessions work in development
-      httpOnly: true,
+      secure: false, // Set to false for development
+      httpOnly: false, // Allow JavaScript access for debugging
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax' // Important for cross-origin requests
+      sameSite: 'lax', // Important for cross-origin requests
+      path: '/' // Ensure cookie is available for all paths
     },
-    name: 'bonita.session' // Custom session name
+    name: 'connect.sid' // Use standard session name for compatibility
   }));
 
   // Initialize passport
