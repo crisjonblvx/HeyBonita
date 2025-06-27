@@ -55,12 +55,39 @@ export function ReceiptsFolderClean() {
     }
   });
 
+  // Enhanced categorization based on content analysis
+  const categorizeReceipt = (receipt: Receipt): string[] => {
+    const content = (receipt.title + ' ' + receipt.content).toLowerCase();
+    const categories = [receipt.type]; // Start with explicit type
+    
+    // Keywords for different categories
+    const keywords = {
+      idea: ['idea', 'concept', 'thought', 'brainstorm', 'innovation', 'creative', 'suggestion', 'propose', 'imagine', 'what if'],
+      task: ['task', 'todo', 'need to', 'should do', 'action item', 'complete', 'finish', 'work on', 'implement'],
+      decision: ['decide', 'decision', 'choose', 'option', 'alternative', 'pick', 'select', 'either', 'whether'],
+      commitment: ['commit', 'promise', 'will do', 'pledge', 'guarantee', 'accountable', 'responsible', 'deadline'],
+      script: ['script', 'video', 'content', 'draft', 'write', 'create', 'produce', 'film', 'record']
+    };
+    
+    // Check content for keywords and add additional categories
+    Object.entries(keywords).forEach(([category, words]) => {
+      if (words.some(word => content.includes(word)) && !categories.includes(category)) {
+        categories.push(category);
+      }
+    });
+    
+    return categories;
+  };
+
   // Filter receipts based on selected folder and search term
   const filteredReceipts = allReceipts
     .filter((receipt: Receipt) => {
-      // Filter by folder type
-      if (selectedFolder !== 'all' && receipt.type !== selectedFolder) {
-        return false;
+      // Enhanced filtering using content-based categorization
+      if (selectedFolder !== 'all') {
+        const categories = categorizeReceipt(receipt);
+        if (!categories.includes(selectedFolder)) {
+          return false;
+        }
       }
       // Filter by search term
       if (searchTerm && !receipt.title.toLowerCase().includes(searchTerm.toLowerCase()) && 
@@ -71,10 +98,13 @@ export function ReceiptsFolderClean() {
     })
     .sort((a: Receipt, b: Receipt) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  // Get count for each folder type
+  // Get count for each folder type using enhanced categorization
   const getFolderCount = (type: string) => {
     if (type === 'all') return allReceipts.length;
-    return allReceipts.filter((receipt: Receipt) => receipt.type === type).length;
+    return allReceipts.filter((receipt: Receipt) => {
+      const categories = categorizeReceipt(receipt);
+      return categories.includes(type);
+    }).length;
   };
 
   const getPriorityColor = (priority: string) => {
@@ -126,9 +156,9 @@ export function ReceiptsFolderClean() {
       </div>
 
       {/* Folders and Content */}
-      <div className="flex gap-4">
+      <div className="flex gap-4 h-full overflow-hidden">
         {/* Folder Sidebar */}
-        <div className="w-64 space-y-2">
+        <div className="w-64 space-y-2 flex-shrink-0">
           <h3 className="font-semibold text-sm text-muted-foreground mb-4">FOLDERS</h3>
           {folderTypes.map((folder) => {
             const Icon = folder.icon;
@@ -154,9 +184,9 @@ export function ReceiptsFolderClean() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
           {/* Search Bar */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search receipts..."
@@ -166,58 +196,62 @@ export function ReceiptsFolderClean() {
             />
           </div>
 
-          {/* Content */}
-          {filteredReceipts.length === 0 ? (
-            <div className="text-center py-12">
-              <Archive className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                {selectedFolder === 'all' ? 'No receipts yet' : `No ${folderTypes.find(f => f.id === selectedFolder)?.name.toLowerCase()} yet`}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {selectedFolder === 'conversation' 
-                  ? 'Start chatting with Bonita to automatically create conversation receipts'
-                  : 'Your receipts will appear here as you interact with Bonita'
-                }
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredReceipts.map((receipt: Receipt) => (
-                <Card key={receipt.id} className="transition-shadow hover:shadow-md">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1 flex-1">
-                        <CardTitle className="text-lg leading-tight">{receipt.title}</CardTitle>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(receipt.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto">
+            {filteredReceipts.length === 0 ? (
+              <div className="text-center py-12">
+                <Archive className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-muted-foreground mb-2">
+                  {selectedFolder === 'all' ? 'No receipts yet' : `No ${folderTypes.find(f => f.id === selectedFolder)?.name.toLowerCase()} yet`}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {selectedFolder === 'conversation' 
+                    ? 'Start chatting with Bonita to automatically create conversation receipts'
+                    : 'Your receipts will appear here as you interact with Bonita'
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4 pb-6">
+                {filteredReceipts.map((receipt: Receipt) => (
+                  <Card key={receipt.id} className="transition-shadow hover:shadow-md">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1 flex-1">
+                          <CardTitle className="text-lg leading-tight">{receipt.title}</CardTitle>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(receipt.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {categorizeReceipt(receipt).map((category) => (
+                            <Badge key={category} className={getTypeColor(category)} variant="outline">
+                              {category}
+                            </Badge>
+                          ))}
+                          <Badge className={getPriorityColor(receipt.priority)}>
+                            {receipt.priority}
+                          </Badge>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getTypeColor(receipt.type)}>
-                          {receipt.type}
-                        </Badge>
-                        <Badge className={getPriorityColor(receipt.priority)}>
-                          {receipt.priority}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {receipt.content}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {receipt.content}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
