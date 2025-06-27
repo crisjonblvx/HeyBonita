@@ -6,6 +6,10 @@ import {
   waitlistEmails,
   achievements,
   userFeedback,
+  receipts,
+  conversationProjects,
+  droppedIdeas,
+  commitments,
   type User, 
   type InsertUser,
   type ChatMessage,
@@ -19,7 +23,15 @@ import {
   type Achievement,
   type InsertAchievement,
   type UserFeedback,
-  type InsertUserFeedback
+  type InsertUserFeedback,
+  type Receipt,
+  type InsertReceipt,
+  type ConversationProject,
+  type InsertConversationProject,
+  type DroppedIdea,
+  type InsertDroppedIdea,
+  type Commitment,
+  type InsertCommitment
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";

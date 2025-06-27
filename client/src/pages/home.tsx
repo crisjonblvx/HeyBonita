@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BonitaChat } from '@/components/BonitaChat';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
+import { ReceiptsFolder } from '@/components/ReceiptsFolder';
 import { GamificationPanel } from '@/components/Gamification';
 import { ExportData } from '@/components/ExportData';
 import { LeftSidebar } from '@/components/LeftSidebar';
@@ -17,6 +18,7 @@ import {
   MessageCircle, 
   Image, 
   Video, 
+  FileText,
   Settings, 
   HelpCircle, 
   Mic, 
@@ -36,7 +38,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-type ActiveTab = 'chat' | 'image' | 'video' | 'profile' | 'export';
+type ActiveTab = 'chat' | 'image' | 'video' | 'receipts' | 'profile' | 'export';
 type ToneMode = 'sweet-nurturing' | 'tough-love';
 type ResponseMode = 'quick' | 'detailed';
 

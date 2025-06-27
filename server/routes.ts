@@ -1094,6 +1094,190 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Receipts system routes
+  app.get("/api/receipts", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const { type, project, limit } = req.query;
+      const receipts = await storage.getReceipts(
+        req.session.userId, 
+        type as string, 
+        project as string, 
+        limit ? parseInt(limit as string) : undefined
+      );
+      res.json(receipts);
+    } catch (error) {
+      console.error("Receipts fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch receipts" });
+    }
+  });
+
+  app.post("/api/receipts", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const receiptData = { ...req.body, userId: req.session.userId };
+      const receipt = await storage.createReceipt(receiptData);
+      res.json(receipt);
+    } catch (error) {
+      console.error("Receipt creation error:", error);
+      res.status(500).json({ error: "Failed to create receipt" });
+    }
+  });
+
+  app.put("/api/receipts/:id", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const receiptId = parseInt(req.params.id);
+      const receipt = await storage.updateReceipt(receiptId, req.body);
+      res.json(receipt);
+    } catch (error) {
+      console.error("Receipt update error:", error);
+      res.status(500).json({ error: "Failed to update receipt" });
+    }
+  });
+
+  app.delete("/api/receipts/:id", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const receiptId = parseInt(req.params.id);
+      await storage.deleteReceipt(receiptId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Receipt deletion error:", error);
+      res.status(500).json({ error: "Failed to delete receipt" });
+    }
+  });
+
+  // Conversation Projects routes
+  app.get("/api/projects", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const projects = await storage.getConversationProjects(req.session.userId);
+      res.json(projects);
+    } catch (error) {
+      console.error("Projects fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch projects" });
+    }
+  });
+
+  app.post("/api/projects", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const projectData = { ...req.body, userId: req.session.userId };
+      const project = await storage.createConversationProject(projectData);
+      res.json(project);
+    } catch (error) {
+      console.error("Project creation error:", error);
+      res.status(500).json({ error: "Failed to create project" });
+    }
+  });
+
+  // Dropped Ideas routes
+  app.get("/api/dropped-ideas", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const { projectId, limit } = req.query;
+      const ideas = await storage.getDroppedIdeas(
+        req.session.userId, 
+        projectId ? parseInt(projectId as string) : undefined,
+        limit ? parseInt(limit as string) : undefined
+      );
+      res.json(ideas);
+    } catch (error) {
+      console.error("Dropped ideas fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch dropped ideas" });
+    }
+  });
+
+  app.post("/api/dropped-ideas", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const ideaData = { ...req.body, userId: req.session.userId };
+      const idea = await storage.createDroppedIdea(ideaData);
+      res.json(idea);
+    } catch (error) {
+      console.error("Dropped idea creation error:", error);
+      res.status(500).json({ error: "Failed to create dropped idea" });
+    }
+  });
+
+  app.put("/api/dropped-ideas/:id/rediscover", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const ideaId = parseInt(req.params.id);
+      const idea = await storage.markIdeaRediscovered(ideaId);
+      res.json(idea);
+    } catch (error) {
+      console.error("Idea rediscovery error:", error);
+      res.status(500).json({ error: "Failed to mark idea as rediscovered" });
+    }
+  });
+
+  // Commitments routes
+  app.get("/api/commitments", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const { status, limit } = req.query;
+      const commitments = await storage.getCommitments(
+        req.session.userId,
+        status as string,
+        limit ? parseInt(limit as string) : undefined
+      );
+      res.json(commitments);
+    } catch (error) {
+      console.error("Commitments fetch error:", error);
+      res.status(500).json({ error: "Failed to fetch commitments" });
+    }
+  });
+
+  app.post("/api/commitments", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const commitmentData = { ...req.body, userId: req.session.userId };
+      const commitment = await storage.createCommitment(commitmentData);
+      res.json(commitment);
+    } catch (error) {
+      console.error("Commitment creation error:", error);
+      res.status(500).json({ error: "Failed to create commitment" });
+    }
+  });
+
+  app.put("/api/commitments/:id", async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    try {
+      const commitmentId = parseInt(req.params.id);
+      const commitment = await storage.updateCommitment(commitmentId, req.body);
+      res.json(commitment);
+    } catch (error) {
+      console.error("Commitment update error:", error);
+      res.status(500).json({ error: "Failed to update commitment" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
