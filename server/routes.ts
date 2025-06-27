@@ -285,6 +285,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })(req, res, next);
   });
 
+  // Test login endpoint for OAuth debugging
+  app.post('/api/test-login', async (req, res) => {
+    try {
+      const { email, name } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ error: 'Email required' });
+      }
+      
+      let user = await storage.getUserByUsername(email);
+      
+      if (!user) {
+        user = await storage.createUser({
+          username: email,
+          email: email,
+          passwordHash: 'test-user',
+          provider: 'test'
+        });
+      }
+      
+      if (req.session) {
+        (req.session as any).userId = user.id;
+      }
+      
+      res.json({ success: true, user: { id: user.id, email: user.email } });
+    } catch (error) {
+      console.error('Test login error:', error);
+      res.status(500).json({ error: 'Failed to create test user' });
+    }
+  });
+
   // OAuth Routes - Apple
   app.get('/auth/apple',
     passport.authenticate('apple')
