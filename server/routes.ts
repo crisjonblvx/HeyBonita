@@ -794,6 +794,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Session debug endpoint
+  app.get("/api/debug/session", (req, res) => {
+    res.json({
+      sessionExists: !!req.session,
+      userId: req.session?.userId,
+      sessionData: req.session
+    });
+  });
+
   // Chat routes
   app.get("/api/chat/:userId", async (req, res) => {
     try {

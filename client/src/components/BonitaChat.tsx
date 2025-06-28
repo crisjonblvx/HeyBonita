@@ -598,13 +598,39 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
             <p className="text-sm max-w-md mx-auto">
               Unable to load chat history. Please try refreshing the page.
             </p>
+            <details className="text-xs text-left mt-4 p-2 bg-muted rounded">
+              <summary className="cursor-pointer">Debug Info</summary>
+              <pre className="mt-2 whitespace-pre-wrap">{JSON.stringify({
+                error: error.message,
+                userId: userId,
+                timestamp: new Date().toISOString()
+              }, null, 2)}</pre>
+            </details>
           </div>
-          <Button 
-            onClick={() => queryClient.refetchQueries({ queryKey: ['/api/chat', userId] })}
-            variant="outline"
-          >
-            Try Again
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => queryClient.refetchQueries({ queryKey: ['/api/chat', userId] })}
+              variant="outline"
+            >
+              Try Again
+            </Button>
+            <Button 
+              onClick={async () => {
+                try {
+                  const response = await fetch('/api/debug/session', { credentials: 'include' });
+                  const data = await response.json();
+                  console.log('Session Debug:', data);
+                  alert('Session info logged to console: ' + JSON.stringify(data, null, 2));
+                } catch (e) {
+                  console.error('Debug failed:', e);
+                }
+              }}
+              variant="secondary"
+              size="sm"
+            >
+              Check Session
+            </Button>
+          </div>
         </div>
       </div>
     );
