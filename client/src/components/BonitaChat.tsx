@@ -59,13 +59,19 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
   const { data: messages = [], isLoading, error } = useQuery({
     queryKey: ['/api/chat', userId],
     queryFn: async () => {
+      console.log('Fetching chat history for user:', userId);
       const response = await fetch(`/api/chat/${userId}`, {
         credentials: 'include'
       });
+      console.log('Chat history response:', response.status, response.statusText);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Chat history error response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
-      return response.json();
+      const data = await response.json();
+      console.log('Chat history data received:', data.length, 'messages');
+      return data;
     },
     enabled: !!userId,
     staleTime: 0,
