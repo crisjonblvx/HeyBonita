@@ -11,10 +11,8 @@ export function configureGoogleAuth() {
     return;
   }
 
-  // Use the correct callback URL that matches Google Cloud Console configuration
-  const callbackURL = process.env.NODE_ENV === 'production' 
-    ? "https://heybonita.ai/auth/google/callback"
-    : "https://hey-bonita.replit.app/auth/google/callback";
+  // Use the current domain from the request or fallback to configured domains
+  const callbackURL = "https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback";
 
   console.log('Configuring Google OAuth strategy');
   console.log('Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 15) + '...');

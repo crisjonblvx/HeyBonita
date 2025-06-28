@@ -73,8 +73,8 @@ function configureOAuthStrategies() {
       return `${protocol}://${host}/auth/google/callback`;
     };
     
-    // Use the correct callback URL that matches Google Cloud Console
-    const callbackURL = 'https://hey-bonita.replit.app/auth/google/callback';
+    // Use the current domain callback URL
+    const callbackURL = 'https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback';
     console.log('Using Google OAuth callback URL:', callbackURL);
     
     passport.use('google', new GoogleStrategy({
