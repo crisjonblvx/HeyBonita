@@ -142,12 +142,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getChatMessages(userId: number, limit: number = 50): Promise<ChatMessage[]> {
-    return await db
-      .select()
-      .from(chatMessages)
-      .where(eq(chatMessages.userId, userId))
-      .orderBy(desc(chatMessages.createdAt))
-      .limit(limit);
+    try {
+      console.log('DatabaseStorage.getChatMessages called with userId:', userId, 'limit:', limit);
+      const result = await db
+        .select()
+        .from(chatMessages)
+        .where(eq(chatMessages.userId, userId))
+        .orderBy(desc(chatMessages.createdAt))
+        .limit(limit);
+      console.log('DatabaseStorage.getChatMessages result:', result.length, 'messages');
+      return result;
+    } catch (error) {
+      console.error('DatabaseStorage.getChatMessages error:', error);
+      throw error;
+    }
   }
 
   async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
