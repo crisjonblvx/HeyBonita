@@ -1564,6 +1564,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Voice emotion analysis routes
+  app.post('/api/voice/analyze-emotion', async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    
+    try {
+      const userId = req.session.userId;
+      const audioFile = req.file;
+      const transcription = req.body.transcription;
+
+      if (!audioFile) {
+        return res.status(400).json({ error: 'Audio file required' });
+      }
+
+      // Analyze voice emotion
+      const { analyzeVoiceEmotion, generateUIAdaptation } = await import('./voice-emotion');
+      const emotion = await analyzeVoiceEmotion(audioFile.buffer, userId, transcription);
+      const uiAdaptation = generateUIAdaptation(emotion);
+
+      res.json({
+        emotion,
+        uiAdaptation,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Voice emotion analysis error:', error);
+      res.status(500).json({ error: 'Emotion analysis failed' });
+    }
+  });
+
+  // Get user emotional profile
+  app.get('/api/voice/emotional-profile', async (req: any, res) => {
+    if (!req.session?.userId) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    
+    try {
+      const userId = req.session.userId;
+      const days = parseInt(req.query.days as string) || 30;
+
+      const { getUserEmotionalProfile } = await import('./voice-emotion');
+      const profile = await getUserEmotionalProfile(userId, days);
+
+      res.json(profile);
+    } catch (error) {
+      console.error('Emotional profile error:', error);
+      res.status(500).json({ error: 'Failed to get emotional profile' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
