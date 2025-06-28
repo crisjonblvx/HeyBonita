@@ -73,8 +73,8 @@ function configureOAuthStrategies() {
       return `${protocol}://${host}/auth/google/callback`;
     };
     
-    // Use the current domain callback URL
-    const callbackURL = 'https://144ee532-ec99-4997-9ea5-5404cbf92117-00-1uqlcgy3yn9y6.worf.replit.dev/auth/google/callback';
+    // Use the production callback URL that matches Google Cloud Console
+    const callbackURL = 'https://hey-bonita.replit.app/auth/google/callback';
     console.log('Using Google OAuth callback URL:', callbackURL);
     
     passport.use('google', new GoogleStrategy({
@@ -800,14 +800,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const requestedUserId = parseInt(req.params.userId);
       const sessionUserId = req.session?.userId;
       
+      console.log('Chat history request:', { requestedUserId, sessionUserId });
+      
       // Only allow users to access their own chat history
       if (!sessionUserId || sessionUserId !== requestedUserId) {
+        console.log('Chat history unauthorized access attempt');
         return res.status(401).json({ error: "Not authenticated or unauthorized" });
       }
       
+      console.log('Fetching chat messages for user:', requestedUserId);
       const messages = await storage.getChatMessages(requestedUserId);
+      console.log('Chat messages fetched successfully:', messages.length, 'messages');
       res.json(messages.reverse()); // Return in chronological order
     } catch (error) {
+      console.error('Chat history fetch error:', error);
       res.status(500).json({ error: "Failed to fetch chat history" });
     }
   });
