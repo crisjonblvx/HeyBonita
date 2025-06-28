@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { EmotionProvider } from "@/components/EmotionAdaptiveUI";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
@@ -13,6 +14,7 @@ import MobileHome from "@/pages/mobile-home";
 import Admin from "@/pages/simple-admin";
 import Auth from "@/pages/auth";
 import NotFound from "@/pages/not-found";
+import EmotionDashboard from "@/components/EmotionDashboard";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 function AppRoute() {
@@ -70,6 +72,7 @@ function Router() {
     <Switch>
       <Route path="/admin" component={Admin} />
       <Route path="/app" component={AppRoute} />
+      <Route path="/emotions" component={EmotionDashboard} />
       <Route path="/landing" component={Landing} />
       <Route path="/" component={Landing} />
       <Route component={NotFound} />
@@ -82,10 +85,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <LanguageProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
+          <EmotionProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </EmotionProvider>
         </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
