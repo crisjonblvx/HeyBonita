@@ -25,12 +25,29 @@ export const users = pgTable("users", {
   totalChats: integer("total_chats").default(0),
   totalImages: integer("total_images").default(0),
   totalScripts: integer("total_scripts").default(0),
+  // New personalization fields
+  responseStyle: text("response_style").default("balanced"), // 'quick', 'detailed', 'balanced'
+  favoriteTopics: jsonb("favorite_topics").default('[]'), // Array of topics user talks about most
+  customPrompts: jsonb("custom_prompts").default('[]'), // User-saved prompt templates
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Conversation threads for organizing chats
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  isArchived: boolean("is_archived").default(false),
+  messageCount: integer("message_count").default(0),
+  lastMessageAt: timestamp("last_message_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
+  conversationId: integer("conversation_id").references(() => conversations.id),
   role: text("role").notNull(), // 'user' or 'assistant'
   content: text("content").notNull(),
   language: text("language").default("en"),
@@ -181,6 +198,51 @@ export const commitments = pgTable("commitments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Custom prompt templates for users
+export const promptTemplates = pgTable("prompt_templates", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  name: text("name").notNull(),
+  description: text("description"),
+  template: text("template").notNull(),
+  category: text("category").default("general"), // 'content', 'business', 'creative', 'personal'
+  isPublic: boolean("is_public").default(false),
+  usageCount: integer("usage_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Enhanced video script templates
+export const scriptTemplates = pgTable("script_templates", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  platform: text("platform").notNull(), // 'youtube', 'tiktok', 'instagram', 'linkedin'
+  duration: text("duration"), // '15-30s', '1-2min', '3-5min'
+  template: text("template").notNull(),
+  category: text("category"), // 'educational', 'entertainment', 'promotional'
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Password reset tokens
+export const passwordResets = pgTable("password_resets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User activity tracking for personalization
+export const userActivity = pgTable("user_activity", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  activityType: text("activity_type").notNull(), // 'chat', 'image', 'script', 'search'
+  activityData: jsonb("activity_data"), // flexible data about the activity
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
 export const userRelations = relations(users, ({ many }) => ({
   chatMessages: many(chatMessages),
   generatedImages: many(generatedImages),
@@ -191,6 +253,10 @@ export const userRelations = relations(users, ({ many }) => ({
   conversationProjects: many(conversationProjects),
   droppedIdeas: many(droppedIdeas),
   commitments: many(commitments),
+  conversations: many(conversations),
+  promptTemplates: many(promptTemplates),
+  passwordResets: many(passwordResets),
+  userActivity: many(userActivity),
 }));
 
 export const receiptFolderRelations = relations(receiptFolders, ({ one, many }) => ({
