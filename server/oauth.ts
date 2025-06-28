@@ -11,9 +11,7 @@ export function configureGoogleAuth() {
     return;
   }
 
-  const callbackURL = process.env.NODE_ENV === 'production' 
-    ? "https://heybonita.ai/auth/google/callback"
-    : "https://hey-bonita.replit.app/auth/google/callback";
+  const callbackURL = "https://hey-bonita.replit.app/auth/google/callback";
 
   console.log('Configuring Google OAuth strategy');
   console.log('Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 15) + '...');
