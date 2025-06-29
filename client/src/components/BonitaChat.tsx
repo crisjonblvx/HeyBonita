@@ -688,14 +688,21 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
             utterance.volume = 1.0;
             
             // Add mobile-specific event handlers
+            let speechStarted = false;
+            let speechTimeout: NodeJS.Timeout;
+            
             utterance.onstart = () => {
               console.log('Mobile TTS: Speech started');
+              speechStarted = true;
+              clearTimeout(speechTimeout);
               setMobileAudioDebug('Browser TTS speaking...');
               setIsSpeaking(true);
             };
             
             utterance.onend = () => {
               console.log('Mobile TTS: Speech ended');
+              speechStarted = false;
+              clearTimeout(speechTimeout);
               setMobileAudioDebug('Speech completed');
               setIsSpeaking(false);
               setTimeout(() => setMobileAudioDebug(''), 3000);
@@ -703,15 +710,55 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
             
             utterance.onerror = (event) => {
               console.error('Mobile TTS error:', event.error, event);
+              speechStarted = false;
+              clearTimeout(speechTimeout);
               setMobileAudioDebug(`TTS Error: ${event.error}`);
               setIsSpeaking(false);
               setTimeout(() => setMobileAudioDebug(''), 5000);
             };
             
-            // Speak immediately for mobile
+            // Set a timeout to detect if speech never starts
+            speechTimeout = setTimeout(() => {
+              if (!speechStarted) {
+                console.log('Mobile TTS: Speech timeout - speech never started');
+                setMobileAudioDebug('Voice not available on this device');
+                setIsSpeaking(false);
+                toast({
+                  title: "Voice Not Available",
+                  description: "Your device doesn't support voice output. You can still read Bonita's responses normally.",
+                  variant: "default",
+                });
+                setTimeout(() => setMobileAudioDebug(''), 8000);
+              }
+            }, 3000);
+            
+            // iOS Safari requires immediate speech with proper timing
             setMobileAudioDebug('Starting mobile speech...');
-            window.speechSynthesis.speak(utterance);
-            console.log('Mobile TTS: Speech synthesis command sent');
+            
+            // Force speech synthesis queue to be ready
+            if (window.speechSynthesis.speaking) {
+              window.speechSynthesis.cancel();
+            }
+            
+            // Wait for speechSynthesis to be ready, then speak
+            const startSpeech = () => {
+              if (window.speechSynthesis.pending || window.speechSynthesis.speaking) {
+                setTimeout(startSpeech, 100);
+                return;
+              }
+              
+              try {
+                window.speechSynthesis.speak(utterance);
+                console.log('Mobile TTS: Speech synthesis command sent');
+              } catch (error) {
+                console.error('Speech command failed:', error);
+                setMobileAudioDebug('Speech command failed');
+                setTimeout(() => setMobileAudioDebug(''), 3000);
+              }
+            };
+            
+            // Start speech immediately
+            startSpeech();
             
           } catch (error) {
             console.error('Mobile speech synthesis setup failed:', error);
