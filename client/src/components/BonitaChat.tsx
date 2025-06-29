@@ -675,13 +675,10 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         const speakOnMobile = () => {
           try {
             console.log('Mobile browser TTS - starting speech synthesis...');
-            setMobileAudioDebug('Browser TTS speaking...');
             
-            // Simple, direct approach for mobile
+            // Very simple approach for mobile - no debug interference
             const utterance = new SpeechSynthesisUtterance(correctedText);
-            utterance.lang = speechLang;
-            utterance.rate = 1.25; // Slightly faster for mobile
-            utterance.pitch = 1.0;
+            utterance.rate = 1.25;
             utterance.volume = 1.0;
             
             utterance.onstart = () => {
@@ -691,22 +688,14 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
             
             utterance.onend = () => {
               console.log('Mobile TTS: Speech ended');
-              setMobileAudioDebug('');
               setIsSpeaking(false);
             };
             
-            utterance.onerror = (event) => {
-              console.error('Mobile TTS error:', event.error);
-              setMobileAudioDebug('');
-              setIsSpeaking(false);
-            };
-            
-            // Direct speech synthesis for mobile
+            // Immediate speech synthesis
             window.speechSynthesis.speak(utterance);
             
           } catch (error) {
             console.error('Mobile speech failed:', error);
-            setMobileAudioDebug('');
             setIsSpeaking(false);
           }
         };
@@ -938,11 +927,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
                     Bonita is thinking...
                   </span>
                 )}
-                {mobileAudioDebug && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
-                    🔊 {mobileAudioDebug}
-                  </span>
-                )}
+
               </div>
             </div>
           </div>
