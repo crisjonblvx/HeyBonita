@@ -33,6 +33,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isUsingElevenLabs, setIsUsingElevenLabs] = useState(false);
+  const [mobileAudioDebug, setMobileAudioDebug] = useState('');
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -540,15 +541,24 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
               }
             }
             
-            // Mobile audio playback with user interaction fallback
+            // Mobile audio playback with enhanced debugging
             const playAudio = async () => {
               try {
-                await audio.play();
-                console.log('Mobile audio playback successful');
-              } catch (mobileError) {
-                console.warn('Mobile audio blocked, falling back to browser TTS:', mobileError);
+                console.log('Attempting mobile ElevenLabs audio playback...');
+                setMobileAudioDebug('Trying ElevenLabs audio...');
+                audio.muted = false;
+                audio.volume = 0.8;
+                
+                const playPromise = audio.play();
+                await playPromise;
+                console.log('Mobile ElevenLabs audio playback successful');
+                setMobileAudioDebug('ElevenLabs audio playing');
+              } catch (mobileError: any) {
+                console.warn('Mobile ElevenLabs audio blocked:', mobileError?.name, mobileError?.message);
+                setMobileAudioDebug('ElevenLabs blocked, trying browser TTS...');
                 URL.revokeObjectURL(audioUrl);
                 currentAudioRef.current = null;
+                console.log('Falling back to browser TTS for mobile...');
                 fallbackToWebSpeech(text);
               }
             };
@@ -664,17 +674,63 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         // Mobile requires user interaction context for speech
         const speakOnMobile = () => {
           try {
+            console.log('Mobile browser TTS - preparing speech synthesis...');
+            setMobileAudioDebug('Preparing mobile TTS...');
+            console.log('Text length:', correctedText.length);
+            console.log('Language:', speechLang);
+            console.log('Available voices:', window.speechSynthesis.getVoices().length);
+            
             // Cancel any existing speech first
             window.speechSynthesis.cancel();
             
-            // Wait a moment then speak
+            // Force voice loading on mobile
+            if (window.speechSynthesis.getVoices().length === 0) {
+              console.log('No voices loaded, triggering voice load...');
+              setMobileAudioDebug('Loading voices...');
+              window.speechSynthesis.getVoices();
+            }
+            
+            // Wait a moment then speak with enhanced mobile settings
             setTimeout(() => {
-              console.log('Starting mobile speech synthesis:', correctedText.substring(0, 50) + '...');
+              console.log('Starting mobile speech synthesis with text:', correctedText.substring(0, 50) + '...');
+              
+              // Ensure utterance is properly configured for mobile
+              utterance.rate = 1.0; // Slower rate for mobile clarity
+              utterance.pitch = 1.0; // Normal pitch for mobile
+              utterance.volume = 1.0; // Full volume for mobile
+              
+              // Add mobile-specific event handlers
+              utterance.onstart = () => {
+                console.log('Mobile TTS: Speech started');
+                setMobileAudioDebug('Browser TTS speaking...');
+                setIsSpeaking(true);
+              };
+              
+              utterance.onend = () => {
+                console.log('Mobile TTS: Speech ended');
+                setMobileAudioDebug('Speech completed');
+                setIsSpeaking(false);
+                setTimeout(() => setMobileAudioDebug(''), 3000);
+              };
+              
+              utterance.onerror = (event) => {
+                console.error('Mobile TTS error:', event.error, event);
+                setMobileAudioDebug(`TTS Error: ${event.error}`);
+                setIsSpeaking(false);
+                setTimeout(() => setMobileAudioDebug(''), 5000);
+              };
+              
               window.speechSynthesis.speak(utterance);
-            }, 200);
+              console.log('Mobile TTS: Speech synthesis command sent');
+            }, 300);
           } catch (error) {
-            console.warn('Mobile speech synthesis failed:', error);
+            console.error('Mobile speech synthesis setup failed:', error);
             setIsSpeaking(false);
+            toast({
+              title: "Speech Setup Error",
+              description: "Could not initialize speech on mobile device.",
+              variant: "destructive",
+            });
           }
         };
         
@@ -903,6 +959,11 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                     <div className="w-3 h-3 mr-1 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                     Bonita is thinking...
+                  </span>
+                )}
+                {mobileAudioDebug && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                    🔊 {mobileAudioDebug}
                   </span>
                 )}
               </div>
