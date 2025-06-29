@@ -192,6 +192,54 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
     },
   });
 
+  // Mobile audio enabler - ensures audio context is ready
+  useEffect(() => {
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      const enableMobileAudio = () => {
+        // Initialize speech synthesis on first user interaction
+        if ('speechSynthesis' in window) {
+          try {
+            // Prime the speech synthesis API
+            const testUtterance = new SpeechSynthesisUtterance('');
+            testUtterance.volume = 0;
+            window.speechSynthesis.speak(testUtterance);
+            window.speechSynthesis.cancel();
+            console.log('Mobile speech synthesis initialized');
+          } catch (error) {
+            console.warn('Failed to initialize mobile speech:', error);
+          }
+        }
+        
+        // Initialize audio context
+        if (window.AudioContext || (window as any).webkitAudioContext) {
+          try {
+            const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+            const audioContext = new AudioContext();
+            audioContext.resume();
+            console.log('Mobile audio context initialized');
+          } catch (error) {
+            console.warn('Failed to initialize mobile audio context:', error);
+          }
+        }
+        
+        // Remove listeners after first interaction
+        document.removeEventListener('touchstart', enableMobileAudio);
+        document.removeEventListener('click', enableMobileAudio);
+      };
+      
+      // Listen for first user interaction
+      document.addEventListener('touchstart', enableMobileAudio, { once: true, passive: true });
+      document.addEventListener('click', enableMobileAudio, { once: true });
+      
+      return () => {
+        document.removeEventListener('touchstart', enableMobileAudio);
+        document.removeEventListener('click', enableMobileAudio);
+      };
+    }
+  }, []);
+
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -477,18 +525,48 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
           fallbackToWebSpeech(text);
         };
 
-        // Mobile-specific audio handling
-        try {
-          await audio.play();
-        } catch (playError) {
-          console.warn('Audio autoplay blocked, trying user gesture:', playError);
-          // On mobile, audio might be blocked - try clicking to enable
-          const playPromise = audio.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              console.warn('Audio playback failed, falling back to browser TTS');
-              fallbackToWebSpeech(text);
-            });
+        // Mobile-specific audio handling with user gesture detection
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+          // For mobile, ensure audio context is resumed and use touch-enabled playback
+          try {
+            // Resume audio context if suspended (required for mobile)
+            if (window.AudioContext || (window as any).webkitAudioContext) {
+              const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+              const audioContext = new AudioContext();
+              if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+              }
+            }
+            
+            // Mobile audio playback with user interaction fallback
+            const playAudio = async () => {
+              try {
+                await audio.play();
+                console.log('Mobile audio playback successful');
+              } catch (mobileError) {
+                console.warn('Mobile audio blocked, falling back to browser TTS:', mobileError);
+                URL.revokeObjectURL(audioUrl);
+                currentAudioRef.current = null;
+                fallbackToWebSpeech(text);
+              }
+            };
+            
+            // Try immediate playback, fallback to TTS if blocked
+            await playAudio();
+            
+          } catch (contextError) {
+            console.warn('Mobile audio context error:', contextError);
+            fallbackToWebSpeech(text);
+          }
+        } else {
+          // Desktop audio playback
+          try {
+            await audio.play();
+          } catch (playError) {
+            console.warn('Desktop audio playback failed:', playError);
+            fallbackToWebSpeech(text);
           }
         }
       } else {
@@ -579,15 +657,39 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         setIsSpeaking(false);
       };
 
-      // Mobile fix: Use timeout to ensure speech starts
-      setTimeout(() => {
-        try {
-          window.speechSynthesis.speak(utterance);
-        } catch (error) {
-          console.warn('Speech synthesis failed:', error);
-          setIsSpeaking(false);
-        }
-      }, 100);
+      // Mobile-specific speech synthesis handling
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      if (isMobile) {
+        // Mobile requires user interaction context for speech
+        const speakOnMobile = () => {
+          try {
+            // Cancel any existing speech first
+            window.speechSynthesis.cancel();
+            
+            // Wait a moment then speak
+            setTimeout(() => {
+              console.log('Starting mobile speech synthesis:', correctedText.substring(0, 50) + '...');
+              window.speechSynthesis.speak(utterance);
+            }, 200);
+          } catch (error) {
+            console.warn('Mobile speech synthesis failed:', error);
+            setIsSpeaking(false);
+          }
+        };
+        
+        speakOnMobile();
+      } else {
+        // Desktop speech synthesis
+        setTimeout(() => {
+          try {
+            window.speechSynthesis.speak(utterance);
+          } catch (error) {
+            console.warn('Desktop speech synthesis failed:', error);
+            setIsSpeaking(false);
+          }
+        }, 100);
+      }
     };
 
     // Check if voices are loaded, if not wait for them
