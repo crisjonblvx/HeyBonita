@@ -162,11 +162,33 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
       // Auto-speak response for both voice modes with mobile optimization
       if ((voiceMode === 'speech-to-speech' || voiceMode === 'text-to-speech') && data && data.content) {
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const delay = isMobile ? 1000 : 500; // Longer delay for mobile to ensure proper context
         
-        setTimeout(() => {
-          speakMessage(data.content);
-        }, delay);
+        if (isMobile) {
+          // Mobile: Initialize audio context immediately (within user interaction)
+          try {
+            // Pre-initialize speech synthesis to establish user interaction context
+            const testUtterance = new SpeechSynthesisUtterance('');
+            testUtterance.volume = 0;
+            window.speechSynthesis.speak(testUtterance);
+            window.speechSynthesis.cancel();
+            
+            // Then speak the actual message with delay
+            setTimeout(() => {
+              speakMessage(data.content);
+            }, 800);
+          } catch (error) {
+            console.warn('Mobile audio context initialization failed:', error);
+            // Fallback to delayed speech
+            setTimeout(() => {
+              speakMessage(data.content);
+            }, 1000);
+          }
+        } else {
+          // Desktop: Normal delay
+          setTimeout(() => {
+            speakMessage(data.content);
+          }, 500);
+        }
       }
     },
     onError: (error: any) => {

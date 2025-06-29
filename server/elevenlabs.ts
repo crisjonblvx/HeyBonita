@@ -94,30 +94,9 @@ const slangCorrections = {
   "2025": "Twenty Twenty-five",
   "2024": "Twenty Twenty-four",
   
-  // Common Black vernacular enhancements
-  "nah": "nah", // preserve with tone
-  "no": "nah",
-  "finna": "fixin' to",
-  "gon": "gonna",
-  "on God": "on everything, baby",
-  "fr": "for real",
-  "bet": "say less",
-  "sus": "shady",
-  "lit": "poppin'",
-  "cap": "lie",
-  "no cap": "dead serious",
-  "vibe": "energy",
-  
-  // Style corrections for speech flow
-  "okay": "aight",
-  "hello": "hey boo",
-  "goodbye": "alright now, take care sugar",
-  "thanks": "preciate you",
-  "thank you": "preciate you",
-  "you know": "you feel me",
-  "understand": "get it",
-  "really": "real talk",
-  "seriously": "dead serious"
+  // Only pronunciation corrections that don't change meaning
+  // Removed word substitutions that cause text/speech mismatch
+  // ElevenLabs can handle slang naturally without forcing replacements
 };
 
 function applySlangCorrections(text: string): string {
