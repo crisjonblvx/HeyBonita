@@ -159,17 +159,14 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         }
       }
       
-      // Auto-speak response in speech-to-speech mode with mobile optimization
-      if (voiceMode === 'speech-to-speech' && data && data.content) {
+      // Auto-speak response for both voice modes with mobile optimization
+      if ((voiceMode === 'speech-to-speech' || voiceMode === 'text-to-speech') && data && data.content) {
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const delay = isMobile ? 800 : 500; // Longer delay for mobile
+        const delay = isMobile ? 1000 : 500; // Longer delay for mobile to ensure proper context
         
         setTimeout(() => {
           speakMessage(data.content);
         }, delay);
-      } else if (voiceMode === 'text-to-speech' && data && data.content) {
-        // For text-to-speech mode, only speak if user manually triggers it
-        // This prevents automatic speech in text-to-speech mode
       }
     },
     onError: (error: any) => {
