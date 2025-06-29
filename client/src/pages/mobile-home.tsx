@@ -10,7 +10,7 @@ import { useTheme } from '@/components/ThemeProvider';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { 
   MessageCircle, 
   Image, 
@@ -410,6 +410,9 @@ export default function MobileHome() {
         <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Help & Support</DialogTitle>
+            <DialogDescription>
+              Learn how to use Bonita's features and get the most out of your experience.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-6">
             <div>

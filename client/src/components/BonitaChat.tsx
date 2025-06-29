@@ -413,7 +413,20 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
           fallbackToWebSpeech(text);
         };
 
-        await audio.play();
+        // Mobile-specific audio handling
+        try {
+          await audio.play();
+        } catch (playError) {
+          console.warn('Audio autoplay blocked, trying user gesture:', playError);
+          // On mobile, audio might be blocked - try clicking to enable
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              console.warn('Audio playback failed, falling back to browser TTS');
+              fallbackToWebSpeech(text);
+            });
+          }
+        }
       } else {
         // Fallback to browser TTS if ElevenLabs fails
         fallbackToWebSpeech(text);
@@ -450,7 +463,7 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
     return corrected;
   };
 
-  // Fallback to browser TTS
+  // Fallback to browser TTS with mobile optimization
   const fallbackToWebSpeech = (text: string) => {
     if (!('speechSynthesis' in window)) {
       setIsSpeaking(false);
@@ -467,33 +480,63 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
     // Stop any current speech
     window.speechSynthesis.cancel();
     
-    // Apply pronunciation corrections for browser TTS
-    const correctedText = applyBrowserSpeechCorrections(text);
-    const utterance = new SpeechSynthesisUtterance(correctedText);
-    
-    // Configure voice for Bonita's personality - faster speech
-    utterance.rate = 1.1; // Increased from 0.85 for faster speech
-    utterance.pitch = 0.9;
-    utterance.volume = 0.8;
-    
-    // Set language based on current language setting
-    const speechLang = language === 'es' ? 'es-ES' : 
-                      language === 'pt' ? 'pt-BR' :
-                      language === 'fr' ? 'fr-FR' : 'en-US';
-    utterance.lang = speechLang;
+    // Mobile fix: Wait for voices to load
+    const speakWhenReady = () => {
+      // Apply pronunciation corrections for browser TTS
+      const correctedText = applyBrowserSpeechCorrections(text);
+      const utterance = new SpeechSynthesisUtterance(correctedText);
+      
+      // Configure voice for Bonita's personality - faster speech
+      utterance.rate = 1.1;
+      utterance.pitch = 0.9;
+      utterance.volume = 0.8;
+      
+      // Set language based on current language setting
+      const speechLang = language === 'es' ? 'es-ES' : 
+                        language === 'pt' ? 'pt-BR' :
+                        language === 'fr' ? 'fr-FR' : 'en-US';
+      utterance.lang = speechLang;
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      toast({
-        title: "Speech Error",
-        description: "Failed to speak the message.",
-        variant: "destructive",
-      });
+      // Mobile optimization: Set preferred voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoice = voices.find(voice => 
+        voice.lang.startsWith(speechLang.split('-')[0]) && 
+        (voice.name.includes('Female') || voice.name.includes('Woman'))
+      ) || voices.find(voice => voice.lang.startsWith(speechLang.split('-')[0]));
+      
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = (event) => {
+        console.warn('Speech synthesis error:', event);
+        setIsSpeaking(false);
+      };
+
+      // Mobile fix: Use timeout to ensure speech starts
+      setTimeout(() => {
+        try {
+          window.speechSynthesis.speak(utterance);
+        } catch (error) {
+          console.warn('Speech synthesis failed:', error);
+          setIsSpeaking(false);
+        }
+      }, 100);
     };
 
-    window.speechSynthesis.speak(utterance);
+    // Check if voices are loaded, if not wait for them
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) {
+      // Wait for voices to load on mobile
+      window.speechSynthesis.onvoiceschanged = () => {
+        speakWhenReady();
+        window.speechSynthesis.onvoiceschanged = null;
+      };
+    } else {
+      speakWhenReady();
+    }
   };
 
   const stopSpeaking = () => {
