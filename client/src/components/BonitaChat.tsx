@@ -175,9 +175,11 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
       document.addEventListener(eventType, playPendingSpeech, { passive: true });
     });
 
-    // Initialize on first user interaction
-    document.addEventListener('touchstart', initializeMobileAudio, { once: true, passive: true });
-    document.addEventListener('click', initializeMobileAudio, { once: true, passive: true });
+    // Initialize on first user interaction with multiple event types
+    const initEvents = ['touchstart', 'touchend', 'click', 'mousedown', 'keydown'];
+    initEvents.forEach(eventType => {
+      document.addEventListener(eventType, initializeMobileAudio, { once: true, passive: true });
+    });
 
     return () => {
       events.forEach(eventType => {
@@ -210,9 +212,41 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
     retryDelay: 1000
   });
 
-  // Send message mutation with abort controller
+  // Send message mutation with abort controller and mobile audio initialization
   const sendMessageMutation = useMutation({
     mutationFn: async (messageText: string) => {
+      // Initialize mobile audio context on message send (user interaction)
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile && (voiceMode === 'speech-to-speech' || voiceMode === 'text-to-speech')) {
+        console.log('🎤 Initializing mobile audio on message send');
+        try {
+          // Force audio context initialization within user interaction
+          if (window.AudioContext || (window as any).webkitAudioContext) {
+            const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+            const audioContext = new AudioContext();
+            if (audioContext.state === 'suspended') {
+              await audioContext.resume();
+            }
+            (window as any).mobileAudioContext = audioContext;
+            console.log('🎤 Mobile audio context initialized:', audioContext.state);
+          }
+          
+          // Initialize speech synthesis
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const testUtterance = new SpeechSynthesisUtterance('');
+            testUtterance.volume = 0;
+            window.speechSynthesis.speak(testUtterance);
+            (window as any).mobileSpeechInitialized = true;
+            console.log('🎤 Mobile speech synthesis initialized');
+          }
+          
+          (window as any).mobileAudioReady = true;
+        } catch (error) {
+          console.log('🎤 Mobile audio initialization error:', error);
+        }
+      }
+
       // Create abort controller for this request
       const controller = new AbortController();
       abortControllerRef.current = controller;
@@ -296,62 +330,177 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         if (isMobile) {
           console.log('Mobile auto-speech triggered for mode:', voiceMode);
           
-          // Mobile Strategy: Use initialized audio context for immediate speech
+          // Mobile Strategy: Enhanced auto-speech with timeout and retry
           const attemptMobileAutoSpeech = async () => {
+            console.log('🎤 Starting enhanced mobile auto-speech');
+            
+            // Set timeout for auto-speech attempt
+            const autoSpeechTimeout = setTimeout(() => {
+              console.log('🎤 Auto-speech timeout, showing manual trigger');
+              setPendingMobileContent(data.content);
+              setShowMobileAudioPrompt(true);
+            }, 3000); // 3 second timeout
+            
             try {
-              // Check if mobile audio is ready, initialize if not
+              // Comprehensive mobile audio initialization
+              let initAttempts = 0;
+              const maxInitAttempts = 3;
+              
+              while (initAttempts < maxInitAttempts && !(window as any).mobileAudioReady) {
+                console.log(`🎤 Mobile audio init attempt ${initAttempts + 1}/${maxInitAttempts}`);
+                
+                // Initialize audio context
+                if (window.AudioContext || (window as any).webkitAudioContext) {
+                  const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+                  try {
+                    const audioContext = new AudioContext();
+                    if (audioContext.state === 'suspended') {
+                      await audioContext.resume();
+                    }
+                    (window as any).mobileAudioContext = audioContext;
+                    console.log('🎤 Audio context state:', audioContext.state);
+                  } catch (contextError) {
+                    console.log('🎤 Audio context creation failed:', contextError);
+                  }
+                }
+                
+                // Initialize speech synthesis
+                if ('speechSynthesis' in window) {
+                  window.speechSynthesis.cancel(); // Clear any existing
+                  
+                  // Load voices
+                  let voices = window.speechSynthesis.getVoices();
+                  if (voices.length === 0) {
+                    await new Promise((resolve) => {
+                      const timeout = setTimeout(resolve, 1000); // 1 second timeout for voices
+                      window.speechSynthesis.onvoiceschanged = () => {
+                        clearTimeout(timeout);
+                        window.speechSynthesis.onvoiceschanged = null;
+                        resolve(null);
+                      };
+                    });
+                    voices = window.speechSynthesis.getVoices();
+                  }
+                  
+                  console.log('🎤 Available voices:', voices.length);
+                  (window as any).mobileAudioReady = true;
+                  break;
+                }
+                
+                initAttempts++;
+                if (initAttempts < maxInitAttempts) {
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                }
+              }
+              
               if (!(window as any).mobileAudioReady) {
-                console.log('🎤 Mobile audio not ready, initializing...');
-                await new Promise(resolve => setTimeout(resolve, 100)); // Short delay for initialization
+                throw new Error('Mobile audio initialization failed after retries');
               }
               
-              // Resume audio context if suspended
-              if ((window as any).mobileAudioContext?.state === 'suspended') {
-                await (window as any).mobileAudioContext.resume();
-                console.log('🎤 Mobile audio context resumed for auto-speech');
-              }
-              
+              // Create and configure utterance
               const utterance = new SpeechSynthesisUtterance(data.content);
               utterance.rate = 1.1;
               utterance.volume = 0.8;
               utterance.lang = 'en-US';
               
+              let speechStarted = false;
+              
               utterance.onstart = () => {
                 console.log('🎤 Mobile auto-speech started successfully');
+                speechStarted = true;
+                clearTimeout(autoSpeechTimeout);
                 setIsSpeaking(true);
               };
+              
               utterance.onend = () => {
                 console.log('🎤 Mobile auto-speech ended');
+                clearTimeout(autoSpeechTimeout);
                 setIsSpeaking(false);
               };
+              
               utterance.onerror = (e) => {
-                console.log('🎤 Mobile auto-speech failed:', e.error);
+                console.log('🎤 Mobile auto-speech error:', e.error);
+                clearTimeout(autoSpeechTimeout);
                 setIsSpeaking(false);
-                // Store content and show prompt for manual trigger
+                if (!speechStarted) {
+                  setPendingMobileContent(data.content);
+                  setShowMobileAudioPrompt(true);
+                }
+              };
+              
+              // Attempt speech synthesis with immediate execution
+              console.log('🎤 Attempting immediate speech synthesis...');
+              
+              // For mobile, use immediate execution without delay
+              try {
+                window.speechSynthesis.speak(utterance);
+                console.log('🎤 Speech synthesis command executed');
+                
+                // Verify speech started within 1.5 seconds for mobile
+                setTimeout(() => {
+                  if (!speechStarted && window.speechSynthesis.speaking === false) {
+                    console.log('🎤 Speech synthesis failed to start, trying fallback');
+                    window.speechSynthesis.cancel();
+                    
+                    // Try one more time with a fresh utterance
+                    const fallbackUtterance = new SpeechSynthesisUtterance(data.content);
+                    fallbackUtterance.rate = 1.0;
+                    fallbackUtterance.volume = 1.0;
+                    fallbackUtterance.lang = 'en-US';
+                    
+                    fallbackUtterance.onstart = () => {
+                      console.log('🎤 Fallback mobile speech started');
+                      speechStarted = true;
+                      clearTimeout(autoSpeechTimeout);
+                      setIsSpeaking(true);
+                    };
+                    
+                    fallbackUtterance.onend = () => {
+                      console.log('🎤 Fallback mobile speech ended');
+                      setIsSpeaking(false);
+                    };
+                    
+                    fallbackUtterance.onerror = () => {
+                      console.log('🎤 Fallback speech also failed');
+                      clearTimeout(autoSpeechTimeout);
+                      setIsSpeaking(false);
+                      setPendingMobileContent(data.content);
+                      setShowMobileAudioPrompt(true);
+                    };
+                    
+                    try {
+                      window.speechSynthesis.speak(fallbackUtterance);
+                      console.log('🎤 Fallback speech synthesis attempted');
+                      
+                      // Final timeout for fallback
+                      setTimeout(() => {
+                        if (!speechStarted) {
+                          console.log('🎤 All speech attempts failed');
+                          clearTimeout(autoSpeechTimeout);
+                          setPendingMobileContent(data.content);
+                          setShowMobileAudioPrompt(true);
+                        }
+                      }, 1000);
+                      
+                    } catch (fallbackError) {
+                      console.log('🎤 Fallback speech failed:', fallbackError);
+                      clearTimeout(autoSpeechTimeout);
+                      setPendingMobileContent(data.content);
+                      setShowMobileAudioPrompt(true);
+                    }
+                  }
+                }, 1500);
+                
+              } catch (speechError) {
+                console.log('🎤 Speech synthesis error:', speechError);
+                clearTimeout(autoSpeechTimeout);
                 setPendingMobileContent(data.content);
                 setShowMobileAudioPrompt(true);
-              };
-              
-              // Use speech synthesis with the initialized context
-              window.speechSynthesis.cancel();
-              
-              // Wait for voices to be available on mobile
-              const voices = window.speechSynthesis.getVoices();
-              if (voices.length === 0) {
-                await new Promise(resolve => {
-                  window.speechSynthesis.onvoiceschanged = () => {
-                    window.speechSynthesis.onvoiceschanged = null;
-                    resolve(null);
-                  };
-                });
               }
               
-              window.speechSynthesis.speak(utterance);
-              console.log('🎤 Mobile speech synthesis initiated');
-              
             } catch (error) {
-              console.log('🎤 Mobile auto-speech initialization failed:', error);
-              // Fallback to manual trigger
+              console.log('🎤 Mobile auto-speech failed:', error);
+              clearTimeout(autoSpeechTimeout);
               setPendingMobileContent(data.content);
               setShowMobileAudioPrompt(true);
             }
