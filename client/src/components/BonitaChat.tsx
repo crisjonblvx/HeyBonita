@@ -139,8 +139,8 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         }).catch(err => console.log('Receipt creation error:', err));
       }
       
-      // Show gamification rewards
-      if (data.gamification) {
+      // Show gamification rewards (skip during speech-to-speech to avoid mobile audio interference)
+      if (data.gamification && voiceMode !== 'speech-to-speech') {
         const { pointsEarned, newAchievements, levelUp, newLevel } = data.gamification;
         
         if (newAchievements.length > 0 || levelUp || pointsEarned > 0) {
@@ -164,89 +164,72 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         if (isMobile) {
-          // Mobile: Use the user interaction context from the message submission
+          // Mobile: Direct browser TTS approach (most reliable for auto-play)
           console.log('Mobile auto-speech triggered for mode:', voiceMode);
           
-          // Create a user-initiated audio element for mobile compatibility
-          const mobileSpeech = async () => {
+          // Use the most direct approach - browser TTS immediately with debugging
+          const mobileTTSImmediate = () => {
             try {
-              // First try ElevenLabs audio for mobile
-              const response = await fetch('/api/elevenlabs/speech', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  text: data.content,
-                  toneMode: toneMode || 'sweet-nurturing',
-                  language: language || 'en',
-                }),
-              });
-
-              if (response.ok) {
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                
-                audio.volume = 0.8;
-                audio.onplay = () => {
-                  console.log('Mobile ElevenLabs audio started');
-                  setIsSpeaking(true);
-                };
-                audio.onended = () => {
-                  console.log('Mobile ElevenLabs audio ended');
-                  setIsSpeaking(false);
-                  URL.revokeObjectURL(audioUrl);
-                };
-                audio.onerror = () => {
-                  console.warn('Mobile ElevenLabs failed, trying browser TTS');
-                  setIsSpeaking(false);
-                  URL.revokeObjectURL(audioUrl);
-                  // Fallback to browser TTS
-                  mobileTTSFallback();
-                };
-                
-                // Play immediately (within user interaction context)
-                await audio.play();
-              } else {
-                console.warn('ElevenLabs API failed on mobile, using browser TTS');
-                mobileTTSFallback();
+              console.log('🎤 Mobile auto-speech attempt starting...');
+              console.log('🎤 User agent:', navigator.userAgent);
+              console.log('🎤 Speech synthesis available:', 'speechSynthesis' in window);
+              console.log('🎤 Voice mode:', voiceMode);
+              console.log('🎤 Content to speak:', data.content.substring(0, 50) + '...');
+              
+              // Check if speech synthesis is available
+              if (!('speechSynthesis' in window)) {
+                console.error('🎤 Speech synthesis not available on this device');
+                return;
               }
-            } catch (error) {
-              console.error('Mobile ElevenLabs error:', error);
-              mobileTTSFallback();
-            }
-          };
-          
-          // Fallback to browser TTS for mobile
-          const mobileTTSFallback = () => {
-            try {
+              
+              // Check speech synthesis state
+              console.log('🎤 Speech synthesis speaking:', window.speechSynthesis.speaking);
+              console.log('🎤 Speech synthesis pending:', window.speechSynthesis.pending);
+              console.log('🎤 Speech synthesis paused:', window.speechSynthesis.paused);
+              
+              // Create utterance immediately (within user interaction context)
               const utterance = new SpeechSynthesisUtterance(data.content);
               utterance.rate = 1.1;
               utterance.volume = 0.8;
               utterance.lang = 'en-US';
               
               utterance.onstart = () => {
-                console.log('Mobile TTS started');
+                console.log('🎤 Mobile TTS started successfully!');
                 setIsSpeaking(true);
               };
               utterance.onend = () => {
-                console.log('Mobile TTS ended');
+                console.log('🎤 Mobile TTS ended normally');
                 setIsSpeaking(false);
               };
               utterance.onerror = (e) => {
-                console.error('Mobile TTS error:', e);
+                console.error('🎤 Mobile TTS error:', e.error, e);
                 setIsSpeaking(false);
               };
               
+              // Cancel any existing speech
+              console.log('🎤 Canceling existing speech...');
               window.speechSynthesis.cancel();
-              window.speechSynthesis.speak(utterance);
+              
+              // Small delay to ensure cancel completed
+              setTimeout(() => {
+                console.log('🎤 Speaking utterance now...');
+                window.speechSynthesis.speak(utterance);
+                
+                // Additional check after speaking
+                setTimeout(() => {
+                  console.log('🎤 Post-speak check - speaking:', window.speechSynthesis.speaking);
+                  console.log('🎤 Post-speak check - pending:', window.speechSynthesis.pending);
+                }, 500);
+              }, 50);
+              
             } catch (error) {
-              console.error('Mobile TTS failed:', error);
+              console.error('🎤 Mobile TTS exception:', error);
               setIsSpeaking(false);
             }
           };
           
-          // Execute mobile speech with short delay
-          setTimeout(mobileSpeech, 200);
+          // Execute with minimal delay but within user interaction context
+          mobileTTSImmediate();
           
         } else {
           // Desktop: Normal delay
