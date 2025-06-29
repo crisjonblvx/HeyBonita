@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
@@ -12,11 +12,14 @@ import type { ChatMessage } from '@shared/schema';
 import bonitaLogo from '@assets/Bonita logo 1 alpha_1750814378445.png';
 
 interface BonitaChatProps {
-  messages: ChatMessage[];
   voiceMode: 'text-to-speech' | 'speech-to-speech' | 'off';
+  userId: number;
+  toneMode: string;
+  responseMode: string;
+  onResponseModeChange: (mode: string) => void;
 }
 
-export default function BonitaChat({ messages, voiceMode }: BonitaChatProps) {
+export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }: BonitaChatProps) {
   const [message, setMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -25,14 +28,16 @@ export default function BonitaChat({ messages, voiceMode }: BonitaChatProps) {
   const abortControllerRef = useRef<AbortController | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const { language, t } = useLanguage();
-  const { settings } = useSettings();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Fetch messages
+  const { data: messages = [] } = useQuery({
+    queryKey: ['/api/messages'],
+  });
+
   // Handle auto-speech with ElevenLabs
   const handleAutoSpeech = async (content: string) => {
-    if (!settings.voiceEnabled) return;
-    
     console.log('🎤 Starting ElevenLabs speech generation');
     setIsSpeaking(true);
     
@@ -42,7 +47,7 @@ export default function BonitaChat({ messages, voiceMode }: BonitaChatProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: content,
-          toneMode: settings.toneMode || 'sweet-nurturing',
+          toneMode: toneMode || 'sweet-nurturing',
           language: language || 'en'
         })
       });
@@ -96,18 +101,23 @@ export default function BonitaChat({ messages, voiceMode }: BonitaChatProps) {
       // Create abort controller for this request
       abortControllerRef.current = new AbortController();
       
-      const response = await apiRequest('/api/chat', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: content,
           language: language,
-          toneMode: settings.toneMode || 'sweet-nurturing',
-          responseMode: settings.responseMode || 'detailed'
+          toneMode: toneMode || 'sweet-nurturing',
+          responseMode: responseMode || 'detailed'
         }),
         signal: abortControllerRef.current.signal,
       });
       
-      return response;
+      if (!response.ok) {
+        throw new Error(`Chat request failed: ${response.status}`);
+      }
+      
+      return await response.json();
     },
     onSuccess: async (data) => {
       setMessage('');
@@ -116,29 +126,6 @@ export default function BonitaChat({ messages, voiceMode }: BonitaChatProps) {
       
       // Invalidate messages to refresh
       queryClient.invalidateQueries({ queryKey: ['/api/messages'] });
-      
-      // Handle gamification rewards
-      try {
-        const reward = await rewardChatActivity();
-        if (reward.pointsEarned > 0 || reward.newAchievements.length > 0) {
-          const { pointsEarned, newAchievements, levelUp, newLevel } = reward;
-          
-          toast({
-            title: "Points Earned!",
-            description: (
-              <GameificationReward
-                achievements={newAchievements}
-                points={pointsEarned}
-                levelUp={levelUp}
-                newLevel={newLevel}
-              />
-            ),
-            duration: 5000,
-          });
-        }
-      } catch (error) {
-        console.error('Gamification error:', error);
-      }
       
       // Auto-speak response for both voice modes using ElevenLabs
       if ((voiceMode === 'speech-to-speech' || voiceMode === 'text-to-speech') && data && data.content) {
@@ -222,18 +209,18 @@ export default function BonitaChat({ messages, voiceMode }: BonitaChatProps) {
         // Get final result
         const finalResults = results.filter((result: any) => result.isFinal);
         if (finalResults.length > 0) {
-          const result = finalResults[finalResults.length - 1];
-          let transcript = result[0].transcript;
+          const result = finalResults[finalResults.length - 1] as any;
+          let transcript = result[0]?.transcript || '';
           
           // Use highest confidence alternative if available
           if (result.length > 1) {
             let bestTranscript = transcript;
-            let bestConfidence = result[0].confidence || 0;
+            let bestConfidence = result[0]?.confidence || 0;
             
             for (let i = 1; i < result.length; i++) {
-              const altConfidence = result[i].confidence || 0;
+              const altConfidence = result[i]?.confidence || 0;
               if (altConfidence > bestConfidence) {
-                bestTranscript = result[i].transcript;
+                bestTranscript = result[i]?.transcript || bestTranscript;
                 bestConfidence = altConfidence;
               }
             }
@@ -351,7 +338,7 @@ export default function BonitaChat({ messages, voiceMode }: BonitaChatProps) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={t('Type your message...')}
+              placeholder="Type your message..."
               className="min-h-[60px] resize-none"
               disabled={isGeneratingResponse}
             />
