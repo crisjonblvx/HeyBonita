@@ -803,6 +803,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Simple chat test endpoint
+  app.get("/api/debug/chat/:userId", async (req, res) => {
+    try {
+      console.log('DEBUG: Chat test endpoint called');
+      const userId = parseInt(req.params.userId);
+      console.log('DEBUG: Parsed userId:', userId);
+      
+      const sessionUserId = req.session?.userId;
+      console.log('DEBUG: Session userId:', sessionUserId);
+      
+      if (!sessionUserId || sessionUserId !== userId) {
+        console.log('DEBUG: Authentication failed');
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      
+      console.log('DEBUG: About to call storage.getChatMessages');
+      const messages = await storage.getChatMessages(userId);
+      console.log('DEBUG: Messages retrieved:', messages.length);
+      
+      res.json({ success: true, messageCount: messages.length, messages: messages.slice(0, 2) });
+    } catch (error) {
+      console.error('DEBUG: Chat test error:', error);
+      res.status(500).json({ error: 'Chat test failed', details: error.message });
+    }
+  });
+
   // Add request logging middleware for chat endpoint
   app.use("/api/chat/*", (req, res, next) => {
     console.log(`Chat API Request: ${req.method} ${req.url}`, {

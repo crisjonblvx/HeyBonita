@@ -646,6 +646,22 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
             >
               Check Auth
             </Button>
+            <Button 
+              onClick={async () => {
+                try {
+                  const response = await fetch(`/api/debug/chat/${userId}`, { credentials: 'include' });
+                  const data = await response.json();
+                  console.log('Chat Debug Test:', data);
+                  alert('Chat debug result: ' + JSON.stringify(data, null, 2));
+                } catch (e) {
+                  console.error('Chat debug failed:', e);
+                }
+              }}
+              variant="secondary"
+              size="sm"
+            >
+              Test Chat
+            </Button>
           </div>
         </div>
       </div>
