@@ -676,61 +676,48 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
           try {
             console.log('Mobile browser TTS - preparing speech synthesis...');
             setMobileAudioDebug('Preparing mobile TTS...');
-            console.log('Text length:', correctedText.length);
-            console.log('Language:', speechLang);
-            console.log('Available voices:', window.speechSynthesis.getVoices().length);
             
             // Cancel any existing speech first
             window.speechSynthesis.cancel();
             
-            // Force voice loading on mobile
-            if (window.speechSynthesis.getVoices().length === 0) {
-              console.log('No voices loaded, triggering voice load...');
-              setMobileAudioDebug('Loading voices...');
-              window.speechSynthesis.getVoices();
-            }
+            // Create utterance with mobile-optimized settings
+            const utterance = new SpeechSynthesisUtterance(correctedText);
+            utterance.lang = speechLang;
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
             
-            // Wait a moment then speak with enhanced mobile settings
-            setTimeout(() => {
-              console.log('Starting mobile speech synthesis with text:', correctedText.substring(0, 50) + '...');
-              
-              // Ensure utterance is properly configured for mobile
-              utterance.rate = 1.0; // Slower rate for mobile clarity
-              utterance.pitch = 1.0; // Normal pitch for mobile
-              utterance.volume = 1.0; // Full volume for mobile
-              
-              // Add mobile-specific event handlers
-              utterance.onstart = () => {
-                console.log('Mobile TTS: Speech started');
-                setMobileAudioDebug('Browser TTS speaking...');
-                setIsSpeaking(true);
-              };
-              
-              utterance.onend = () => {
-                console.log('Mobile TTS: Speech ended');
-                setMobileAudioDebug('Speech completed');
-                setIsSpeaking(false);
-                setTimeout(() => setMobileAudioDebug(''), 3000);
-              };
-              
-              utterance.onerror = (event) => {
-                console.error('Mobile TTS error:', event.error, event);
-                setMobileAudioDebug(`TTS Error: ${event.error}`);
-                setIsSpeaking(false);
-                setTimeout(() => setMobileAudioDebug(''), 5000);
-              };
-              
-              window.speechSynthesis.speak(utterance);
-              console.log('Mobile TTS: Speech synthesis command sent');
-            }, 300);
+            // Add mobile-specific event handlers
+            utterance.onstart = () => {
+              console.log('Mobile TTS: Speech started');
+              setMobileAudioDebug('Browser TTS speaking...');
+              setIsSpeaking(true);
+            };
+            
+            utterance.onend = () => {
+              console.log('Mobile TTS: Speech ended');
+              setMobileAudioDebug('Speech completed');
+              setIsSpeaking(false);
+              setTimeout(() => setMobileAudioDebug(''), 3000);
+            };
+            
+            utterance.onerror = (event) => {
+              console.error('Mobile TTS error:', event.error, event);
+              setMobileAudioDebug(`TTS Error: ${event.error}`);
+              setIsSpeaking(false);
+              setTimeout(() => setMobileAudioDebug(''), 5000);
+            };
+            
+            // Speak immediately for mobile
+            setMobileAudioDebug('Starting mobile speech...');
+            window.speechSynthesis.speak(utterance);
+            console.log('Mobile TTS: Speech synthesis command sent');
+            
           } catch (error) {
             console.error('Mobile speech synthesis setup failed:', error);
+            setMobileAudioDebug('Mobile speech failed');
             setIsSpeaking(false);
-            toast({
-              title: "Speech Setup Error",
-              description: "Could not initialize speech on mobile device.",
-              variant: "destructive",
-            });
+            setTimeout(() => setMobileAudioDebug(''), 3000);
           }
         };
         
