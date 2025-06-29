@@ -136,8 +136,43 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
           console.log('🎤 Playing pending mobile speech from user interaction');
           
           const utterance = new SpeechSynthesisUtterance(content);
-          utterance.rate = 1.1;
-          utterance.volume = 0.8;
+          
+          // Apply enhanced voice selection to pending speech
+          const voices = window.speechSynthesis.getVoices();
+          const preferredVoices = voices.filter(voice => 
+            voice.lang.includes('en') && 
+            (voice.name.toLowerCase().includes('female') ||
+             voice.name.toLowerCase().includes('woman') ||
+             voice.name.toLowerCase().includes('samantha') ||
+             voice.name.toLowerCase().includes('susan') ||
+             voice.name.toLowerCase().includes('karen') ||
+             voice.name.toLowerCase().includes('siri') ||
+             voice.name.toLowerCase().includes('enhanced') ||
+             voice.name.toLowerCase().includes('premium'))
+          );
+          
+          const englishVoices = voices.filter(voice => 
+            voice.lang.includes('en') && 
+            !voice.name.toLowerCase().includes('robot') &&
+            !voice.name.toLowerCase().includes('microsoft')
+          );
+          
+          let selectedVoice = null;
+          if (preferredVoices.length > 0) {
+            selectedVoice = preferredVoices[0];
+            console.log('🎤 Pending speech using preferred voice:', selectedVoice.name);
+          } else if (englishVoices.length > 0) {
+            selectedVoice = englishVoices[0];
+            console.log('🎤 Pending speech using English voice:', selectedVoice.name);
+          }
+          
+          if (selectedVoice) {
+            utterance.voice = selectedVoice;
+          }
+          
+          utterance.rate = 1.0;
+          utterance.volume = 0.9;
+          utterance.pitch = 1.0;
           utterance.lang = 'en-US';
           
           utterance.onstart = () => {
@@ -397,10 +432,54 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
                 throw new Error('Mobile audio initialization failed after retries');
               }
               
-              // Create and configure utterance
+              // Create and configure utterance with enhanced mobile voice selection
               const utterance = new SpeechSynthesisUtterance(data.content);
-              utterance.rate = 1.1;
-              utterance.volume = 0.8;
+              
+              // Enhanced mobile voice selection
+              const voices = window.speechSynthesis.getVoices();
+              console.log('🎤 Available voices for mobile:', voices.length);
+              
+              // Prioritize natural, female voices for Bonita
+              const preferredVoices = voices.filter(voice => 
+                voice.lang.includes('en') && 
+                (voice.name.toLowerCase().includes('female') ||
+                 voice.name.toLowerCase().includes('woman') ||
+                 voice.name.toLowerCase().includes('samantha') ||
+                 voice.name.toLowerCase().includes('susan') ||
+                 voice.name.toLowerCase().includes('karen') ||
+                 voice.name.toLowerCase().includes('siri') ||
+                 voice.name.toLowerCase().includes('enhanced') ||
+                 voice.name.toLowerCase().includes('premium'))
+              );
+              
+              // Fallback to any English voice that's not robotic
+              const englishVoices = voices.filter(voice => 
+                voice.lang.includes('en') && 
+                !voice.name.toLowerCase().includes('robot') &&
+                !voice.name.toLowerCase().includes('microsoft')
+              );
+              
+              // Select best available voice
+              let selectedVoice = null;
+              if (preferredVoices.length > 0) {
+                selectedVoice = preferredVoices[0];
+                console.log('🎤 Using preferred voice:', selectedVoice.name);
+              } else if (englishVoices.length > 0) {
+                selectedVoice = englishVoices[0];
+                console.log('🎤 Using English voice:', selectedVoice.name);
+              } else if (voices.length > 0) {
+                selectedVoice = voices[0];
+                console.log('🎤 Using default voice:', selectedVoice.name);
+              }
+              
+              if (selectedVoice) {
+                utterance.voice = selectedVoice;
+              }
+              
+              // Optimize settings for mobile speech quality
+              utterance.rate = 1.0; // Slightly slower for clarity
+              utterance.volume = 0.9; // Higher volume for mobile
+              utterance.pitch = 1.0; // Natural pitch
               utterance.lang = 'en-US';
               
               let speechStarted = false;
@@ -442,10 +521,18 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
                     console.log('🎤 Speech synthesis failed to start, trying fallback');
                     window.speechSynthesis.cancel();
                     
-                    // Try one more time with a fresh utterance
+                    // Try one more time with a fresh utterance and enhanced voice
                     const fallbackUtterance = new SpeechSynthesisUtterance(data.content);
-                    fallbackUtterance.rate = 1.0;
-                    fallbackUtterance.volume = 1.0;
+                    
+                    // Apply same voice selection logic to fallback
+                    if (selectedVoice) {
+                      fallbackUtterance.voice = selectedVoice;
+                      console.log('🎤 Fallback using voice:', selectedVoice.name);
+                    }
+                    
+                    fallbackUtterance.rate = 0.9; // Even slower for clarity
+                    fallbackUtterance.volume = 1.0; // Maximum volume
+                    fallbackUtterance.pitch = 1.0;
                     fallbackUtterance.lang = 'en-US';
                     
                     fallbackUtterance.onstart = () => {
@@ -834,14 +921,49 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
     }
   };
 
-  // Mobile audio prompt handler
+  // Mobile audio prompt handler with enhanced voice selection
   const handleMobileAudioPrompt = () => {
     if (pendingMobileContent) {
       console.log('🎤 User triggered mobile audio manually');
       
       const utterance = new SpeechSynthesisUtterance(pendingMobileContent);
-      utterance.rate = 1.1;
-      utterance.volume = 0.8;
+      
+      // Apply enhanced voice selection to manual mobile audio
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoices = voices.filter(voice => 
+        voice.lang.includes('en') && 
+        (voice.name.toLowerCase().includes('female') ||
+         voice.name.toLowerCase().includes('woman') ||
+         voice.name.toLowerCase().includes('samantha') ||
+         voice.name.toLowerCase().includes('susan') ||
+         voice.name.toLowerCase().includes('karen') ||
+         voice.name.toLowerCase().includes('siri') ||
+         voice.name.toLowerCase().includes('enhanced') ||
+         voice.name.toLowerCase().includes('premium'))
+      );
+      
+      const englishVoices = voices.filter(voice => 
+        voice.lang.includes('en') && 
+        !voice.name.toLowerCase().includes('robot') &&
+        !voice.name.toLowerCase().includes('microsoft')
+      );
+      
+      let selectedVoice = null;
+      if (preferredVoices.length > 0) {
+        selectedVoice = preferredVoices[0];
+        console.log('🎤 Manual speech using preferred voice:', selectedVoice.name);
+      } else if (englishVoices.length > 0) {
+        selectedVoice = englishVoices[0];
+        console.log('🎤 Manual speech using English voice:', selectedVoice.name);
+      }
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      utterance.rate = 1.0;
+      utterance.volume = 0.9;
+      utterance.pitch = 1.0;
       utterance.lang = 'en-US';
       
       utterance.onstart = () => {
