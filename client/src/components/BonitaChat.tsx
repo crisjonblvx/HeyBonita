@@ -630,6 +630,22 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
             >
               Check Session
             </Button>
+            <Button 
+              onClick={async () => {
+                try {
+                  const response = await fetch('/api/auth/status', { credentials: 'include' });
+                  const data = await response.json();
+                  console.log('Auth Status Check:', data);
+                  alert('Auth status: ' + JSON.stringify(data, null, 2));
+                } catch (e) {
+                  console.error('Auth check failed:', e);
+                }
+              }}
+              variant="secondary"
+              size="sm"
+            >
+              Check Auth
+            </Button>
           </div>
         </div>
       </div>

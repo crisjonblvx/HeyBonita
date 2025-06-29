@@ -803,6 +803,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Add request logging middleware for chat endpoint
+  app.use("/api/chat/*", (req, res, next) => {
+    console.log(`Chat API Request: ${req.method} ${req.url}`, {
+      sessionExists: !!req.session,
+      sessionUserId: req.session?.userId,
+      params: req.params,
+      headers: {
+        cookie: req.headers.cookie ? 'Present' : 'Missing',
+        contentType: req.headers['content-type']
+      }
+    });
+    next();
+  });
+
   // Chat routes
   app.get("/api/chat/:userId", async (req, res) => {
     try {

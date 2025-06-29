@@ -1,0 +1,248 @@
+App.tsx: Checking authentication status...
+index-C8eq2HBJ.js:437 App.tsx: Auth status response: 200 application/json; charset=utf-8
+index-C8eq2HBJ.js:437 App.tsx: Auth status data: {authenticated: true, user: {…}}
+index-C8eq2HBJ.js:437 App.tsx: User authenticated, setting user: cjaze.av@gmail.com
+index-C8eq2HBJ.js:435 Fetching chat history for user: 3
+index-C8eq2HBJ.js:435 
+            
+            
+           GET https://hey-bonita.replit.app/api/chat/3 500 (Internal Server Error)
+queryFn @ index-C8eq2HBJ.js:435
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
+index-C8eq2HBJ.js:435 Chat history response: 500 
+index-C8eq2HBJ.js:435 Chat history error response: {"error":"Failed to fetch chat history"}
+queryFn @ index-C8eq2HBJ.js:435
+await in queryFn
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
+index-C8eq2HBJ.js:435 Fetching chat history for user: 3
+index-C8eq2HBJ.js:435 
+            
+            
+           GET https://hey-bonita.replit.app/api/chat/3 500 (Internal Server Error)
+queryFn @ index-C8eq2HBJ.js:435
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
+index-C8eq2HBJ.js:435 Chat history response: 500 
+index-C8eq2HBJ.js:435 Chat history error response: {"error":"Failed to fetch chat history"}
+queryFn @ index-C8eq2HBJ.js:435
+await in queryFn
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
+index-C8eq2HBJ.js:435 Fetching chat history for user: 3
+index-C8eq2HBJ.js:435 
+            
+            
+           GET https://hey-bonita.replit.app/api/chat/3 500 (Internal Server Error)
+queryFn @ index-C8eq2HBJ.js:435
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
+index-C8eq2HBJ.js:435 Chat history response: 500 
+index-C8eq2HBJ.js:435 Chat history error response: {"error":"Failed to fetch chat history"}
+queryFn @ index-C8eq2HBJ.js:435
+await in queryFn
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
+index-C8eq2HBJ.js:435 Fetching chat history for user: 3
+index-C8eq2HBJ.js:435 
+            
+            
+           GET https://hey-bonita.replit.app/api/chat/3 500 (Internal Server Error)
+queryFn @ index-C8eq2HBJ.js:435
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
+index-C8eq2HBJ.js:435 Chat history response: 500 
+index-C8eq2HBJ.js:435 Chat history error response: {"error":"Failed to fetch chat history"}
+queryFn @ index-C8eq2HBJ.js:435
+await in queryFn
+o @ index-C8eq2HBJ.js:48
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.then
+(anonymous) @ index-C8eq2HBJ.js:48
+Promise.catch
+S @ index-C8eq2HBJ.js:48
+start @ index-C8eq2HBJ.js:48
+fetch @ index-C8eq2HBJ.js:48
+Jo @ index-C8eq2HBJ.js:48
+onSubscribe @ index-C8eq2HBJ.js:48
+subscribe @ index-C8eq2HBJ.js:48
+(anonymous) @ index-C8eq2HBJ.js:48
+s0 @ index-C8eq2HBJ.js:38
+pc @ index-C8eq2HBJ.js:40
+Hs @ index-C8eq2HBJ.js:40
+cg @ index-C8eq2HBJ.js:40
+Pr @ index-C8eq2HBJ.js:38
+qN @ index-C8eq2HBJ.js:40
+Lr @ index-C8eq2HBJ.js:40
+O0 @ index-C8eq2HBJ.js:40
+C @ index-C8eq2HBJ.js:25
+O @ index-C8eq2HBJ.js:25Understand this error
