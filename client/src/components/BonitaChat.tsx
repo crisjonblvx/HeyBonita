@@ -69,13 +69,65 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
     return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection);
   }, []);
 
-  // Mobile speech interaction capture system
+  // Mobile audio context initialization and management
   useEffect(() => {
     const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     if (!isMobile) return;
 
-    const playPendingSpeech = () => {
+    // Initialize mobile audio context on user interaction
+    const initializeMobileAudio = async () => {
+      try {
+        // Initialize audio context for mobile
+        if (window.AudioContext || (window as any).webkitAudioContext) {
+          const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+          const audioContext = new AudioContext();
+          
+          if (audioContext.state === 'suspended') {
+            await audioContext.resume();
+            console.log('🎤 Mobile audio context resumed');
+          }
+          
+          // Store audio context globally for reuse
+          (window as any).mobileAudioContext = audioContext;
+        }
+
+        // Pre-initialize speech synthesis on mobile
+        if ('speechSynthesis' in window) {
+          // Trigger voices loading on mobile
+          const voices = window.speechSynthesis.getVoices();
+          if (voices.length === 0) {
+            window.speechSynthesis.onvoiceschanged = () => {
+              console.log('🎤 Mobile voices loaded:', window.speechSynthesis.getVoices().length);
+              window.speechSynthesis.onvoiceschanged = null;
+            };
+          }
+          
+          // Create a silent utterance to initialize speech synthesis
+          const testUtterance = new SpeechSynthesisUtterance('');
+          testUtterance.volume = 0;
+          testUtterance.rate = 1;
+          window.speechSynthesis.speak(testUtterance);
+          
+          console.log('🎤 Mobile speech synthesis initialized');
+          (window as any).mobileSpeechInitialized = true;
+        }
+
+        // Mark mobile audio as ready
+        (window as any).mobileAudioReady = true;
+        console.log('🎤 Mobile audio context fully initialized');
+
+      } catch (error) {
+        console.log('🎤 Mobile audio initialization failed:', error);
+      }
+    };
+
+    const playPendingSpeech = async () => {
+      // Initialize audio context if not already done
+      if (!(window as any).mobileAudioReady) {
+        await initializeMobileAudio();
+      }
+
       if ((window as any).pendingMobileSpeech?.isReady) {
         const { content, timestamp } = (window as any).pendingMobileSpeech;
         
@@ -122,6 +174,10 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
     events.forEach(eventType => {
       document.addEventListener(eventType, playPendingSpeech, { passive: true });
     });
+
+    // Initialize on first user interaction
+    document.addEventListener('touchstart', initializeMobileAudio, { once: true, passive: true });
+    document.addEventListener('click', initializeMobileAudio, { once: true, passive: true });
 
     return () => {
       events.forEach(eventType => {
@@ -240,54 +296,75 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         if (isMobile) {
           console.log('Mobile auto-speech triggered for mode:', voiceMode);
           
-          // Mobile Strategy: Store response for immediate playback when user interaction occurs
+          // Mobile Strategy: Use initialized audio context for immediate speech
+          const attemptMobileAutoSpeech = async () => {
+            try {
+              // Check if mobile audio is ready, initialize if not
+              if (!(window as any).mobileAudioReady) {
+                console.log('🎤 Mobile audio not ready, initializing...');
+                await new Promise(resolve => setTimeout(resolve, 100)); // Short delay for initialization
+              }
+              
+              // Resume audio context if suspended
+              if ((window as any).mobileAudioContext?.state === 'suspended') {
+                await (window as any).mobileAudioContext.resume();
+                console.log('🎤 Mobile audio context resumed for auto-speech');
+              }
+              
+              const utterance = new SpeechSynthesisUtterance(data.content);
+              utterance.rate = 1.1;
+              utterance.volume = 0.8;
+              utterance.lang = 'en-US';
+              
+              utterance.onstart = () => {
+                console.log('🎤 Mobile auto-speech started successfully');
+                setIsSpeaking(true);
+              };
+              utterance.onend = () => {
+                console.log('🎤 Mobile auto-speech ended');
+                setIsSpeaking(false);
+              };
+              utterance.onerror = (e) => {
+                console.log('🎤 Mobile auto-speech failed:', e.error);
+                setIsSpeaking(false);
+                // Store content and show prompt for manual trigger
+                setPendingMobileContent(data.content);
+                setShowMobileAudioPrompt(true);
+              };
+              
+              // Use speech synthesis with the initialized context
+              window.speechSynthesis.cancel();
+              
+              // Wait for voices to be available on mobile
+              const voices = window.speechSynthesis.getVoices();
+              if (voices.length === 0) {
+                await new Promise(resolve => {
+                  window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.onvoiceschanged = null;
+                    resolve(null);
+                  };
+                });
+              }
+              
+              window.speechSynthesis.speak(utterance);
+              console.log('🎤 Mobile speech synthesis initiated');
+              
+            } catch (error) {
+              console.log('🎤 Mobile auto-speech initialization failed:', error);
+              // Fallback to manual trigger
+              setPendingMobileContent(data.content);
+              setShowMobileAudioPrompt(true);
+            }
+          };
+          
+          // Store for pending playback as backup
           (window as any).pendingMobileSpeech = {
             content: data.content,
             isReady: true,
             timestamp: Date.now()
           };
           
-          console.log('🎤 Mobile speech queued - will play on next user interaction');
-          
-          // Try immediate speech as backup (may work on some devices)
-          const attemptImmediateSpeech = () => {
-            if (!('speechSynthesis' in window)) {
-              console.log('🎤 Speech synthesis not available');
-              return;
-            }
-            
-            const utterance = new SpeechSynthesisUtterance(data.content);
-            utterance.rate = 1.1;
-            utterance.volume = 0.8;
-            utterance.lang = 'en-US';
-            
-            utterance.onstart = () => {
-              console.log('🎤 Immediate mobile speech started');
-              setIsSpeaking(true);
-              // Clear pending speech since it worked
-              (window as any).pendingMobileSpeech = null;
-            };
-            utterance.onend = () => {
-              console.log('🎤 Immediate mobile speech ended');
-              setIsSpeaking(false);
-            };
-            utterance.onerror = (e) => {
-              console.log('🎤 Immediate mobile speech failed:', e.error);
-              setIsSpeaking(false);
-              // Show mobile audio prompt if immediate speech fails
-              setPendingMobileContent(data.content);
-              setShowMobileAudioPrompt(true);
-            };
-            
-            try {
-              window.speechSynthesis.cancel();
-              window.speechSynthesis.speak(utterance);
-            } catch (error) {
-              console.log('🎤 Immediate speech attempt failed:', error);
-            }
-          };
-          
-          attemptImmediateSpeech();
+          attemptMobileAutoSpeech();
           
         } else {
           // Desktop: Normal delay
@@ -605,6 +682,41 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         description: "Unable to initialize voice recording. Please check your browser and microphone settings.",
         variant: "destructive",
       });
+    }
+  };
+
+  // Mobile audio prompt handler
+  const handleMobileAudioPrompt = () => {
+    if (pendingMobileContent) {
+      console.log('🎤 User triggered mobile audio manually');
+      
+      const utterance = new SpeechSynthesisUtterance(pendingMobileContent);
+      utterance.rate = 1.1;
+      utterance.volume = 0.8;
+      utterance.lang = 'en-US';
+      
+      utterance.onstart = () => {
+        console.log('🎤 Manual mobile speech started');
+        setIsSpeaking(true);
+        setShowMobileAudioPrompt(false);
+        setPendingMobileContent(null);
+      };
+      utterance.onend = () => {
+        console.log('🎤 Manual mobile speech ended');
+        setIsSpeaking(false);
+      };
+      utterance.onerror = (e) => {
+        console.log('🎤 Manual mobile speech error:', e.error);
+        setIsSpeaking(false);
+      };
+      
+      try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.log('🎤 Manual mobile speech failed:', error);
+        setIsSpeaking(false);
+      }
     }
   };
 
@@ -1262,6 +1374,43 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
           )}
         </div>
       </div>
+
+      {/* Mobile Audio Prompt - appears when automatic speech fails */}
+      {showMobileAudioPrompt && pendingMobileContent && (
+        <div className="fixed bottom-20 left-4 right-4 z-50 bg-primary text-primary-foreground p-4 rounded-lg shadow-lg border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Volume2 className="h-5 w-5" />
+              <div>
+                <p className="font-medium text-sm">Tap to hear Bonita's response</p>
+                <p className="text-xs opacity-90">Audio didn't start automatically</p>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleMobileAudioPrompt}
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+              >
+                <Volume2 className="h-4 w-4 mr-1" />
+                Play
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setShowMobileAudioPrompt(false);
+                  setPendingMobileContent(null);
+                }}
+                className="text-primary-foreground hover:bg-primary-foreground/20"
+              >
+                <VolumeX className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
