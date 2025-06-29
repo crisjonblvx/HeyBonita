@@ -238,12 +238,12 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
       
-      // Enhanced settings for better reliability
+      // Enhanced settings for better accuracy
       recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
+      recognition.interimResults = true; // Enable interim results for better accuracy
+      recognition.maxAlternatives = 3; // Get more alternatives for better selection
       
-      // Set language based on current locale
+      // Set language based on current locale with regional variants
       const languageMap: Record<string, string> = {
         'en': 'en-US',
         'es': 'es-ES',
@@ -251,34 +251,98 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         'fr': 'fr-FR'
       };
       recognition.lang = languageMap[language] || 'en-US';
+      
+      // Additional accuracy settings for better recognition
+      try {
+        // Enable noise suppression and echo cancellation if available
+        if ('webkitAudioContext' in window || 'AudioContext' in window) {
+          const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
+          const audioContext = new AudioContext();
+          
+          // Request microphone with enhanced settings
+          navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+              sampleRate: 16000,
+              channelCount: 1
+            }
+          }).then(() => {
+            console.log('Enhanced audio settings applied');
+          }).catch((error) => {
+            console.warn('Could not apply enhanced audio settings:', error);
+          });
+        }
+      } catch (error) {
+        console.warn('Audio context setup failed:', error);
+      }
 
       recognition.onstart = () => {
-        console.log('Speech recognition started');
+        console.log('Speech recognition started with enhanced settings');
         setIsListening(true);
         if (voiceMode === 'speech-to-speech') {
           stopSpeaking();
         }
       };
+
+      // Add abort handler for better cleanup
+      recognition.onabort = () => {
+        console.log('Speech recognition aborted');
+        setIsListening(false);
+      };
+
+      recognition.onnomatch = () => {
+        console.log('Speech recognition no match');
+        setIsListening(false);
+        toast({
+          title: "No Speech Detected",
+          description: "Please speak clearly and try again.",
+          variant: "default",
+        });
+      };
       
       recognition.onresult = (event: any) => {
         try {
           if (event.results && event.results.length > 0) {
-            const transcript = event.results[0][0].transcript.trim();
-            console.log('Speech transcript:', transcript);
+            // Get the most recent result
+            const result = event.results[event.results.length - 1];
             
-            if (transcript) {
-              setMessage(transcript);
+            // Only process final results to avoid interim noise
+            if (result.isFinal) {
+              // Get the best alternative from available options
+              let bestTranscript = '';
+              let highestConfidence = 0;
               
-              // Auto-send in speech-to-speech mode
-              if (autoSend || voiceMode === 'speech-to-speech') {
-                const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                const delay = isMobile ? 500 : 200;
+              for (let i = 0; i < Math.min(result.length, 3); i++) {
+                const alternative = result[i];
+                if (alternative.confidence > highestConfidence) {
+                  highestConfidence = alternative.confidence;
+                  bestTranscript = alternative.transcript.trim();
+                }
+              }
+              
+              // Fallback to first result if no confidence scores
+              if (!bestTranscript && result[0]) {
+                bestTranscript = result[0].transcript.trim();
+              }
+              
+              console.log('Speech transcript:', bestTranscript, 'Confidence:', highestConfidence);
+              
+              if (bestTranscript && bestTranscript.length > 1) {
+                setMessage(bestTranscript);
                 
-                setTimeout(() => {
-                  if (transcript.trim()) {
-                    sendMessageMutation.mutate(transcript);
-                  }
-                }, delay);
+                // Auto-send in speech-to-speech mode
+                if (autoSend || voiceMode === 'speech-to-speech') {
+                  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                  const delay = isMobile ? 500 : 200;
+                  
+                  setTimeout(() => {
+                    if (bestTranscript.trim()) {
+                      sendMessageMutation.mutate(bestTranscript);
+                    }
+                  }, delay);
+                }
               }
             }
           }
