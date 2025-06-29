@@ -298,6 +298,9 @@ export default function MobileHome() {
         <DialogContent className="w-[95%] max-w-sm rounded-lg">
           <DialogHeader>
             <DialogTitle>Settings</DialogTitle>
+            <DialogDescription>
+              Customize your Bonita experience with language, color, and personality preferences.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {/* Language Selection */}
