@@ -13,6 +13,17 @@ import { AchievementToast } from '@/components/Gamification';
 import { JoyRiverButtons } from '@/components/JoyRiverButtons';
 import { trackEvent } from '@/lib/analytics';
 
+// Extend Window interface for mobile speech
+declare global {
+  interface Window {
+    pendingMobileSpeech?: {
+      content: string;
+      isReady: boolean;
+      timestamp: number;
+    } | null;
+  }
+}
+
 interface ChatMessage {
   id: number;
   role: 'user' | 'assistant';
@@ -34,6 +45,8 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isUsingElevenLabs, setIsUsingElevenLabs] = useState(false);
   const [mobileAudioDebug, setMobileAudioDebug] = useState('');
+  const [showMobileAudioPrompt, setShowMobileAudioPrompt] = useState(false);
+  const [pendingMobileContent, setPendingMobileContent] = useState<string | null>(null);
   const [isGeneratingResponse, setIsGeneratingResponse] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -54,6 +67,67 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
     return () => window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+  }, []);
+
+  // Mobile speech interaction capture system
+  useEffect(() => {
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (!isMobile) return;
+
+    const playPendingSpeech = () => {
+      if ((window as any).pendingMobileSpeech?.isReady) {
+        const { content, timestamp } = (window as any).pendingMobileSpeech;
+        
+        // Check if speech is still recent (within 30 seconds)
+        if (Date.now() - timestamp < 30000) {
+          console.log('🎤 Playing pending mobile speech from user interaction');
+          
+          const utterance = new SpeechSynthesisUtterance(content);
+          utterance.rate = 1.1;
+          utterance.volume = 0.8;
+          utterance.lang = 'en-US';
+          
+          utterance.onstart = () => {
+            console.log('🎤 Pending mobile speech started');
+            setIsSpeaking(true);
+          };
+          utterance.onend = () => {
+            console.log('🎤 Pending mobile speech ended');
+            setIsSpeaking(false);
+          };
+          utterance.onerror = (e) => {
+            console.log('🎤 Pending mobile speech error:', e.error);
+            setIsSpeaking(false);
+          };
+          
+          try {
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+            // Clear pending speech
+            (window as any).pendingMobileSpeech = null;
+          } catch (error) {
+            console.log('🎤 Failed to play pending speech:', error);
+          }
+        } else {
+          // Clear expired pending speech
+          (window as any).pendingMobileSpeech = null;
+        }
+      }
+    };
+
+    // Capture various user interaction events
+    const events = ['touchstart', 'touchend', 'click', 'tap', 'keydown'];
+    
+    events.forEach(eventType => {
+      document.addEventListener(eventType, playPendingSpeech, { passive: true });
+    });
+
+    return () => {
+      events.forEach(eventType => {
+        document.removeEventListener(eventType, playPendingSpeech);
+      });
+    };
   }, []);
 
   // Fetch chat history
@@ -164,72 +238,56 @@ export function BonitaChat({ userId, toneMode, responseMode, voiceMode, onRespon
         const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
         if (isMobile) {
-          // Mobile: Direct browser TTS approach (most reliable for auto-play)
           console.log('Mobile auto-speech triggered for mode:', voiceMode);
           
-          // Use the most direct approach - browser TTS immediately with debugging
-          const mobileTTSImmediate = () => {
-            try {
-              console.log('🎤 Mobile auto-speech attempt starting...');
-              console.log('🎤 User agent:', navigator.userAgent);
-              console.log('🎤 Speech synthesis available:', 'speechSynthesis' in window);
-              console.log('🎤 Voice mode:', voiceMode);
-              console.log('🎤 Content to speak:', data.content.substring(0, 50) + '...');
-              
-              // Check if speech synthesis is available
-              if (!('speechSynthesis' in window)) {
-                console.error('🎤 Speech synthesis not available on this device');
-                return;
-              }
-              
-              // Check speech synthesis state
-              console.log('🎤 Speech synthesis speaking:', window.speechSynthesis.speaking);
-              console.log('🎤 Speech synthesis pending:', window.speechSynthesis.pending);
-              console.log('🎤 Speech synthesis paused:', window.speechSynthesis.paused);
-              
-              // Create utterance immediately (within user interaction context)
-              const utterance = new SpeechSynthesisUtterance(data.content);
-              utterance.rate = 1.1;
-              utterance.volume = 0.8;
-              utterance.lang = 'en-US';
-              
-              utterance.onstart = () => {
-                console.log('🎤 Mobile TTS started successfully!');
-                setIsSpeaking(true);
-              };
-              utterance.onend = () => {
-                console.log('🎤 Mobile TTS ended normally');
-                setIsSpeaking(false);
-              };
-              utterance.onerror = (e) => {
-                console.error('🎤 Mobile TTS error:', e.error, e);
-                setIsSpeaking(false);
-              };
-              
-              // Cancel any existing speech
-              console.log('🎤 Canceling existing speech...');
-              window.speechSynthesis.cancel();
-              
-              // Small delay to ensure cancel completed
-              setTimeout(() => {
-                console.log('🎤 Speaking utterance now...');
-                window.speechSynthesis.speak(utterance);
-                
-                // Additional check after speaking
-                setTimeout(() => {
-                  console.log('🎤 Post-speak check - speaking:', window.speechSynthesis.speaking);
-                  console.log('🎤 Post-speak check - pending:', window.speechSynthesis.pending);
-                }, 500);
-              }, 50);
-              
-            } catch (error) {
-              console.error('🎤 Mobile TTS exception:', error);
+          // Mobile Strategy: Store response for immediate playback when user interaction occurs
+          (window as any).pendingMobileSpeech = {
+            content: data.content,
+            isReady: true,
+            timestamp: Date.now()
+          };
+          
+          console.log('🎤 Mobile speech queued - will play on next user interaction');
+          
+          // Try immediate speech as backup (may work on some devices)
+          const attemptImmediateSpeech = () => {
+            if (!('speechSynthesis' in window)) {
+              console.log('🎤 Speech synthesis not available');
+              return;
+            }
+            
+            const utterance = new SpeechSynthesisUtterance(data.content);
+            utterance.rate = 1.1;
+            utterance.volume = 0.8;
+            utterance.lang = 'en-US';
+            
+            utterance.onstart = () => {
+              console.log('🎤 Immediate mobile speech started');
+              setIsSpeaking(true);
+              // Clear pending speech since it worked
+              (window as any).pendingMobileSpeech = null;
+            };
+            utterance.onend = () => {
+              console.log('🎤 Immediate mobile speech ended');
               setIsSpeaking(false);
+            };
+            utterance.onerror = (e) => {
+              console.log('🎤 Immediate mobile speech failed:', e.error);
+              setIsSpeaking(false);
+              // Show mobile audio prompt if immediate speech fails
+              setPendingMobileContent(data.content);
+              setShowMobileAudioPrompt(true);
+            };
+            
+            try {
+              window.speechSynthesis.cancel();
+              window.speechSynthesis.speak(utterance);
+            } catch (error) {
+              console.log('🎤 Immediate speech attempt failed:', error);
             }
           };
           
-          // Execute with minimal delay but within user interaction context
-          mobileTTSImmediate();
+          attemptImmediateSpeech();
           
         } else {
           // Desktop: Normal delay
