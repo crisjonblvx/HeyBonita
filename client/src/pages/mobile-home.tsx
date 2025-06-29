@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BonitaChat } from '@/components/BonitaChat';
+import BonitaChat from '@/components/BonitaChatSimple';
 import { ImageGenerator } from '@/components/ImageGenerator';
 import { VideoScripts } from '@/components/VideoScripts';
 import { ReceiptsFolderClean as ReceiptsFolder } from '@/components/ReceiptsFolderClean';
