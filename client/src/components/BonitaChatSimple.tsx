@@ -36,7 +36,7 @@ export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }
     queryKey: ['/api/messages'],
   });
 
-  // Handle auto-speech with ElevenLabs
+  // Handle auto-speech with ElevenLabs only - no fallbacks
   const handleAutoSpeech = async (content: string) => {
     console.log('🎤 Starting ElevenLabs speech generation');
     setIsSpeaking(true);
@@ -53,7 +53,9 @@ export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }
       });
 
       if (!response.ok) {
-        throw new Error(`Speech generation failed: ${response.status}`);
+        console.error(`ElevenLabs API failed: ${response.status}`);
+        setIsSpeaking(false);
+        return; // Fail silently - no fallback UI
       }
 
       const audioBlob = await response.blob();
@@ -75,7 +77,7 @@ export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }
       };
       
       audio.onerror = (e) => {
-        console.error('🎤 ElevenLabs audio error:', e);
+        console.error('🎤 ElevenLabs audio playback error:', e);
         setIsSpeaking(false);
         URL.revokeObjectURL(audioUrl);
         currentAudioRef.current = null;
@@ -86,11 +88,7 @@ export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }
     } catch (error) {
       console.error('ElevenLabs speech error:', error);
       setIsSpeaking(false);
-      toast({
-        title: "Speech Error",
-        description: "Could not play audio response. Please try again.",
-        variant: "destructive",
-      });
+      // No toast notification - fail silently
     }
   };
 
@@ -382,19 +380,11 @@ export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }
           </div>
         </div>
         
-        {/* Speaking indicator */}
+        {/* Speaking indicator - clean version without manual controls */}
         {isSpeaking && (
           <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
             <Volume2 className="w-4 h-4 animate-pulse" />
             <span>Bonita is speaking...</span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleStopGeneration}
-              className="h-6 px-2"
-            >
-              <Square className="w-3 h-3" />
-            </Button>
           </div>
         )}
       </div>
