@@ -34,7 +34,33 @@ export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }
   // Fetch messages
   const { data: messages = [] } = useQuery({
     queryKey: ['/api/messages'],
-  });
+  }) as { data: ChatMessage[] };
+
+  // Show greeting if no messages
+  const shouldShowGreeting = Array.isArray(messages) && messages.length === 0;
+
+  // Auto-speak greeting on load
+  useEffect(() => {
+    if (shouldShowGreeting && (voiceMode === 'speech-to-speech' || voiceMode === 'text-to-speech')) {
+      const greetingText = `Hey there! I'm Bonita, your Digital Bronx Auntie! Ready to chat, create some fire content, or get real talk about whatever's on your mind? I'm here to help you level up. What's good?`;
+      setTimeout(() => {
+        handleAutoSpeech(greetingText);
+      }, 1000);
+    }
+  }, [shouldShowGreeting, voiceMode]);
+
+  // Create greeting message for display
+  const greetingMessage = {
+    id: 'greeting',
+    role: 'assistant' as const,
+    content: `Hey there! I'm Bonita, your Digital Bronx Auntie! 🎤 
+
+Ready to chat, create some fire content, or get real talk about whatever's on your mind? I'm here to help you level up - whether that's brainstorming video scripts, generating images, or just having a conversation with someone who gets it.
+
+What's good? Drop me a message and let's get this started! 💫`,
+    createdAt: new Date(),
+    userId: userId
+  };
 
   // Handle auto-speech with ElevenLabs only - no fallbacks
   const handleAutoSpeech = async (content: string) => {
@@ -280,7 +306,28 @@ export default function BonitaChat({ voiceMode, userId, toneMode, responseMode }
     <div className="flex flex-col h-full">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
-        {messages.map((msg) => (
+        {/* Show greeting if no messages */}
+        {shouldShowGreeting && (
+          <div className="flex justify-start">
+            <div className="flex gap-3 max-w-[80%]">
+              <Avatar className="w-8 h-8 flex-shrink-0">
+                <AvatarImage src={bonitaLogo} alt="Bonita" />
+              </Avatar>
+              <Card className="p-3 bg-card">
+                <div className="whitespace-pre-wrap text-sm">{greetingMessage.content}</div>
+                {isSpeaking && (
+                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                    <Volume2 className="w-3 h-3 animate-pulse" />
+                    <span>Speaking...</span>
+                  </div>
+                )}
+              </Card>
+            </div>
+          </div>
+        )}
+        
+        {/* Regular messages */}
+        {Array.isArray(messages) && messages.map((msg: ChatMessage) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`flex gap-3 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
               <Avatar className="w-8 h-8 flex-shrink-0">
