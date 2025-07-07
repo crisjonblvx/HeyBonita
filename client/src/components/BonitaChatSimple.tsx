@@ -62,7 +62,7 @@ What's good? Drop me a message and let's get this started! 💫`,
     userId: userId
   };
 
-  // Handle auto-speech with ElevenLabs only - no fallbacks
+  // Handle auto-speech with ElevenLabs only - mobile optimized
   const handleAutoSpeech = async (content: string) => {
     console.log('🎤 Starting ElevenLabs speech generation');
     setIsSpeaking(true);
@@ -90,6 +90,10 @@ What's good? Drop me a message and let's get this started! 💫`,
       const audio = new Audio(audioUrl);
       currentAudioRef.current = audio;
       
+      // Mobile-specific audio settings
+      audio.preload = 'auto';
+      audio.playsInline = true;
+      
       audio.onplay = () => {
         console.log('🎤 ElevenLabs audio started playing');
         setIsSpeaking(true);
@@ -108,8 +112,17 @@ What's good? Drop me a message and let's get this started! 💫`,
         URL.revokeObjectURL(audioUrl);
         currentAudioRef.current = null;
       };
-      
-      await audio.play();
+
+      // Mobile audio handling - trigger within user interaction context
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        console.log('🎤 Mobile device detected - playing audio immediately');
+        // For mobile, we need to play immediately within the user interaction context
+        await audio.play();
+      } else {
+        // Desktop - can play normally
+        await audio.play();
+      }
       
     } catch (error) {
       console.error('ElevenLabs speech error:', error);
@@ -251,12 +264,26 @@ What's good? Drop me a message and let's get this started! 💫`,
             transcript = bestTranscript;
           }
           
+          console.log('🎤 Speech recognition result:', transcript);
           setMessage(transcript);
           
           if (autoSend && transcript.trim()) {
-            setTimeout(() => {
-              sendMessageMutation.mutate(transcript.trim());
-            }, 500);
+            console.log('🎤 Auto-sending message:', transcript.trim());
+            // Store the audio context for mobile - speech recognition creates user interaction
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+              // Pre-initialize audio context while we have user interaction
+              try {
+                const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+                if (audioContext.state === 'suspended') {
+                  audioContext.resume();
+                }
+              } catch (e) {
+                console.log('Audio context initialization skipped');
+              }
+            }
+            // Immediate send for mobile compatibility
+            sendMessageMutation.mutate(transcript.trim());
           }
         }
       };
@@ -275,7 +302,26 @@ What's good? Drop me a message and let's get this started! 💫`,
       };
       
       recognition.onend = () => {
+        console.log('🎤 Speech recognition ended');
         setIsListening(false);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('🎤 Speech recognition error:', event.error);
+        setIsListening(false);
+        if (event.error === 'no-speech') {
+          toast({
+            title: "No Speech Detected",
+            description: "I didn't hear anything. Please try speaking again.",
+            variant: "destructive",
+          });
+        } else if (event.error === 'network') {
+          toast({
+            title: "Network Error",
+            description: "Speech recognition failed due to network issues. Please try again.",
+            variant: "destructive",
+          });
+        }
       };
       
       recognition.start();
