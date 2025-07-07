@@ -869,14 +869,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/chat", rateLimitMiddleware('/api/chat'), async (req, res) => {
     try {
+      console.log('🗣️ Chat API called with body:', req.body);
       const { message, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
       const userId = req.session?.userId;
       
+      console.log('🗣️ Chat request details:', { userId, message: message?.substring(0, 50) + '...', language, toneMode, responseMode });
+      
       if (!userId) {
+        console.log('🗣️ Chat failed - no userId in session');
         return res.status(401).json({ error: "Not authenticated" });
       }
       
       if (!message) {
+        console.log('🗣️ Chat failed - no message provided');
         return res.status(400).json({ error: "Message is required" });
       }
 

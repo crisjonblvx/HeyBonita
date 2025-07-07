@@ -155,8 +155,11 @@ export async function chatWithBonita(
   chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
 ): Promise<string> {
   
+  console.log('🤖 chatWithBonita called with:', { message: message.substring(0, 100) + '...', personality, historyLength: chatHistory.length });
+  
   // Check for Joy River intent first
   if (detectJoyRiverIntent(message)) {
+    console.log('🤖 Joy River intent detected');
     return `My soulful sister Joy River? Chile, she's pure light wrapped in wisdom! Joy is a brilliant life coach and soul coach who hosts "The Couch with Joy & Friends" on YouTube. Her voice is like honey and healing rolled into one.
 
 Joy's all about emotional intelligence, spiritual guidance, and those soul-soothing sound baths that'll have you floating on clouds of peace. She's got this gift for meeting you exactly where you are and lifting you to where you need to be.
@@ -172,13 +175,16 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
   }
 
   try {
+    console.log('🤖 Processing message for current info...');
     let enhancedMessage = message;
     
     // Check if the message needs current information
     if (needsCurrentInfo(message)) {
+      console.log('🤖 Message needs current info, searching...');
       const currentInfo = await searchCurrentInfo(message);
       if (currentInfo) {
         enhancedMessage = `User question: ${message}\n\nCurrent information: ${currentInfo}\n\nPlease respond as Bonita using this current information.`;
+        console.log('🤖 Enhanced message with current info');
       }
     }
     
@@ -203,7 +209,7 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
     ];
 
     const maxTokens = personality.responseMode === 'quick' ? 800 : 2500;
-    console.log(`OpenAI request - Mode: ${personality.responseMode}, Max tokens: ${maxTokens}`);
+    console.log(`🤖 OpenAI request - Mode: ${personality.responseMode}, Max tokens: ${maxTokens}, Messages count: ${messages.length}`);
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o", // Use full gpt-4o for complete responses
@@ -211,6 +217,8 @@ Joy River embodies that beautiful balance of grounded wisdom and spiritual eleva
       max_tokens: maxTokens,
       temperature: personality.responseMode === 'quick' ? 0.6 : 0.7,
     });
+
+    console.log('🤖 OpenAI response received');
 
     const content = response.choices[0].message.content || "I'm sorry, I couldn't process that right now.";
     const usage = response.usage;
