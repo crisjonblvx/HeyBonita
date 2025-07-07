@@ -290,37 +290,7 @@ What's good? Drop me a message and let's get this started! 💫`,
           console.log('🎤 Speech recognition result:', transcript);
           setMessage(transcript);
           
-          if (autoSend && transcript.trim()) {
-            console.log('🎤 Auto-sending message:', transcript.trim());
-            console.log('🎤 User Agent:', navigator.userAgent);
-            console.log('🎤 sendMessageMutation.mutate about to be called');
-            
-            // Store the audio context for mobile - speech recognition creates user interaction
-            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            console.log('🎤 Mobile detected:', isMobile);
-            
-            if (isMobile) {
-              // Pre-initialize audio context while we have user interaction
-              try {
-                const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-                if (audioContext.state === 'suspended') {
-                  audioContext.resume();
-                }
-                console.log('🎤 Audio context initialized for mobile');
-              } catch (e) {
-                console.log('🎤 Audio context initialization skipped:', e);
-              }
-            }
-            
-            // Immediate send for mobile compatibility
-            try {
-              console.log('🎤 Calling sendMessageMutation.mutate with:', transcript.trim());
-              sendMessageMutation.mutate(transcript.trim());
-              console.log('🎤 sendMessageMutation.mutate called successfully');
-            } catch (error) {
-              console.error('🎤 Error calling sendMessageMutation.mutate:', error);
-            }
-          }
+
         }
       };
       
