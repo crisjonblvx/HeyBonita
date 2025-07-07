@@ -636,6 +636,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Simple mobile chat test endpoint
+  app.post("/api/mobile/chat-test", (req, res) => {
+    console.log('📱 Mobile chat test received:', {
+      hasBody: !!req.body,
+      body: req.body,
+      hasSession: !!req.session,
+      userId: req.session?.userId,
+      headers: req.headers,
+      userAgent: req.get('User-Agent')
+    });
+    
+    const userId = req.session?.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated", debug: "No userId in session" });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: "Mobile chat test successful", 
+      userId: userId,
+      receivedMessage: req.body?.message 
+    });
+  });
+
   // Authentication status endpoint
   app.get("/api/auth/status", async (req, res) => {
     console.log('🔐 Auth status check - Session exists:', !!req.session);
@@ -916,6 +940,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!userId) {
         console.log('❌ Chat failed - no userId in session. Full session data:', req.session);
+        console.log('❌ Request headers:', req.headers);
         return res.status(401).json({ error: "Not authenticated" });
       }
       
