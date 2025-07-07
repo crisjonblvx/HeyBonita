@@ -606,7 +606,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       userId: req.session?.userId,
       isAuthenticated: req.isAuthenticated?.(),
       userExists: !!req.user,
-      sessionData: req.session
+      sessionData: req.session,
+      userAgent: req.get('User-Agent'),
+      cookies: req.headers.cookie,
+      headers: req.headers
+    });
+  });
+
+  // Mobile session check endpoint
+  app.get("/api/mobile/session-check", (req, res) => {
+    const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(req.get('User-Agent') || '');
+    const sessionValid = !!(req.session && req.session.userId);
+    
+    console.log('📱 Mobile session check:', {
+      isMobile,
+      sessionValid,
+      userId: req.session?.userId,
+      sessionId: req.sessionID,
+      cookies: req.headers.cookie ? 'Present' : 'Missing'
+    });
+    
+    res.json({
+      isMobile,
+      sessionValid,
+      userId: req.session?.userId,
+      sessionId: req.sessionID,
+      needsLogin: !sessionValid,
+      message: sessionValid ? 'Session OK' : 'Need to login'
     });
   });
 
@@ -876,10 +902,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { message, language = 'en', toneMode = 'sweet-nurturing', responseMode = 'detailed' } = req.body;
       const userId = req.session?.userId;
       
-      console.log('🗣️ Chat request details:', { userId, message: message?.substring(0, 50) + '...', language, toneMode, responseMode });
+      console.log('🗣️ Chat request details:', { 
+        userId, 
+        message: message?.substring(0, 50) + '...', 
+        language, 
+        toneMode, 
+        responseMode,
+        sessionExists: !!req.session,
+        sessionId: req.sessionID,
+        userAgent: req.get('User-Agent'),
+        cookies: req.headers.cookie ? 'Present' : 'Missing'
+      });
       
       if (!userId) {
-        console.log('🗣️ Chat failed - no userId in session');
+        console.log('❌ Chat failed - no userId in session. Full session data:', req.session);
         return res.status(401).json({ error: "Not authenticated" });
       }
       
