@@ -68,10 +68,9 @@ What's good? Drop me a message and let's get this started! 💫`,
     setIsSpeaking(true);
     
     try {
-      const response = await fetch('/api/elevenlabs/speech', {
+      const response = await fetch('/api/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Essential for session cookies on mobile
         body: JSON.stringify({
           text: content,
           toneMode: toneMode || 'sweet-nurturing',
@@ -140,35 +139,14 @@ What's good? Drop me a message and let's get this started! 💫`,
       // Create abort controller for this request
       abortControllerRef.current = new AbortController();
       
-      console.log('🚀 About to fetch /api/chat');
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Essential for session cookies on mobile
-        body: JSON.stringify({ 
-          message: content,
-          language: language,
-          toneMode: toneMode || 'sweet-nurturing',
-          responseMode: responseMode || 'detailed'
-        }),
-        signal: abortControllerRef.current.signal,
+      console.log('🚀 About to send chat request');
+      const data = await apiRequest('POST', '/api/chat', { 
+        message: content,
+        language: language,
+        toneMode: toneMode || 'sweet-nurturing',
+        responseMode: responseMode || 'detailed'
       });
       
-      console.log('🚀 Fetch response received:', response.status, response.ok);
-      console.log('🚀 Response headers:', response.headers);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('🚨 Chat request failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorText: errorText,
-          headers: response.headers
-        });
-        throw new Error(`Chat request failed: ${response.status} - ${errorText}`);
-      }
-      
-      const data = await response.json();
       console.log('🚀 Response data received:', data);
       return data;
     },
