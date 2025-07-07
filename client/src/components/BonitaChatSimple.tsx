@@ -71,6 +71,7 @@ What's good? Drop me a message and let's get this started! 💫`,
       const response = await fetch('/api/elevenlabs/speech', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Essential for session cookies on mobile
         body: JSON.stringify({
           text: content,
           toneMode: toneMode || 'sweet-nurturing',
@@ -143,6 +144,7 @@ What's good? Drop me a message and let's get this started! 💫`,
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Essential for session cookies on mobile
         body: JSON.stringify({ 
           message: content,
           language: language,
