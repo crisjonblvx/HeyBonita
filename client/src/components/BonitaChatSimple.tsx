@@ -155,9 +155,17 @@ What's good? Drop me a message and let's get this started! 💫`,
       });
       
       console.log('🚀 Fetch response received:', response.status, response.ok);
+      console.log('🚀 Response headers:', response.headers);
       
       if (!response.ok) {
-        throw new Error(`Chat request failed: ${response.status}`);
+        const errorText = await response.text();
+        console.error('🚨 Chat request failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText,
+          headers: response.headers
+        });
+        throw new Error(`Chat request failed: ${response.status} - ${errorText}`);
       }
       
       const data = await response.json();
@@ -192,6 +200,16 @@ What's good? Drop me a message and let's get this started! 💫`,
         message: error.message,
         stack: error.stack
       });
+      
+      // Mobile-specific error logging
+      const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        console.error('🚨 Mobile error detected:', {
+          userAgent: navigator.userAgent,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+      }
       
       toast({
         title: "Error",
