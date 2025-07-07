@@ -133,11 +133,13 @@ What's good? Drop me a message and let's get this started! 💫`,
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
+      console.log('🚀 sendMessageMutation.mutationFn called with:', content);
       setIsGeneratingResponse(true);
       
       // Create abort controller for this request
       abortControllerRef.current = new AbortController();
       
+      console.log('🚀 About to fetch /api/chat');
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -150,11 +152,15 @@ What's good? Drop me a message and let's get this started! 💫`,
         signal: abortControllerRef.current.signal,
       });
       
+      console.log('🚀 Fetch response received:', response.status, response.ok);
+      
       if (!response.ok) {
         throw new Error(`Chat request failed: ${response.status}`);
       }
       
-      return await response.json();
+      const data = await response.json();
+      console.log('🚀 Response data received:', data);
+      return data;
     },
     onSuccess: async (data) => {
       setMessage('');
@@ -178,7 +184,13 @@ What's good? Drop me a message and let's get this started! 💫`,
         return;
       }
       
-      console.error('Chat error:', error);
+      console.error('🚨 Chat error:', error);
+      console.error('🚨 Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      
       toast({
         title: "Error",
         description: error.message || "Failed to send message. Please try again.",
@@ -233,12 +245,23 @@ What's good? Drop me a message and let's get this started! 💫`,
     
     try {
       const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      console.log('🎤 Speech Recognition available:', !!SpeechRecognition);
+      console.log('🎤 webkitSpeechRecognition:', !!(window as any).webkitSpeechRecognition);
+      console.log('🎤 SpeechRecognition:', !!(window as any).SpeechRecognition);
+      
       const recognition = new SpeechRecognition();
       
       recognition.continuous = false;
       recognition.interimResults = true;
       recognition.lang = language === 'es' ? 'es-ES' : language === 'pt' ? 'pt-BR' : language === 'fr' ? 'fr-FR' : 'en-US';
       recognition.maxAlternatives = 3;
+      
+      console.log('🎤 Recognition configured:', {
+        continuous: recognition.continuous,
+        interimResults: recognition.interimResults,
+        lang: recognition.lang,
+        maxAlternatives: recognition.maxAlternatives
+      });
       
       recognition.onresult = (event: any) => {
         const results = Array.from(event.results);
@@ -269,8 +292,13 @@ What's good? Drop me a message and let's get this started! 💫`,
           
           if (autoSend && transcript.trim()) {
             console.log('🎤 Auto-sending message:', transcript.trim());
+            console.log('🎤 User Agent:', navigator.userAgent);
+            console.log('🎤 sendMessageMutation.mutate about to be called');
+            
             // Store the audio context for mobile - speech recognition creates user interaction
             const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            console.log('🎤 Mobile detected:', isMobile);
+            
             if (isMobile) {
               // Pre-initialize audio context while we have user interaction
               try {
@@ -278,12 +306,20 @@ What's good? Drop me a message and let's get this started! 💫`,
                 if (audioContext.state === 'suspended') {
                   audioContext.resume();
                 }
+                console.log('🎤 Audio context initialized for mobile');
               } catch (e) {
-                console.log('Audio context initialization skipped');
+                console.log('🎤 Audio context initialization skipped:', e);
               }
             }
+            
             // Immediate send for mobile compatibility
-            sendMessageMutation.mutate(transcript.trim());
+            try {
+              console.log('🎤 Calling sendMessageMutation.mutate with:', transcript.trim());
+              sendMessageMutation.mutate(transcript.trim());
+              console.log('🎤 sendMessageMutation.mutate called successfully');
+            } catch (error) {
+              console.error('🎤 Error calling sendMessageMutation.mutate:', error);
+            }
           }
         }
       };
