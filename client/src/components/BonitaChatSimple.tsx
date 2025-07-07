@@ -290,7 +290,16 @@ What's good? Drop me a message and let's get this started! 💫`,
           console.log('🎤 Speech recognition result:', transcript);
           setMessage(transcript);
           
-
+          if (autoSend && transcript.trim()) {
+            console.log('🎤 Auto-sending message:', transcript.trim());
+            // Create a dummy audio element to maintain user interaction context for mobile
+            const dummyAudio = new Audio();
+            dummyAudio.muted = true;
+            dummyAudio.play().catch(() => {}); // This maintains the user gesture context
+            
+            // Immediate send for mobile compatibility
+            sendMessageMutation.mutate(transcript.trim());
+          }
         }
       };
       

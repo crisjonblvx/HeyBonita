@@ -612,9 +612,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Authentication status endpoint
   app.get("/api/auth/status", async (req, res) => {
-    console.log('Auth status check - Session exists:', !!req.session);
-    console.log('Auth status check - Session userId:', req.session?.userId);
-    console.log('Auth status check - Is authenticated:', req.isAuthenticated?.());
+    console.log('🔐 Auth status check - Session exists:', !!req.session);
+    console.log('🔐 Auth status check - Session userId:', req.session?.userId);
+    console.log('🔐 Auth status check - Is authenticated:', req.isAuthenticated?.());
+    console.log('🔐 Auth status check - User Agent:', req.get('User-Agent'));
+    console.log('🔐 Auth status check - Session ID:', req.sessionID);
+    console.log('🔐 Auth status check - Cookies:', req.headers.cookie);
     
     // Check both session and passport authentication
     if ((req.session && req.session.userId) || req.isAuthenticated?.()) {
