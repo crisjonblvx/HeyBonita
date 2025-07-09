@@ -36,7 +36,7 @@ import {
   type Commitment,
   type InsertCommitment
 } from "@shared/schema";
-import { db } from "./db";
+import { getDb } from "./db";
 import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
