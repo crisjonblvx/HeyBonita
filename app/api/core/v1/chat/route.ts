@@ -1,55 +1,37 @@
-import type { NextRequest } from "next/server"
+import { checkServiceToken } from "../_utils/auth"
 
-function unauthorized(msg = "Unauthorized") {
-  return new Response(JSON.stringify({ error: msg }), {
-    status: 401,
-    headers: { "Content-Type": "application/json" },
+type Msg = { role: "system" | "user" | "assistant"; content: string }
+
+function normalize(body: any): Msg[] {
+  if (Array.isArray(body?.messages)) return body.messages as Msg[]
+  if (typeof body?.prompt === "string") return [{ role: "user", content: body.prompt }]
+  if (typeof body?.input === "string") return [{ role: "user", content: body.input }]
+  return [{ role: "user", content: JSON.stringify(body ?? {}) }]
+}
+
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, x-service-token",
+    },
   })
 }
 
-function cors(headers: Record<string, string> = {}) {
-  return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
-    ...headers,
-  }
-}
+export async function POST(req: Request) {
+  const unauth = checkServiceToken(req)
+  if (unauth) return unauth
 
-const SERVICE_TOKEN = process.env.BONITACORE_SERVICE_TOKEN
-
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: cors() })
-}
-
-export async function POST(req: NextRequest) {
-  // --- Auth ---
-  const auth = req.headers.get("authorization") || ""
-  const xKey = req.headers.get("x-api-key") || ""
-  const token = auth.startsWith("Bearer ") ? auth.slice("Bearer ".length) : xKey
-
-  if (!SERVICE_TOKEN || token !== SERVICE_TOKEN) {
-    return unauthorized("Invalid or missing token")
-  }
-
-  // --- Body normalization (accepts messages[], prompt, or input) ---
   const body = await req.json().catch(() => ({}))
-  const messages = Array.isArray(body?.messages)
-    ? body.messages
-    : typeof body?.prompt === "string"
-      ? [{ role: "user", content: body.prompt }]
-      : typeof body?.input === "string"
-        ? [{ role: "user", content: body.input }]
-        : [{ role: "user", content: JSON.stringify(body) }]
+  const messages = normalize(body)
 
-  // TODO: swap this echo with your actual model call (OpenAI/Anthropic/etc.)
-  const reply = {
-    role: "assistant",
-    content: `Echo: ${messages?.[messages.length - 1]?.content ?? "ping"}`,
-  }
+  // TODO: call your LLM here (OpenAI/Anthropic/etc)
+  const reply: Msg = { role: "assistant", content: `Echo: ${messages.at(-1)?.content ?? "ping"}` }
 
   return new Response(JSON.stringify({ messages: [...messages, reply] }), {
     status: 200,
-    headers: cors({ "Content-Type": "application/json" }),
+    headers: { "Content-Type": "application/json" },
   })
 }

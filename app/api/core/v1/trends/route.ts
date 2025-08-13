@@ -1,27 +1,27 @@
-import type { NextRequest } from "next/server"
-import { ok, err } from "@/src/core/utils/json"
-import { requireServiceAuth } from "@/src/core/guard"
-import { rateLimit } from "@/src/core/rateLimit"
+import { checkServiceToken } from "../_utils/auth"
 
-export async function POST(req: NextRequest) {
-  const denied = requireServiceAuth(req)
-  if (denied) return denied
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, x-service-token",
+    },
+  })
+}
 
-  const ip = req.headers.get("x-forwarded-for") || "ip"
-  const tok = req.headers.get("x-bonita-service-token") || "tok"
-  if (!rateLimit(`${ip}:${tok}:/api/core/v1/trends`, 120, 60_000)) {
-    return err("Rate limited", undefined, 429)
-  }
+export async function POST(req: Request) {
+  const unauth = checkServiceToken(req)
+  if (unauth) return unauth
 
-  try {
-    const { categories, freshness } = await req.json()
-    if (!categories || !Array.isArray(categories)) {
-      return err("categories array is required", undefined, 400)
-    }
+  const body = await req.json().catch(() => ({}))
 
-    // TODO: call connectors here. For now, stub:
-    return ok({ ok: true, categories, freshness, buckets: [] })
-  } catch (e: any) {
-    return err("Trends failed", e?.message || String(e), 500)
-  }
+  // TODO: replace with your real trends logic
+  const result = { ok: true, echo: body, source: "BonitaCore.trends" }
+
+  return new Response(JSON.stringify(result), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  })
 }
