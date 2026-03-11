@@ -121,10 +121,16 @@ async function getCulturalCalendarSnippet(supabase: any, now = new Date()): Prom
         const d = String(row.date).slice(0, 10)
         return d === todayIso
       }
-      if (row.month != null && row.day != null) {
+      const hasMonth = row.month != null
+      const hasDay = row.day != null
+      if (hasMonth && hasDay) {
         const m = Number(row.month)
         const dd = Number(row.day)
         return !Number.isNaN(m) && !Number.isNaN(dd) && m === monthIndex + 1 && dd === day
+      }
+      if (hasMonth && !hasDay) {
+        const m = Number(row.month)
+        return !Number.isNaN(m) && m === monthIndex + 1
       }
       return false
     })
@@ -390,11 +396,11 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         if (isLikelyAdviceOrEmotionalQuery(userMessage)) {
           const { data: wisdomRows } = await supabase
             .from("cultural_wisdom")
-            .select("title, proverb, saying, content, explanation, description")
+            .select("title, proverb, saying, content, explanation, description, meaning, when_used, tags")
             .or(
-              `title.ilike.${pat},proverb.ilike.${pat},saying.ilike.${pat},content.ilike.${pat},explanation.ilike.${pat},description.ilike.${pat}`,
+              `title.ilike.${pat},proverb.ilike.${pat},saying.ilike.${pat},content.ilike.${pat},explanation.ilike.${pat},description.ilike.${pat},meaning.ilike.${pat},when_used.ilike.${pat},tags.ilike.${pat}`,
             )
-            .limit(6)
+            .limit(3)
           if (Array.isArray(wisdomRows) && wisdomRows.length) {
             wisdomSection = formatWisdomContext(wisdomRows)
           }
@@ -429,9 +435,9 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         if (isMediaOrCultureMomentQuery(userMessage)) {
           const { data: touchstoneRows } = await supabase
             .from("cultural_touchstones")
-            .select("name, title, generation, era, description, content")
+            .select("name, title, generation, era, description, content, tags, the_conversation")
             .or(
-              `name.ilike.${pat},title.ilike.${pat},generation.ilike.${pat},era.ilike.${pat},description.ilike.${pat},content.ilike.${pat}`,
+              `name.ilike.${pat},title.ilike.${pat},generation.ilike.${pat},era.ilike.${pat},description.ilike.${pat},content.ilike.${pat},tags.ilike.${pat},the_conversation.ilike.${pat}`,
             )
             .limit(6)
           if (Array.isArray(touchstoneRows) && touchstoneRows.length) {
