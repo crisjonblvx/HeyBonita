@@ -236,7 +236,10 @@ export async function POST(req: Request) {
   ]
 
   const provider = (process.env.BONITA_BRAIN_PROVIDER || "ollama").toLowerCase()
-  const bonitaBrainModel = process.env.BONITA_BRAIN_MODEL || (provider === "anthropic" ? "claude-sonnet-4-20250514" : "mistral")
+  const bonitaBrainModel = process.env.BONITA_BRAIN_MODEL || (provider === "anthropic" ? "claude-sonnet-4-6" : "mistral")
+  if (provider === "anthropic") {
+    console.log("[BONITA BRAIN] Using Anthropic model:", bonitaBrainModel)
+  }
 
   if (provider === "anthropic") {
     const apiKey = process.env.ANTHROPIC_API_KEY
