@@ -1,6 +1,9 @@
 import { getSupabaseAdminClient } from "@/lib/supabase"
 import { applyCors, corsPreflight } from "../../_utils/cors"
 
+export const dynamic = "force-dynamic"
+const NO_CACHE = { "Cache-Control": "no-store, no-cache, must-revalidate" }
+
 export async function GET(req: Request) {
   const supabase = getSupabaseAdminClient()
   if (!supabase) {
@@ -8,7 +11,7 @@ export async function GET(req: Request) {
       req,
       new Response(JSON.stringify({ ok: false, error: "Supabase not configured" }), {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...NO_CACHE },
       }),
       { methods: "GET,OPTIONS" },
     )
@@ -28,7 +31,7 @@ export async function GET(req: Request) {
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...NO_CACHE },
       },
       ),
       { methods: "GET,OPTIONS" },
@@ -40,7 +43,7 @@ export async function GET(req: Request) {
       req,
       new Response(JSON.stringify({ ok: false, error: "No knowledge entries available" }), {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...NO_CACHE },
       }),
       { methods: "GET,OPTIONS" },
     )
@@ -58,7 +61,7 @@ export async function GET(req: Request) {
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...NO_CACHE },
       },
     ),
     { methods: "GET,OPTIONS" },

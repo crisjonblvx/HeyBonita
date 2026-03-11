@@ -16,7 +16,11 @@ export function CulturalFactCard() {
   async function fetchRandom() {
     setLoading(true)
     try {
-      const res = await fetch("/api/core/v1/knowledge/random")
+      const url = "/api/core/v1/knowledge/random"
+      let res = await fetch(url, { cache: "no-store" })
+      if (!res.ok && res.status === 500) {
+        res = await fetch(`${url}?t=${Date.now()}`, { cache: "no-store" })
+      }
       const json = await res.json()
       if (json?.ok && json?.entry) {
         setEntry(json.entry)
