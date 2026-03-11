@@ -125,14 +125,15 @@ export default function HomePage() {
 
       <BonitaSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-      {/* Bokeh ambient background */}
+      {/* Ambient background (gradient; add public/Real_Bonita.png for bokeh image) */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.12]"
+        className="pointer-events-none fixed inset-0 z-0 opacity-30"
         style={{
-          backgroundImage: "url(/Real_Bonita.png)",
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 40%, var(--bonita-accent, #c9a227) 0%, transparent 50%), radial-gradient(ellipse 60% 80% at 80% 20%, rgba(201,162,39,0.15) 0%, transparent 40%)",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          filter: "blur(60px)",
+          filter: "blur(40px)",
         }}
       />
 
