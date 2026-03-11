@@ -86,6 +86,10 @@ BONITACORE_SERVICE_TOKEN=<contact_administrator>
 # Do NOT use NEXT_PUBLIC_* prefixes for these tokens
 \`\`\`
 
+## HeyBonita UI Asset
+
+The UI references `public/Real_Bonita.png` for its ambient background. If you don’t have that file, either add it at `public/Real_Bonita.png` or update `app/page.tsx` to point at an existing asset.
+
 ## Security
 
 - All endpoints require service token authentication

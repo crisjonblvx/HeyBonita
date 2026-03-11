@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server"
+import { applyCors, corsPreflight } from "../_utils/cors"
 
 const ok = (d: any, s = 200) =>
   new Response(JSON.stringify(d), { status: s, headers: { "content-type": "application/json" } })
@@ -92,8 +93,10 @@ export async function POST(req: NextRequest) {
 
   const results = Object.fromEntries(await Promise.all(Object.entries(checks).map(async ([k, p]) => [k, await p])))
 
-  return ok({
-    ok: auth && Object.values(results).some((r) => r.ok),
+  return applyCors(
+    req,
+    ok({
+    ok: auth && Object.values(results as Record<string, { ok: boolean }>).some((r) => r.ok),
     auth: { provided: !!token, matches: auth, allowedCount: allow.length },
     env: {
       OPENAI_API_KEY: !!process.env.OPENAI_API_KEY ? mask(process.env.OPENAI_API_KEY) : "",
@@ -103,5 +106,11 @@ export async function POST(req: NextRequest) {
       BLOB_READ_WRITE_TOKEN: !!process.env.BLOB_READ_WRITE_TOKEN ? "(set)" : "",
     },
     providers: results,
-  })
+    }),
+    { methods: "POST,OPTIONS" },
+  )
+}
+
+export async function OPTIONS(req: Request) {
+  return corsPreflight(req, { methods: "POST,OPTIONS" })
 }

@@ -1,4 +1,5 @@
 import { checkServiceToken } from "../_utils/auth"
+import { applyCors, corsPreflight } from "../_utils/cors"
 
 type TrendItem = {
   title: string
@@ -7,20 +8,13 @@ type TrendItem = {
   timestamp: string
 }
 
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST,OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, x-service-token",
-    },
-  })
+export async function OPTIONS(req: Request) {
+  return corsPreflight(req, { methods: "POST,OPTIONS" })
 }
 
 export async function POST(req: Request) {
   const unauth = checkServiceToken(req)
-  if (unauth) return unauth
+  if (unauth) return applyCors(req, unauth, { methods: "POST,OPTIONS" })
 
   const url = new URL(req.url)
   const debug = url.searchParams.get("debug") === "true"
@@ -113,7 +107,9 @@ export async function POST(req: Request) {
 
     // Return results or no_data status
     if (trends.length === 0) {
-      return new Response(
+      return applyCors(
+        req,
+        new Response(
         JSON.stringify({
           status: "no_data",
           ...(debug && { debug: debugInfo }),
@@ -122,6 +118,8 @@ export async function POST(req: Request) {
           status: 200,
           headers: { "Content-Type": "application/json" },
         },
+        ),
+        { methods: "POST,OPTIONS" },
       )
     }
 
@@ -131,12 +129,18 @@ export async function POST(req: Request) {
       ...(debug && { debug: debugInfo }),
     }
 
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    })
+    return applyCors(
+      req,
+      new Response(JSON.stringify(result), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+      { methods: "POST,OPTIONS" },
+    )
   } catch (error) {
-    return new Response(
+    return applyCors(
+      req,
+      new Response(
       JSON.stringify({
         status: "no_data",
         ...(debug && { debug: { error: error instanceof Error ? error.message : "Unknown error" } }),
@@ -145,6 +149,8 @@ export async function POST(req: Request) {
         status: 200,
         headers: { "Content-Type": "application/json" },
       },
+      ),
+      { methods: "POST,OPTIONS" },
     )
   }
 }

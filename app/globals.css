@@ -3,75 +3,102 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Bonita theme — warm, never cold. No pure white, no cool grays, no blue. */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Bonita palette */
+  --bonita-burgundy: #8B1A1A;
+  --bonita-burgundy-light: #A0342E;
+  --bonita-burgundy-glow: rgba(139, 26, 26, 0.15);
+  --bonita-gold: #C5963A;
+  --bonita-gold-light: #D4A843;
+  --bonita-gold-muted: #B8A080;
+  --bonita-amber: #DAA520;
+  --bonita-gold-glow: rgba(197, 150, 58, 0.15);
+
+  --bg-deep: #0D0A08;
+  --bg-card: #151110;
+  --bg-sidebar: #110E0B;
+  --bg-input: #1A1512;
+  --bg-hover: #1E1915;
+  --bg-surface: #201A15;
+  --bg-surface-light: #2A221B;
+
+  --text-primary: #F0E6D8;
+  --text-secondary: #B8A898;
+  --text-muted: #7A6E62;
+
+  --status-online: #4ADE80;
+  --status-glow: rgba(74, 222, 128, 0.4);
+
+  /* Font families: layout injects Next.js font vars; fallbacks for SSR/static */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+
+  /* Legacy tokens for compatibility */
+  --background: var(--bg-deep);
+  --foreground: var(--text-primary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--bonita-burgundy);
+  --primary-foreground: var(--text-primary);
+  --secondary: var(--bg-surface);
+  --secondary-foreground: var(--text-secondary);
+  --muted: var(--bg-surface-light);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bonita-gold-muted);
+  --accent-foreground: var(--text-primary);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: var(--bg-surface-light);
+  --input: var(--bg-input);
+  --ring: var(--bonita-gold);
+  --chart-1: var(--bonita-gold);
+  --chart-2: var(--bonita-burgundy);
+  --chart-3: var(--bonita-gold-muted);
+  --chart-4: var(--bonita-amber);
+  --chart-5: var(--bonita-burgundy-light);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: var(--bg-sidebar);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--bonita-gold);
+  --sidebar-primary-foreground: var(--bg-deep);
+  --sidebar-accent: var(--bg-surface);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--bg-surface-light);
+  --sidebar-ring: var(--bonita-gold);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: var(--bg-deep);
+  --foreground: var(--text-primary);
+  --card: var(--bg-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--bonita-burgundy);
+  --primary-foreground: var(--text-primary);
+  --secondary: var(--bg-surface);
+  --secondary-foreground: var(--text-secondary);
+  --muted: var(--bg-surface-light);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--bonita-gold-muted);
+  --accent-foreground: var(--text-primary);
   --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --destructive-foreground: var(--text-primary);
+  --border: var(--bg-surface-light);
+  --input: var(--bg-input);
+  --ring: var(--bonita-gold);
+  --sidebar: var(--bg-sidebar);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--bonita-gold);
+  --sidebar-primary-foreground: var(--bg-deep);
+  --sidebar-accent: var(--bg-surface);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--bg-surface-light);
+  --sidebar-ring: var(--bonita-gold);
 }
 
 @theme inline {
@@ -119,5 +146,39 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
+}
+
+/* Bonita UI utilities */
+.bonita-gradient-b {
+  background: linear-gradient(135deg, var(--bonita-burgundy), var(--bonita-gold));
+  border: 2px solid var(--bonita-gold);
+  box-shadow: 0 0 20px var(--bonita-gold-glow);
+}
+.bonita-bubble-user {
+  background: linear-gradient(135deg, var(--bonita-burgundy), var(--bonita-burgundy-light));
+  border: 1px solid rgba(197, 150, 58, 0.15);
+}
+.bonita-bubble-bonita {
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-surface-light);
+}
+.bonita-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bonita-gold-muted);
+}
+@keyframes bonita-glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--bonita-gold-glow); }
+  50% { box-shadow: 0 0 32px rgba(197, 150, 58, 0.35); }
+}
+.bonita-glow-pulse {
+  animation: bonita-glow-pulse 2s ease-in-out infinite;
+}
+@keyframes bonita-bounce-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.6; }
+  40% { transform: scale(1); opacity: 1; }
 }

@@ -1,6 +1,7 @@
 import { ok } from "@/src/core/utils/json"
+import { applyCors, corsPreflight } from "../_utils/cors"
 
-export async function GET() {
+export async function GET(req: Request) {
   const oas = {
     openapi: "3.0.0",
     info: { title: "Bonita Core API", version: "v1" },
@@ -74,5 +75,9 @@ export async function GET() {
       },
     },
   }
-  return ok(oas)
+  return applyCors(req, ok(oas), { methods: "GET,OPTIONS" })
+}
+
+export async function OPTIONS(req: Request) {
+  return corsPreflight(req, { methods: "GET,OPTIONS" })
 }

@@ -1,95 +1,310 @@
+"use client"
+
+import { useState, useCallback } from "react"
+import { BonitaSidebar } from "@/components/BonitaSidebar"
+import { BonitaAvatar } from "@/components/BonitaAvatar"
+import { BonitaSplash } from "@/components/BonitaSplash"
+import { MessageBubble, type ChatMessage } from "@/components/MessageBubble"
+import { QuickPrompts } from "@/components/QuickPrompts"
+import { TypingIndicator } from "@/components/TypingIndicator"
+
 export default function HomePage() {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [input, setInput] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [feedbackTargetId, setFeedbackTargetId] = useState<string | null>(null)
+  const [showSplash, setShowSplash] = useState(true)
+
+  const handleSend = useCallback(
+    async (text?: string) => {
+      const trimmed = (text ?? input).trim()
+      if (!trimmed || loading) return
+
+      const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: trimmed,
+      }
+
+      const nextMessages = [...messages, userMessage]
+      setMessages(nextMessages)
+      setInput("")
+      setLoading(true)
+
+      try {
+        const res = await fetch("/api/core/v1/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-service-token": process.env.NEXT_PUBLIC_BONITA_SERVICE_TOKEN || "",
+          },
+          body: JSON.stringify({
+            message: trimmed,
+            conversationHistory: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+            app_origin: "heybonita.ai",
+          }),
+        })
+
+        if (!res.body) {
+          const errorMessage: ChatMessage = {
+            id: `assistant-error-${Date.now()}`,
+            role: "assistant",
+            content: "Something went sideways. Give me a second and try again, love.",
+          }
+          setMessages((prev) => [...prev, errorMessage])
+          return
+        }
+
+        const assistantId = `assistant-${Date.now()}`
+        setMessages((prev) => [
+          ...prev,
+          { id: assistantId, role: "assistant", content: "", hadRagResults: true },
+        ])
+
+        const reader = res.body.getReader()
+        const decoder = new TextDecoder()
+        let accumulated = ""
+
+        while (true) {
+          const { value, done } = await reader.read()
+          if (done) break
+          const chunk = decoder.decode(value)
+          accumulated += chunk
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, content: accumulated } : m)),
+          )
+        }
+      } catch {
+        const errorMessage: ChatMessage = {
+          id: `assistant-error-${Date.now()}`,
+          role: "assistant",
+          content: "Something went sideways. Give me a second and try again, love.",
+        }
+        setMessages((prev) => [...prev, errorMessage])
+      } finally {
+        setLoading(false)
+      }
+    },
+    [input, loading, messages],
+  )
+
+  async function handleFeedback(message: ChatMessage, rating: "up" | "down", reason?: string) {
+    try {
+      await fetch("/api/core/v1/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query:
+            messages
+              .slice()
+              .reverse()
+              .find((m) => m.role === "user")?.content || "",
+          response: message.content,
+          app_origin: "heybonita.ai",
+          rating,
+          had_rag_results: message.hadRagResults ?? true,
+          reason,
+        }),
+      })
+    } catch {
+      // ignore
+    }
+  }
+
+  const handleQuickPrompt = (text: string) => {
+    setInput(text)
+    setTimeout(() => handleSend(text), 0)
+  }
+
+  const isEmpty = messages.length === 0
+
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">BonitaCore API</h1>
-      <p className="text-lg mb-8 text-gray-600">
-        A centralized API service for AI-powered content generation and web intelligence.
-      </p>
+    <div className="flex min-h-screen" style={{ background: "var(--bg-deep)" }}>
+      {showSplash && <BonitaSplash onComplete={() => setShowSplash(false)} />}
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Deployed Instance</h2>
-        <div className="space-y-2">
-          <p>
-            <strong>Base URL:</strong>{" "}
-            <code className="bg-gray-100 px-2 py-1 rounded">https://bonitacore.vercel.app/api/core/v1</code>
-          </p>
-          <p>
-            <strong>Authentication:</strong> Include{" "}
-            <code className="bg-gray-100 px-2 py-1 rounded">x-service-token</code> header
-          </p>
-          <p>
-            <strong>Service Token:</strong> Contact administrator for access token
-          </p>
+      <BonitaSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+
+      {/* Bokeh ambient background */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.12]"
+        style={{
+          backgroundImage: "url(/Real_Bonita.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "blur(60px)",
+        }}
+      />
+
+      <main className="relative z-10 flex flex-1 flex-col pl-0 lg:pl-[280px]">
+        {/* Chat header */}
+        <header
+          className="flex items-center gap-3 border-b px-4 py-3"
+          style={{
+            borderColor: "var(--bg-surface-light)",
+            background: "var(--bg-card)",
+          }}
+        >
+          <BonitaAvatar size="md" />
+          <div>
+            <h1
+              className="text-lg font-semibold"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              Bonita Applebum
+            </h1>
+            <p
+              className="flex items-center gap-1.5 text-[11px]"
+              style={{ fontFamily: "var(--font-body)", color: "var(--text-muted)" }}
+            >
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: "var(--status-online)" }}
+              />
+              Cultural Oracle • Always present
+            </p>
+          </div>
+        </header>
+
+        {/* Messages area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">
+            <div className="mx-auto max-w-3xl space-y-4">
+              {isEmpty && (
+                <div className="flex flex-col items-center px-4 py-8 text-center">
+                  <BonitaAvatar size="lg" className="mb-6" />
+                  <p
+                    className="mb-2 italic"
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "2rem",
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    Hey Bonita
+                  </p>
+                  <p
+                    className="mb-6 max-w-md text-[15px] leading-relaxed"
+                    style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}
+                  >
+                    Your Bronx auntie with all the wisdom. Ask me about culture, history, science,
+                    music, art — or just come talk.
+                  </p>
+                  <QuickPrompts onSelect={handleQuickPrompt} disabled={loading} />
+                </div>
+              )}
+
+              {messages.map((m) => (
+                <MessageBubble
+                  key={m.id}
+                  message={m}
+                  onFeedback={(msg, rating) => {
+                    if (rating === "up") {
+                      setFeedbackTargetId(null)
+                      handleFeedback(msg, "up")
+                    } else {
+                      setFeedbackTargetId((id) => (id === m.id ? null : m.id))
+                    }
+                  }}
+                  onCopy={async (msg) => {
+                    try {
+                      await navigator.clipboard.writeText(msg.content)
+                    } catch {
+                      // ignore
+                    }
+                  }}
+                  onRegenerate={(msg) => {
+                    const lastUser = [...messages]
+                      .slice(0, messages.findIndex((x) => x.id === msg.id))
+                      .reverse()
+                      .find((x) => x.role === "user")
+                    if (!lastUser) return
+                    setMessages((prev) => prev.filter((x) => x.id !== msg.id))
+                    handleSend(lastUser.content)
+                  }}
+                  feedbackTargetId={feedbackTargetId}
+                  showFeedbackReason={true}
+                  onFeedbackReasonSelect={(msg, code) => {
+                    handleFeedback(msg, "down", code)
+                    setFeedbackTargetId(null)
+                  }}
+                />
+              ))}
+
+              {loading && <TypingIndicator />}
+            </div>
+          </div>
+
+          {/* Input area */}
+          <div
+            className="border-t p-3 md:p-4"
+            style={{
+              borderColor: "var(--bg-surface-light)",
+              background: "rgba(13, 10, 8, 0.85)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSend()
+              }}
+              className="mx-auto max-w-3xl"
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  disabled={loading}
+                  placeholder="Talk to Bonita..."
+                  className="flex-1 rounded-2xl px-4 py-3 text-sm outline-none transition-[border-color,box-shadow] focus:border-[var(--bonita-gold)] focus:ring-2 focus:ring-[var(--bonita-gold-glow)] disabled:opacity-60"
+                  style={{
+                    background: "var(--bg-input)",
+                    border: "1px solid var(--bg-surface-light)",
+                    color: "var(--text-primary)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl transition-opacity disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
+                  style={{
+                    background: "linear-gradient(135deg, var(--bonita-burgundy), var(--bonita-gold))",
+                    color: "var(--text-primary)",
+                  }}
+                  aria-label="Send"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 2L11 13" />
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                  </svg>
+                </button>
+              </div>
+              <p
+                className="mt-2 text-center text-[10px]"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                Bonita draws from community knowledge, oral traditions, and institutional records.
+                She keeps it real.
+              </p>
+            </form>
+          </div>
         </div>
-      </div>
-
-      <div className="space-y-6">
-        <h2 className="text-2xl font-semibold mb-4">API Endpoints</h2>
-
-        <div className="grid gap-4">
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">Health Check</h3>
-            <p className="text-sm text-gray-600 mb-2">Check API availability and status</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">GET /api/core/v1/health</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">Version Info</h3>
-            <p className="text-sm text-gray-600 mb-2">Get API version and build information</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">GET /api/core/v1/version</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">Self Test</h3>
-            <p className="text-sm text-gray-600 mb-2">Comprehensive health check of all providers</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">GET /api/core/v1/selftest</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">Image Generation</h3>
-            <p className="text-sm text-gray-600 mb-2">Generate images using OpenAI (returns URLs only)</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">POST /api/core/v1/image</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">Video Generation</h3>
-            <p className="text-sm text-gray-600 mb-2">Generate videos using Luma AI</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">POST /api/core/v1/video</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">Voice Generation</h3>
-            <p className="text-sm text-gray-600 mb-2">Generate speech using ElevenLabs</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">POST /api/core/v1/voice</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">Web Search</h3>
-            <p className="text-sm text-gray-600 mb-2">Search web content using Perplexity AI</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">POST /api/core/v1/search</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">News Trends</h3>
-            <p className="text-sm text-gray-600 mb-2">Get trending news using NewsAPI</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">POST /api/core/v1/trends</code>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg">OpenAPI Spec</h3>
-            <p className="text-sm text-gray-600 mb-2">Get complete API documentation in OpenAPI format</p>
-            <code className="bg-gray-100 px-2 py-1 rounded">GET /api/core/v1/openapi.json</code>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Integration</h2>
-        <p className="mb-4">For security, integrate via server-side proxy only. See documentation for details.</p>
-        <p className="text-sm text-gray-600">
-          Direct browser calls are not supported. Use a server-side proxy in your application.
-        </p>
-      </div>
+      </main>
     </div>
   )
 }
