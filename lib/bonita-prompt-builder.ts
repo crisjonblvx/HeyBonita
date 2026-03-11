@@ -86,45 +86,60 @@ function getAppOriginTone(appOrigin?: string | null) {
   }
 }
 
-function getCulturalCalendarSnippet(now = new Date()) {
-  const month = now.getUTCMonth() + 1
+async function getCulturalCalendarSnippet(supabase: any, now = new Date()): Promise<string> {
+  const monthIndex = now.getUTCMonth()
   const day = now.getUTCDate()
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ]
 
-  const notes: string[] = []
-
-  // Black History Month (February)
-  if (month === 2) {
-    notes.push("It is Black History Month. Lean into historical context, ancestors, and long arcs of struggle and brilliance.")
+  if (!supabase) {
+    return ""
   }
 
-  // Juneteenth (June 19)
-  if (month === 6 && day === 19) {
-    notes.push(
-      "It is Juneteenth. Honor Black liberation, the end of chattel slavery in the U.S. context, and ongoing freedom struggles.",
-    )
-  }
+  try {
+    const todayIso = now.toISOString().slice(0, 10) // YYYY-MM-DD
+    const { data, error } = await supabase
+      .from("cultural_calendar")
+      .select("title, description, date, month, day")
 
-  // Hip-Hop's widely recognized birthday (August 11)
-  if (month === 8 && day === 11) {
-    notes.push(
-      "It is widely celebrated as hip-hop's birthday. Center the Bronx, DJs, MCs, breakers, writers, and the global cultural impact.",
-    )
-  }
+    if (error || !Array.isArray(data) || !data.length) return ""
 
-  // HBCU homecoming season (roughly September–October)
-  if (month === 9 || month === 10) {
-    notes.push(
-      "It is HBCU homecoming season. Be especially attuned to HBCU culture, alumni pride, marching bands, tailgates, and intergenerational community.",
-    )
-  }
+    const matches = (data as any[]).filter((row) => {
+      if (row.date) {
+        const d = String(row.date).slice(0, 10)
+        return d === todayIso
+      }
+      if (row.month != null && row.day != null) {
+        const m = Number(row.month)
+        const dd = Number(row.day)
+        return !Number.isNaN(m) && !Number.isNaN(dd) && m === monthIndex + 1 && dd === day
+      }
+      return false
+    })
 
-  if (!notes.length) {
-    notes.push(
-      "If it helps the answer, you may reference relevant cultural anniversaries, observances, or seasons, but do not fabricate specific dates.",
-    )
-  }
+    if (!matches.length) return ""
 
-  return `Cultural calendar awareness: ${notes.join(" ")}`
+    const top = matches[0] as { title?: string; description?: string }
+    const monthName = monthNames[monthIndex]
+    const title = top.title || "Untitled observance"
+    const description = top.description || ""
+
+    return `Today is ${monthName} ${day}. On this day: ${title} — ${description}`
+  } catch {
+    return ""
+  }
 }
 
 function formatUserContext(row: any | null) {
@@ -211,12 +226,83 @@ function formatRegionalContext(regional: any[] | null | undefined) {
   return `Regional / deep cultural knowledge:\n${lines.join("\n")}`
 }
 
+function formatWisdomContext(rows: any[] | null | undefined) {
+  if (!rows || !rows.length) return ""
+  const lines = rows.slice(0, 6).map((r) => {
+    const title = r.title || "Untitled wisdom"
+    const proverb = r.proverb || r.saying || r.content || ""
+    const explanation = r.explanation || r.description || ""
+    return `- ${title}: ${proverb}${explanation ? ` — ${explanation}` : ""}`
+  })
+  return `Cultural wisdom and proverbs:\n${lines.join("\n")}`
+}
+
+function formatConnectionsContext(rows: any[] | null | undefined) {
+  if (!rows || !rows.length) return ""
+  const lines = rows.slice(0, 6).map((r) => {
+    const source = r.source_name || r.from || "Unknown source"
+    const target = r.target_name || r.to || "Unknown target"
+    const relation = r.relation || r.connection_type || r.description || ""
+    return `- ${source} ↔ ${target}${relation ? ` — ${relation}` : ""}`
+  })
+  return `Cultural connections and networks:\n${lines.join("\n")}`
+}
+
+function formatLanguageContext(rows: any[] | null | undefined) {
+  if (!rows || !rows.length) return ""
+  const lines = rows.slice(0, 6).map((r) => {
+    const term = r.term || r.phrase || r.word || "Unknown term"
+    const meaning = r.meaning || r.definition || r.explanation || ""
+    const notes = r.notes || r.register || ""
+    return `- ${term}: ${meaning}${notes ? ` — ${notes}` : ""}`
+  })
+  return `Language and slang knowledge:\n${lines.join("\n")}`
+}
+
+function formatTouchstonesContext(rows: any[] | null | undefined) {
+  if (!rows || !rows.length) return ""
+  const lines = rows.slice(0, 6).map((r) => {
+    const name = r.name || r.title || "Untitled touchstone"
+    const generation = r.generation || r.era || ""
+    const description = r.description || r.content || ""
+    const genPart = generation ? ` [${generation}]` : ""
+    return `- ${name}${genPart}: ${description}`
+  })
+  return `Cultural touchstones by generation:\n${lines.join("\n")}`
+}
+
+function isLikelyAdviceOrEmotionalQuery(text: string): boolean {
+  const t = text.toLowerCase()
+  return (
+    /i feel|i'm feeling|i feel like|sad|depressed|anxious|anxiety|overwhelmed|tired|burned out/.test(
+      t,
+    ) ||
+    /relationship|break up|marriage|divorce|partner|boyfriend|girlfriend|husband|wife/.test(t) ||
+    /kids|children|my child|my son|my daughter|parents|my mom|my dad|family/.test(t) ||
+    /what should i do|can you give me advice|i need advice/.test(t)
+  )
+}
+
+function isMediaOrCultureMomentQuery(text: string): boolean {
+  const t = text.toLowerCase()
+  return (
+    /album|song|track|mixtape|playlist|rapper|producer|dj|band|singer|music/.test(t) ||
+    /movie|film|show|series|episode|sitcom|drama|anime|documentary/.test(t) ||
+    /concert|festival|tour|versus|verzuz|performance/.test(t) ||
+    /classic|throwback|old school|new school/.test(t)
+  )
+}
+
 export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
   const { userMessage, appOrigin, userId } = options
   const supabase = getSupabaseAdminClient()
 
   let userContextSection = ""
   let regionalSection = ""
+  let wisdomSection = ""
+  let connectionsSection = ""
+  let languageSection = ""
+  let touchstonesSection = ""
   let knowledgeSection = ""
   let documentsSection = ""
 
@@ -247,7 +333,7 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
       if (Array.isArray(regionalRpc) && regionalRpc.length > 0) {
         regionalResults = regionalRpc
       } else {
-        const raw = userMessage.trim().slice(0, 100).replace(/'/g, "''")
+        const raw = userMessage.trim().slice(0, 120).replace(/'/g, "''")
         const escaped = raw.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_")
         const pat = `'%${escaped}%'`
         const { data: regionalRows } = await supabase
@@ -295,6 +381,67 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         }
       }
 
+      // Cultural fluency layer: wisdom, connections, language knowledge, touchstones
+      try {
+        const raw = userMessage.trim().slice(0, 120).replace(/'/g, "''")
+        const escaped = raw.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_")
+        const pat = `'%${escaped}%'`
+
+        if (isLikelyAdviceOrEmotionalQuery(userMessage)) {
+          const { data: wisdomRows } = await supabase
+            .from("cultural_wisdom")
+            .select("title, proverb, saying, content, explanation, description")
+            .or(
+              `title.ilike.${pat},proverb.ilike.${pat},saying.ilike.${pat},content.ilike.${pat},explanation.ilike.${pat},description.ilike.${pat}`,
+            )
+            .limit(6)
+          if (Array.isArray(wisdomRows) && wisdomRows.length) {
+            wisdomSection = formatWisdomContext(wisdomRows)
+          }
+        }
+
+        {
+          const { data: connectionRows } = await supabase
+            .from("cultural_connections")
+            .select("source_name, target_name, relation, connection_type, description")
+            .or(
+              `source_name.ilike.${pat},target_name.ilike.${pat},relation.ilike.${pat},connection_type.ilike.${pat},description.ilike.${pat}`,
+            )
+            .limit(8)
+          if (Array.isArray(connectionRows) && connectionRows.length) {
+            connectionsSection = formatConnectionsContext(connectionRows)
+          }
+        }
+
+        {
+          const { data: languageRows } = await supabase
+            .from("language_knowledge")
+            .select("term, phrase, word, meaning, definition, explanation, notes, register")
+            .or(
+              `term.ilike.${pat},phrase.ilike.${pat},word.ilike.${pat},meaning.ilike.${pat},definition.ilike.${pat},explanation.ilike.${pat}`,
+            )
+            .limit(6)
+          if (Array.isArray(languageRows) && languageRows.length) {
+            languageSection = formatLanguageContext(languageRows)
+          }
+        }
+
+        if (isMediaOrCultureMomentQuery(userMessage)) {
+          const { data: touchstoneRows } = await supabase
+            .from("cultural_touchstones")
+            .select("name, title, generation, era, description, content")
+            .or(
+              `name.ilike.${pat},title.ilike.${pat},generation.ilike.${pat},era.ilike.${pat},description.ilike.${pat},content.ilike.${pat}`,
+            )
+            .limit(6)
+          if (Array.isArray(touchstoneRows) && touchstoneRows.length) {
+            touchstonesSection = formatTouchstonesContext(touchstoneRows)
+          }
+        }
+      } catch {
+        // If cultural fluency lookups fail, continue gracefully.
+      }
+
       knowledgeSection = formatKnowledgeContext(knowledgeResults)
       documentsSection = formatDocumentContext(documentResults)
     } catch {
@@ -304,12 +451,16 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
 
   const baseIdentity = getBaseIdentityPrompt()
   const tone = getAppOriginTone(appOrigin)
-  const calendar = getCulturalCalendarSnippet()
+  const calendar = await getCulturalCalendarSnippet(supabase)
   const counterInstitutional = getCounterInstitutionalKnowledge()
 
   const contextBlocks = [
     userContextSection,
     regionalSection,
+    wisdomSection,
+    connectionsSection,
+    touchstonesSection,
+    languageSection,
     knowledgeSection,
     documentsSection,
   ].filter(Boolean)
