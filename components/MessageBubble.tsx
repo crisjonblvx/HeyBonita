@@ -7,6 +7,7 @@ export type ChatMessage = {
   role: "user" | "assistant"
   content: string
   hadRagResults?: boolean
+  feedbackSubmitted?: boolean
 }
 
 type MessageBubbleProps = {
@@ -39,7 +40,9 @@ export function MessageBubble({
   feedbackTargetId,
 }: MessageBubbleProps) {
   const isUser = message.role === "user"
-  const showActions = message.role === "assistant" && (onFeedback || onCopy || onRegenerate)
+  const isFeedbackDisabled = !!message.feedbackSubmitted
+  const showActions =
+    message.role === "assistant" && (onFeedback || onCopy || onRegenerate) && !isFeedbackDisabled
 
   return (
     <div

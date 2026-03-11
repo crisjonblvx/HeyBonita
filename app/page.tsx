@@ -15,6 +15,12 @@ export default function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [feedbackTargetId, setFeedbackTargetId] = useState<string | null>(null)
   const [showSplash, setShowSplash] = useState(true)
+  const [conversationId] = useState<string>(() => {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+      return crypto.randomUUID()
+    }
+    return `conv_${Date.now()}`
+  })
 
   const handleSend = useCallback(
     async (text?: string) => {
@@ -91,22 +97,31 @@ export default function HomePage() {
 
   async function handleFeedback(message: ChatMessage, rating: "up" | "down", reason?: string) {
     try {
+      const idx = messages.findIndex((m) => m.id === message.id)
       await fetch("/api/core/v1/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query:
+          conversation_id: conversationId,
+          message_index: idx >= 0 ? idx : null,
+          rating: rating === "up" ? "helpful" : "missed",
+          user_query:
             messages
               .slice()
               .reverse()
               .find((m) => m.role === "user")?.content || "",
-          response: message.content,
+          bonita_response: message.content,
           app_origin: "heybonita.ai",
-          rating,
           had_rag_results: message.hadRagResults ?? true,
           reason,
         }),
       })
+      // Mark this message as having feedback so buttons disable
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === message.id ? { ...m, feedbackSubmitted: true } : m,
+        ),
+      )
     } catch {
       // ignore
     }

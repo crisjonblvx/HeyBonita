@@ -1,19 +1,30 @@
 import { getSupabaseAdminClient } from "@/lib/supabase"
 import { applyCors, corsPreflight, detectAppOrigin } from "../_utils/cors"
 
+type FeedbackRating = "up" | "down" | "helpful" | "missed"
+
+type FeedbackReason =
+  | "inaccurate_facts"
+  | "wrong_tone"
+  | "too_generic"
+  | "missing_cultural_context"
+  | "did_not_answer"
+
 type FeedbackBody = {
-  query: string
-  response: string
+  // New preferred shape
+  conversation_id?: string
+  message_index?: number
+  rating: FeedbackRating
+  reason?: FeedbackReason
+  user_query?: string
+  bonita_response?: string
   app_origin?: string
   user_id?: string
-  rating: "up" | "down"
   had_rag_results?: boolean
-  reason?:
-    | "inaccurate_facts"
-    | "wrong_tone"
-    | "too_generic"
-    | "missing_cultural_context"
-    | "did_not_answer"
+
+  // Backwards-compatible fields
+  query?: string
+  response?: string
 }
 
 export async function POST(req: Request) {
@@ -30,17 +41,19 @@ export async function POST(req: Request) {
   }
 
   const body = (await req.json().catch(() => ({}))) as Partial<FeedbackBody>
-  const query = (body.query || "").trim()
-  const response = (body.response || "").trim()
-  const rating = body.rating
 
-  if (!query || !response || (rating !== "up" && rating !== "down")) {
+  const query = (body.user_query || body.query || "").trim()
+  const response = (body.bonita_response || body.response || "").trim()
+  const rawRating = body.rating
+
+  if (!query || !response || !rawRating) {
     return applyCors(
       req,
       new Response(
       JSON.stringify({
         ok: false,
-        error: "query, response, and rating ('up' | 'down') are required",
+        error:
+          "user_query/bonita_response (or query/response) and rating are required",
       }),
       {
         status: 400,
@@ -55,6 +68,25 @@ export async function POST(req: Request) {
   const userId = body.user_id || null
   const hadRagResults = body.had_rag_results ?? true
   const reason = body.reason || null
+
+  const conversationId =
+    typeof body.conversation_id === "string" && body.conversation_id.trim().length
+      ? body.conversation_id.trim()
+      : null
+  const messageIndex =
+    typeof body.message_index === "number" && Number.isFinite(body.message_index)
+      ? body.message_index
+      : null
+
+  // Normalize rating to canonical 'up' | 'down' for storage/analytics
+  const rating: "up" | "down" =
+    rawRating === "helpful"
+      ? "up"
+      : rawRating === "missed"
+      ? "down"
+      : rawRating === "up"
+      ? "up"
+      : "down"
 
   let trustScore = 1
 
@@ -93,6 +125,8 @@ export async function POST(req: Request) {
     reason,
     app_origin: appOrigin,
     user_id: userId,
+    conversation_id: conversationId,
+    message_index: messageIndex,
   })
 
   if (error) {
@@ -113,9 +147,16 @@ export async function POST(req: Request) {
     )
   }
 
-  if (rating === "down" && !hadRagResults && trustScore >= 2) {
+  // Knowledge gaps: only when Bonita truly "missed" the mark
+  if (
+    rating === "down" &&
+    reason &&
+    (reason === "did_not_answer" || reason === "missing_cultural_context")
+  ) {
+    const topic = query.split(/[.!?]/)[0].slice(0, 160)
     await supabase.from("knowledge_gaps").insert({
       query,
+      topic,
       app_origin: appOrigin,
       user_id: userId,
       status: "open",
