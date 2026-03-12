@@ -1,12 +1,25 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
 import { BonitaAvatar } from "@/components/BonitaAvatar"
 import { BonitaSplash } from "@/components/BonitaSplash"
 import { MessageBubble, type ChatMessage } from "@/components/MessageBubble"
 import { QuickPrompts } from "@/components/QuickPrompts"
 import { TypingIndicator } from "@/components/TypingIndicator"
+
+function AskParamReader({ onAsk }: { onAsk: (value: string) => void }) {
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const ask = searchParams.get("ask")
+    if (ask && typeof ask === "string") {
+      onAsk(ask)
+      if (typeof window !== "undefined") window.history.replaceState({}, "", window.location.pathname)
+    }
+  }, [searchParams, onAsk])
+  return null
+}
 
 export default function HomePage() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -136,6 +149,9 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg-deep)" }}>
+      <Suspense fallback={null}>
+        <AskParamReader onAsk={setInput} />
+      </Suspense>
       {showSplash && <BonitaSplash onComplete={() => setShowSplash(false)} />}
 
       <BonitaSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
