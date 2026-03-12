@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS knowledge_entries (
   tags TEXT[],
   source TEXT,                   -- where the data came from
   source_url TEXT,
+  image_url TEXT,                -- cached thumbnail (e.g. from Wikipedia) for chat images
   embedding VECTOR(384),         -- for semantic search (pgvector)
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()

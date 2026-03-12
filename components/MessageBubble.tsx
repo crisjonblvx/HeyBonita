@@ -1,6 +1,68 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { BonitaAvatar } from "./BonitaAvatar"
+
+function PersonImage({ name, compact }: { name: string; compact?: boolean }) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const trimmed = name.trim()
+  useEffect(() => {
+    if (!trimmed) return
+    fetch(`/api/core/v1/images?name=${encodeURIComponent(trimmed)}`)
+      .then((r) => r.json())
+      .then((data: { url?: string | null; originalimage?: string | null }) =>
+        setImageUrl(data.url || data.originalimage || null),
+      )
+      .catch(() => setImageUrl(null))
+  }, [trimmed])
+  if (!trimmed) return null
+  if (!imageUrl) {
+    return (
+      <strong className="font-semibold" style={{ color: "var(--text-primary)" }}>
+        {trimmed}
+      </strong>
+    )
+  }
+  return (
+    <div
+      className={`inline-flex items-center gap-2 rounded-lg border-2 border-[var(--bonita-gold)] bg-[var(--bg-surface)] ${compact ? "my-2 p-2" : "my-3 p-3"}`}
+      style={{ borderColor: "var(--bonita-gold)" }}
+    >
+      <img
+        src={imageUrl}
+        alt={trimmed}
+        className="h-14 w-14 shrink-0 rounded-full object-cover sm:h-16 sm:w-16"
+      />
+      <span className="font-semibold" style={{ color: "var(--text-primary)", fontSize: "14px" }}>
+        {trimmed}
+      </span>
+    </div>
+  )
+}
+
+/** Split content by [[Name]] and group consecutive names for side-by-side layout */
+function parseBonitaMessage(
+  content: string,
+): ({ type: "text"; content: string } | { type: "images"; names: string[] })[] {
+  const parts = content.split(/(\[\[.*?\]\])/g)
+  const nodes: ({ type: "text"; content: string } | { type: "images"; names: string[] })[] = []
+  let i = 0
+  while (i < parts.length) {
+    const part = parts[i]
+    if (part.startsWith("[[") && part.endsWith("]]")) {
+      const names: string[] = []
+      while (i < parts.length && parts[i].startsWith("[[") && parts[i].endsWith("]]")) {
+        names.push(parts[i].slice(2, -2).trim())
+        i++
+      }
+      if (names.length) nodes.push({ type: "images", names })
+    } else {
+      if (part) nodes.push({ type: "text", content: part })
+      i++
+    }
+  }
+  return nodes
+}
 
 export type ChatMessage = {
   id: string
@@ -66,7 +128,25 @@ export function MessageBubble({
             lineHeight: 1.7,
           }}
         >
-          <p className="whitespace-pre-wrap">{message.content}</p>
+          {isUser ? (
+            <p className="whitespace-pre-wrap">{message.content}</p>
+          ) : (
+            <div className="space-y-2">
+              {parseBonitaMessage(message.content).map((node, idx) =>
+                node.type === "text" ? (
+                  <span key={idx} className="whitespace-pre-wrap">
+                    {node.content}
+                  </span>
+                ) : (
+                  <div key={idx} className="flex flex-wrap gap-3 gap-y-2">
+                    {node.names.map((n, i) => (
+                      <PersonImage key={`${idx}-${i}-${n}`} name={n} compact={node.names.length > 1} />
+                    ))}
+                  </div>
+                ),
+              )}
+            </div>
+          )}
         </div>
         {showActions && (
           <div
