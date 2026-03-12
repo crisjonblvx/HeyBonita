@@ -38,13 +38,14 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: "var(--bg-sidebar)",
-          borderColor: "var(--bg-surface-light)",
+          background:
+            "radial-gradient(circle at 0 0, rgba(232,184,75,0.08), transparent 55%), radial-gradient(circle at 100% 100%, rgba(197,150,58,0.06), transparent 55%), var(--bg-sidebar)",
+          borderColor: "rgba(197, 150, 58, 0.15)",
         }}
       >
         <div className="flex flex-col gap-6 p-4">
           <div className="flex items-center gap-3 pt-4 lg:pt-0">
-            <BonitaAvatar size="md" />
+            <BonitaAvatar size="lg" />
             <div>
               <p
                 className="font-bold tracking-wider"
@@ -59,7 +60,7 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
               </p>
               <p
                 className="text-[9px]"
-                style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+                style={{ fontFamily: "var(--font-body)", color: "var(--bonita-gold-muted)" }}
               >
                 by ContentCreators.life
               </p>
@@ -73,17 +74,19 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                    active ? "border-l-2" : ""
+                  className={`group flex items-center gap-3 rounded-lg px-3.5 py-3 text-sm transition-all duration-200 border-l-2 ${
+                    active ? "" : "border-transparent"
                   }`}
                   style={{
-                    borderLeftColor: active ? "var(--bonita-gold)" : "transparent",
-                    background: active ? "var(--bonita-gold-glow)" : "transparent",
-                    color: active ? "var(--bonita-gold)" : "var(--text-secondary)",
+                    borderLeftColor: active ? "var(--bonita-gold-crown)" : "transparent",
+                    background: active ? "rgba(197,150,58,0.10)" : "transparent",
+                    color: active ? "var(--bonita-gold-crown)" : "var(--text-secondary)",
                   }}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {label}
+                  <Icon className="h-4 w-4 shrink-0 transition-colors group-hover:text-[var(--bonita-gold-crown)]" />
+                  <span className="transition-colors group-hover:text-[var(--bonita-gold-crown)]">
+                    {label}
+                  </span>
                 </Link>
               )
             })}
@@ -95,11 +98,11 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
 
           <div className="flex items-center gap-2" style={{ color: "var(--text-muted)" }}>
             <span
-              className="h-2 w-2 rounded-full"
-              style={{ background: "var(--status-online)", boxShadow: "0 0 8px var(--status-glow)" }}
+              className="bonita-status-dot h-2 w-2 rounded-full"
+              style={{ background: "var(--status-online)" }}
             />
             <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: "var(--font-mono)" }}>
-              Bonita is online
+              <span style={{ color: "var(--bonita-gold-muted)" }}>● Online</span>
             </span>
           </div>
         </div>

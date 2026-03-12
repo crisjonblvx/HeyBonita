@@ -274,7 +274,7 @@ export default function HomePage() {
                   onChange={(e) => setInput(e.target.value)}
                   disabled={loading}
                   placeholder="Talk to Bonita..."
-                  className="flex-1 rounded-2xl px-4 py-3 text-sm outline-none transition-[border-color,box-shadow] focus:border-[var(--bonita-gold)] focus:ring-2 focus:ring-[var(--bonita-gold-glow)] disabled:opacity-60"
+                  className="flex-1 rounded-2xl px-4 py-3 text-sm outline-none transition-[border-color,box-shadow] focus:border-[var(--bonita-gold-crown)] focus:ring-2 focus:ring-[var(--bonita-gold-glow)] disabled:opacity-60"
                   style={{
                     background: "var(--bg-input)",
                     border: "1px solid var(--bg-surface-light)",
@@ -287,7 +287,9 @@ export default function HomePage() {
                   disabled={loading || !input.trim()}
                   className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl transition-opacity disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
                   style={{
-                    background: "linear-gradient(135deg, var(--bonita-burgundy), var(--bonita-gold))",
+                    background: input.trim()
+                      ? "var(--bonita-gold-crown)"
+                      : "linear-gradient(135deg, rgba(107,15,15,0.8), rgba(197,150,58,0.65))",
                     color: "var(--text-primary)",
                   }}
                   aria-label="Send"

@@ -25,15 +25,23 @@ function PersonImage({ name, compact }: { name: string; compact?: boolean }) {
   }
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-lg border-2 border-[var(--bonita-gold)] bg-[var(--bg-surface)] ${compact ? "my-2 p-2" : "my-3 p-3"}`}
-      style={{ borderColor: "var(--bonita-gold)" }}
+      className={`inline-flex items-center gap-2 rounded-lg border-2 bg-[var(--bg-surface)] shadow-[0_8px_18px_rgba(0,0,0,0.55)] ${compact ? "my-2 p-2" : "my-3 p-3"}`}
+      style={{ borderColor: "var(--bonita-gold-crown)" }}
     >
       <img
         src={imageUrl}
         alt={trimmed}
         className="h-14 w-14 shrink-0 rounded-full object-cover sm:h-16 sm:w-16"
       />
-      <span className="font-semibold" style={{ color: "var(--text-primary)", fontSize: "14px" }}>
+      <span
+        className="font-semibold"
+        style={{
+          color: "var(--text-primary)",
+          fontSize: "14px",
+          fontFamily: "var(--font-display)",
+          fontStyle: "italic",
+        }}
+      >
         {trimmed}
       </span>
     </div>

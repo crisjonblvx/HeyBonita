@@ -117,11 +117,15 @@ export function CulturalFactCard() {
     <div
       className="rounded-xl border p-3 transition-opacity"
       style={{
-        background: "var(--bg-card)",
-        border: "1px solid rgba(197, 150, 58, 0.25)",
+        background:
+          "linear-gradient(to bottom, rgba(232,184,75,0.18), transparent 18%), rgba(197,150,58,0.05)",
+        border: "1px solid rgba(197, 150, 58, 0.3)",
       }}
     >
-      <p className="bonita-label mb-1.5" style={{ color: "var(--bonita-gold-muted)" }}>
+      <p
+        className="bonita-label mb-1.5"
+        style={{ color: "var(--bonita-gold)", letterSpacing: "0.18em" }}
+      >
         ✦ DID YOU KNOW
       </p>
       {(!checkedAuth && loading) || (checkedAuth && loading) ? (
@@ -142,10 +146,11 @@ export function CulturalFactCard() {
           <button
             type="button"
             onClick={fetchRandom}
-            className="mt-2 text-xs transition-colors hover:opacity-80"
+            className="mt-2 inline-flex items-center gap-1 text-xs transition-colors hover:opacity-80"
             style={{ color: "var(--bonita-gold-muted)" }}
           >
-            Refresh fact
+            <span className="bonita-refresh-icon">↻</span>
+            <span>Refresh fact</span>
           </button>
         </div>
       ) : null}
