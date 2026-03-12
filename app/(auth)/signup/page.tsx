@@ -34,10 +34,6 @@ export default function SignupPage() {
         password,
       })
 
-      // Optional logging hook for debugging Supabase traffic during local testing.
-      // eslint-disable-next-line no-console
-      console.log("[Bonita] Signup response", { user: data?.user?.id, error: authError?.message })
-
       if (authError) {
         setError(authError.message || "Unable to sign up. Please try again.")
         return
