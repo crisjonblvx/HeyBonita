@@ -11,16 +11,20 @@ export default function RootRedirect() {
   useEffect(() => {
     if (!decided) {
       const go = async () => {
-        if (supabaseBrowserClient) {
-          const { data: { session } } = await supabaseBrowserClient.auth.getSession()
-          if (session) {
-            router.replace("/chat")
-            return
+        try {
+          if (supabaseBrowserClient) {
+            const { data: { session } } = await supabaseBrowserClient.auth.getSession()
+            if (session) {
+              router.replace("/chat")
+              return
+            }
           }
+          router.replace("/landing")
+        } catch {
+          router.replace("/landing")
         }
-        router.replace("/landing")
       }
-      go()
+      void go()
       setDecided(true)
     }
   }, [decided, router])

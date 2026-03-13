@@ -156,7 +156,7 @@ export default function LandingPage() {
           >
             Pricing
           </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* FREE */}
             <div
               className="rounded-2xl border-2 p-6 transition-colors hover:border-[var(--bonita-gold-muted)]"
@@ -203,23 +203,6 @@ export default function LandingPage() {
                 <li>• Priority responses</li>
               </ul>
               <Link href="/chat" className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium" style={{ borderColor: "var(--bonita-gold)", color: "var(--bonita-gold)", fontFamily: "var(--font-body)" }}>Go Home</Link>
-            </div>
-
-            {/* CAMPUS */}
-            <div
-              className="rounded-2xl border-2 p-6 transition-colors hover:border-[var(--bonita-gold-muted)]"
-              style={{ background: "var(--bg-card)", borderColor: "var(--bg-surface-light)" }}
-            >
-              <h3 className="mb-1 text-lg font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>CAMPUS</h3>
-              <p className="mb-4 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$299/display/mo</p>
-              <ul className="mb-6 space-y-2 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
-                <li>• Institutional license</li>
-                <li>• Unlimited everything</li>
-                <li>• Custom tone & knowledge</li>
-                <li>• White-label ready</li>
-                <li>• HBCU discount available</li>
-              </ul>
-              <Link href="/chat" className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium" style={{ borderColor: "var(--bg-surface-light)", color: "var(--text-primary)", fontFamily: "var(--font-body)" }}>Contact us</Link>
             </div>
           </div>
         </div>

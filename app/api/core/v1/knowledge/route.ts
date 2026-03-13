@@ -33,6 +33,11 @@ export async function GET(req: Request) {
   if (category) query = query.eq("category", category)
   if (search) query = query.ilike("name", `%${search}%`)
 
+  query = query
+    .not("name", "is", null)
+    .neq("name", "")
+    .not("name", "like", "%?????%")
+
   const { data, error, count } = await query
     .order("image_url", { ascending: false, nullsFirst: false })
     .order("name", { ascending: true })

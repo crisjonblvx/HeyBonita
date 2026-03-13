@@ -287,7 +287,10 @@ export default function ExplorePage() {
                     {total.toLocaleString()} result{total !== 1 ? "s" : ""}
                   </p>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {entries.map((entry) => (
+                    {entries.map((entry) => {
+                      const hasLatinChars = /[a-zA-Z\u00C0-\u024F]/.test(entry.name ?? "")
+                      if (!hasLatinChars) return null
+                      return (
                       <div
                         key={entry.id}
                         className="flex flex-col rounded-xl border p-4"
@@ -345,7 +348,7 @@ export default function ExplorePage() {
                           Ask Bonita about this
                         </Link>
                       </div>
-                    ))}
+                    )})}
                   </div>
 
                   {totalPages > 1 && (

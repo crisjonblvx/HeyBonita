@@ -360,24 +360,11 @@ export default function ChatPage() {
         <img
           src="/Real_Bonita.png"
           alt="Bonita"
-          width={56}
-          height={56}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover rounded-full"
           onError={(e) => {
-            const el = e.currentTarget
-            el.style.display = "none"
-            if (el.nextElementSibling) (el.nextElementSibling as HTMLElement).style.display = "flex"
+            e.currentTarget.style.display = "none"
           }}
         />
-        <div
-          className="hidden h-full w-full items-center justify-center text-xl font-bold italic"
-          style={{
-            fontFamily: "var(--font-display)",
-            color: "var(--bonita-gold-crown)",
-          }}
-        >
-          B
-        </div>
       </button>
 
       {avatarModalOpen && (
