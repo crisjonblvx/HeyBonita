@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
+import { supabaseBrowserClient } from "@/lib/supabase-browser"
 
 const CATEGORIES = [
   { key: "musician", label: "Musicians", count: 84408, icon: "🎵" },
@@ -54,6 +55,7 @@ function InitialAvatar({ name }: { name: string }) {
 }
 
 export default function ExplorePage() {
+  const [mounted, setMounted] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [search, setSearch] = useState("")
@@ -63,7 +65,12 @@ export default function ExplorePage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const categoryMeta = selectedCategory ? CATEGORIES.find((c) => c.key === selectedCategory) : null
+  const showLibraryLoading = mounted && supabaseBrowserClient === null
 
   const fetchEntries = useCallback(async () => {
     if (!selectedCategory) return
@@ -112,6 +119,34 @@ export default function ExplorePage() {
     }, 300)
     return () => clearTimeout(t)
   }, [searchInput, selectedCategory])
+
+  if (showLibraryLoading) {
+    return (
+      <div className="flex min-h-screen" style={{ background: "var(--bg-deep)" }}>
+        <BonitaSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
+        <main className="relative z-10 flex flex-1 flex-col items-center justify-center pl-0 lg:pl-[280px]">
+          <div
+            className="inline-flex items-center gap-3 rounded-xl px-6 py-4"
+            style={{
+              background: "var(--bg-card)",
+              border: "1px solid var(--bg-surface-light)",
+            }}
+          >
+            <div
+              className="h-6 w-6 animate-spin rounded-full border-2 border-transparent"
+              style={{
+                borderTopColor: "var(--bonita-gold)",
+                borderRightColor: "var(--bonita-gold-muted)",
+              }}
+            />
+            <span style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+              Cultural library loading...
+            </span>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg-deep)" }}>

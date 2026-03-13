@@ -8,11 +8,11 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 let client: SupabaseClient | null = null
 
 if (typeof window !== "undefined") {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    // Non-fatal: components that depend on auth should handle null client gracefully.
+  if (!SUPABASE_URL?.trim() || !SUPABASE_ANON_KEY?.trim()) {
     console.warn(
-      "[Bonita] NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set. Auth features are disabled.",
+      "[Bonita] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. Supabase client is disabled.",
     )
+    client = null
   } else {
     client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
