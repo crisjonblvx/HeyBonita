@@ -2,12 +2,19 @@
 
 import { useState, useCallback, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
+import dynamic from "next/dynamic"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
 import { BonitaAvatar } from "@/components/BonitaAvatar"
 import { BonitaSplash } from "@/components/BonitaSplash"
 import { MessageBubble, type ChatMessage } from "@/components/MessageBubble"
 import { QuickPrompts } from "@/components/QuickPrompts"
 import { TypingIndicator } from "@/components/TypingIndicator"
+import "@runwayml/avatars-react/styles.css"
+
+const AvatarCall = dynamic(
+  () => import("@runwayml/avatars-react").then((m) => m.AvatarCall),
+  { ssr: false },
+)
 
 function AskParamReader({ onAsk }: { onAsk: (value: string) => void }) {
   const searchParams = useSearchParams()
@@ -26,6 +33,10 @@ export default function HomePage() {
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false)
+  const [isPro] = useState(() =>
+    typeof window !== "undefined" && localStorage.getItem("bonita_pro") === "true",
+  )
   const [feedbackTargetId, setFeedbackTargetId] = useState<string | null>(null)
   const [showSplash, setShowSplash] = useState(true)
   const [conversationId] = useState<string>(() => {
@@ -339,6 +350,109 @@ export default function HomePage() {
           </div>
         </div>
       </main>
+
+      {/* Floating Bonita avatar button — video call (Pro) */}
+      <button
+        type="button"
+        onClick={() => setAvatarModalOpen(true)}
+        className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 shadow-lg transition-transform hover:scale-105"
+        style={{
+          borderColor: "var(--bonita-gold)",
+          background: "var(--bg-card)",
+          boxShadow: "0 4px 20px var(--bonita-burgundy-glow)",
+        }}
+        aria-label="Video call with Bonita"
+      >
+        <img
+          src="/Real_Bonita.png"
+          alt="Bonita"
+          width={56}
+          height={56}
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            const el = e.currentTarget
+            el.style.display = "none"
+            if (el.nextElementSibling) (el.nextElementSibling as HTMLElement).style.display = "flex"
+          }}
+        />
+        <div
+          className="hidden h-full w-full items-center justify-center text-xl font-bold italic"
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--bonita-gold-crown)",
+          }}
+        >
+          B
+        </div>
+      </button>
+
+      {/* Avatar video call modal / drawer */}
+      {avatarModalOpen && (
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center p-4"
+          style={{ background: "rgba(8,5,4,0.92)" }}
+        >
+          <div
+            className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl border overflow-hidden"
+            style={{
+              background: "var(--bg-card)",
+              borderColor: "var(--bonita-gold)",
+            }}
+          >
+            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--bg-surface-light)" }}>
+              <span style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                Video call with Bonita
+              </span>
+              <button
+                type="button"
+                onClick={() => setAvatarModalOpen(false)}
+                className="rounded-lg p-2 transition-opacity hover:opacity-80"
+                style={{ color: "var(--text-secondary)" }}
+                aria-label="Close"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex-1 min-h-[320px] flex flex-col">
+              {isPro ? (
+                <AvatarCall
+                  avatarId={process.env.NEXT_PUBLIC_BONITA_AVATAR_ID || ""}
+                  connectUrl="/api/core/v1/avatar/connect"
+                  avatarImageUrl="/Real_Bonita.png"
+                  onEnd={() => setAvatarModalOpen(false)}
+                  onError={(err) => console.error("Avatar call error:", err)}
+                  className="flex-1 min-h-[320px] w-full"
+                />
+              ) : (
+                <div
+                  className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  <p style={{ color: "var(--text-primary)", fontSize: "1.125rem" }}>
+                    Video calls with Bonita are for Pro members.
+                  </p>
+                  <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>
+                    Upgrade to talk face-to-face with your cultural oracle.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setAvatarModalOpen(false)}
+                    className="rounded-xl px-5 py-2.5 text-sm font-medium"
+                    style={{
+                      background: "var(--bonita-gold)",
+                      color: "var(--bg-deep)",
+                    }}
+                  >
+                    Maybe later
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
