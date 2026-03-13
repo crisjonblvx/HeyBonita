@@ -28,7 +28,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
             <Link
-              href="/chat"
+              href="/auth"
               className="rounded-xl px-6 py-3.5 text-base font-medium transition-opacity hover:opacity-90"
               style={{
                 background: "var(--bonita-gold)",
@@ -38,9 +38,8 @@ export default function LandingPage() {
             >
               Start for free
             </Link>
-            <button
-              type="button"
-              onClick={scrollToPricing}
+            <Link
+              href="/auth"
               className="rounded-xl border-2 px-6 py-3.5 text-base font-medium transition-opacity hover:opacity-90"
               style={{
                 borderColor: "var(--bonita-gold)",
@@ -49,7 +48,7 @@ export default function LandingPage() {
               }}
             >
               Meet Bonita
-            </button>
+            </Link>
           </div>
         </div>
         <div className="relative mt-12 md:mt-0">
@@ -169,7 +168,7 @@ export default function LandingPage() {
                 <li>• Text only</li>
                 <li>• Cultural fact of the day</li>
               </ul>
-              <Link href="/chat" className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium" style={{ borderColor: "var(--bg-surface-light)", color: "var(--text-primary)", fontFamily: "var(--font-body)" }}>Start free</Link>
+              <Link href="/auth" className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium" style={{ borderColor: "var(--bg-surface-light)", color: "var(--text-primary)", fontFamily: "var(--font-body)" }}>Start free</Link>
             </div>
 
             {/* PRO — Recommended */}
@@ -186,7 +185,7 @@ export default function LandingPage() {
                 <li>• 30 min video calls with Bonita/mo</li>
                 <li>• Conversation history</li>
               </ul>
-              <Link href="/chat" className="block w-full rounded-lg py-2.5 text-center text-sm font-medium" style={{ background: "var(--bonita-gold)", color: "var(--bg-deep)", fontFamily: "var(--font-body)" }}>Go Pro</Link>
+              <Link href="/auth" className="block w-full rounded-lg py-2.5 text-center text-sm font-medium" style={{ background: "var(--bonita-gold)", color: "var(--bg-deep)", fontFamily: "var(--font-body)" }}>Go Pro</Link>
             </div>
 
             {/* HOME */}
@@ -199,10 +198,9 @@ export default function LandingPage() {
               <ul className="mb-6 space-y-2 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
                 <li>• Everything in Pro</li>
                 <li>• 2 hours video calls/mo</li>
-                <li>• Holographic Bonita ready</li>
                 <li>• Priority responses</li>
               </ul>
-              <Link href="/chat" className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium" style={{ borderColor: "var(--bonita-gold)", color: "var(--bonita-gold)", fontFamily: "var(--font-body)" }}>Go Home</Link>
+              <Link href="/auth" className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium" style={{ borderColor: "var(--bonita-gold)", color: "var(--bonita-gold)", fontFamily: "var(--font-body)" }}>Go Home</Link>
             </div>
           </div>
         </div>
