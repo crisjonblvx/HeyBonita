@@ -204,7 +204,7 @@ export default function MapPage() {
                     </p>
                   )}
                   <Link
-                    href={`/?ask=${encodeURIComponent("Tell me more about " + selectedLocation.name)}`}
+                    href={`/chat?ask=${encodeURIComponent("Tell me more about " + selectedLocation.name)}`}
                     className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
                     style={{
                       background: "var(--bonita-gold)",

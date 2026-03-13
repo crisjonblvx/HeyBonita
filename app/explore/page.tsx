@@ -315,7 +315,7 @@ export default function ExplorePage() {
                           </div>
                         </div>
                         <Link
-                          href={`/?ask=${encodeURIComponent("Tell me about " + entry.name)}`}
+                          href={`/chat?ask=${encodeURIComponent("Tell me about " + entry.name)}`}
                           className="mt-auto rounded-lg px-3 py-2 text-center text-sm font-medium transition-opacity hover:opacity-90"
                           style={{
                             background: "var(--bonita-gold)",

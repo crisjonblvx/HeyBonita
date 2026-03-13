@@ -12,7 +12,7 @@ type BonitaSidebarProps = {
 }
 
 const navItems = [
-  { href: "/", label: "Chat", icon: MessageCircle },
+  { href: "/chat", label: "Chat", icon: MessageCircle },
   { href: "/explore", label: "Explore Knowledge", icon: BookOpen },
   { href: "/map", label: "Cultural Map", icon: Map },
   { href: "/community", label: "Community", icon: Users },
