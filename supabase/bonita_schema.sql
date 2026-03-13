@@ -113,3 +113,7 @@ CREATE TABLE IF NOT EXISTS regional_knowledge (
 CREATE INDEX IF NOT EXISTS idx_regional_knowledge_state ON regional_knowledge(state);
 CREATE INDEX IF NOT EXISTS idx_regional_knowledge_title ON regional_knowledge(title);
 
+-- Admin flag on profiles (for dashboard & access control)
+ALTER TABLE IF EXISTS profiles
+ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
+

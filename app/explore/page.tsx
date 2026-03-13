@@ -30,12 +30,23 @@ type Entry = {
   id: string
   name: string
   category: string
+  subcategory?: string | null
   image_url: string | null
   biography?: string | null
 }
 
 function categoryLabel(key: string): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key
+}
+
+function isCulturallyRelevantName(name: string | null | undefined): boolean {
+  const value = (name || "").trim()
+  if (!value) return false
+  const hasLatin = /[A-Za-z\u00C0-\u024F]/.test(value)
+  if (!hasLatin) return false
+  const onlySymbols = !/[A-Za-z\u00C0-\u024F0-9]/.test(value)
+  if (onlySymbols) return false
+  return true
 }
 
 function InitialAvatar({ name }: { name: string }) {
@@ -85,8 +96,16 @@ export default function ExplorePage() {
       const res = await fetch(`/api/core/v1/knowledge?${params}`)
       const json = await res.json()
       if (json.ok) {
-        setEntries(json.entries ?? [])
-        setTotal(json.total ?? 0)
+        const raw: Entry[] = json.entries ?? []
+        const filtered = raw.filter((entry) => isCulturallyRelevantName(entry.name))
+        filtered.sort((a, b) => {
+          const aImg = !!a.image_url
+          const bImg = !!b.image_url
+          if (aImg !== bImg) return aImg ? -1 : 1
+          return (a.name || "").localeCompare(b.name || "")
+        })
+        setEntries(filtered)
+        setTotal(filtered.length)
       } else {
         setEntries([])
         setTotal(0)
@@ -310,7 +329,7 @@ export default function ExplorePage() {
                                 fontFamily: "var(--font-body)",
                               }}
                             >
-                              {categoryLabel(entry.category)}
+                              {entry.subcategory?.trim() || categoryLabel(entry.category)}
                             </span>
                           </div>
                         </div>

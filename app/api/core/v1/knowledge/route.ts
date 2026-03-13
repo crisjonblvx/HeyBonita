@@ -28,12 +28,15 @@ export async function GET(req: Request) {
 
   let query = supabase
     .from("knowledge_entries")
-    .select("id, name, category, image_url, biography", { count: "exact" })
+    .select("id, name, category, subcategory, image_url, biography", { count: "exact" })
 
   if (category) query = query.eq("category", category)
   if (search) query = query.ilike("name", `%${search}%`)
 
-  const { data, error, count } = await query.order("name").range(offset, offset + limit - 1)
+  const { data, error, count } = await query
+    .order("image_url", { ascending: false, nullsFirst: false })
+    .order("name", { ascending: true })
+    .range(offset, offset + limit - 1)
 
   if (error) {
     return applyCors(
