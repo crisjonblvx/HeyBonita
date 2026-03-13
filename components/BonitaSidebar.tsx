@@ -155,14 +155,12 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
           </div>
 
           <div className="mb-2 flex flex-col gap-1 text-xs" style={{ fontFamily: "var(--font-body)" }}>
-            <button
-              type="button"
-              onClick={() => router.push("/account")}
-              className="self-start text-left text-[11px] underline-offset-2 hover:underline"
-              style={{ color: "var(--bonita-gold-muted)" }}
+            <span
+              className="cursor-not-allowed self-start text-left text-[11px]"
+              style={{ color: "var(--text-muted)" }}
             >
-              Manage subscription
-            </button>
+              Manage subscription <span className="opacity-70">(coming soon)</span>
+            </span>
             <button
               type="button"
               onClick={handleSignOut}
