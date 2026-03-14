@@ -1,14 +1,11 @@
 import { createServerClient } from "@supabase/ssr"
-import { NextResponse, type NextRequest } from "next/server"
-
-const PROTECTED_PATHS = ["/chat", "/explore", "/map", "/community", "/admin"]
-
-function isProtected(pathname: string): boolean {
-  return PROTECTED_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))
-}
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 export async function middleware(req: NextRequest) {
-  let res = NextResponse.next({ request: req })
+  let res = NextResponse.next({
+    request: { headers: req.headers },
+  })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,6 +17,7 @@ export async function middleware(req: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
+            req.cookies.set(name, value)
             res.cookies.set(name, value, options)
           })
         },
@@ -27,11 +25,20 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
-  const { data: { session } } = await supabase.auth.getSession()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  if (isProtected(req.nextUrl.pathname) && !session) {
+  const protectedRoutes = ["/chat", "/explore", "/map", "/community", "/admin"]
+  const isProtected = protectedRoutes.some((r) => req.nextUrl.pathname.startsWith(r))
+
+  if (isProtected && !session) {
     return NextResponse.redirect(new URL("/auth", req.url))
+  }
+
+  // If already logged in and hitting /auth or /landing, redirect to /chat
+  if (session && (req.nextUrl.pathname === "/auth" || req.nextUrl.pathname === "/landing")) {
+    return NextResponse.redirect(new URL("/chat", req.url))
   }
 
   return res
@@ -44,5 +51,7 @@ export const config = {
     "/map/:path*",
     "/community/:path*",
     "/admin/:path*",
+    "/auth",
+    "/landing",
   ],
 }

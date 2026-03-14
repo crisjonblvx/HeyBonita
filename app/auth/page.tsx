@@ -1,12 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { supabaseBrowserClient } from "@/lib/supabase-browser"
 
 export default function AuthPage() {
-  const router = useRouter()
   const [mode, setMode] = useState<"signin" | "signup">("signin")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -20,11 +18,11 @@ export default function AuthPage() {
       data: { subscription },
     } = supabaseBrowserClient.auth.onAuthStateChange((event, session) => {
       if (session && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
-        router.push("/chat")
+        window.location.href = "/chat"
       }
     })
     return () => subscription.unsubscribe()
-  }, [router])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,8 +49,7 @@ export default function AuthPage() {
           return
         }
         if (data.session) {
-          router.push("/chat")
-          router.refresh()
+          window.location.href = "/chat"
         }
       } else {
         const { error: err } = await supabaseBrowserClient.auth.signUp({
