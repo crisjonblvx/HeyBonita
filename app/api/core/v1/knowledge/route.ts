@@ -33,9 +33,6 @@ const CULTURAL_CATEGORIES = [
   "inventor",
 ] as const
 
-const CULTURAL_OR_FILTER =
-  "nationality.ilike.%American%,nationality.ilike.%African%,nationality.ilike.%Caribbean%,nationality.ilike.%Brazilian%,nationality.ilike.%Nigerian%,nationality.ilike.%Jamaican%,tags.ov.{hbcu,hip-hop,jazz,blues,soul}"
-
 export async function GET(req: Request) {
   const supabase = getSupabaseBrain()
   if (!supabase) {
@@ -60,7 +57,6 @@ export async function GET(req: Request) {
     .from("knowledge_entries")
     .select("id, name, category, subcategory, image_url, biography", { count: "exact" })
     .in("category", [...CULTURAL_CATEGORIES])
-    .or(CULTURAL_OR_FILTER)
 
   if (category) query = query.eq("category", category)
   if (search) query = query.ilike("name", `%${search}%`)

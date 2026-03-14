@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
 import { getSupabaseClient } from "@/lib/supabase-browser"
@@ -71,6 +72,7 @@ function InitialAvatar({ name }: { name: string }) {
 }
 
 export default function ExplorePage() {
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -343,8 +345,12 @@ export default function ExplorePage() {
                             </span>
                           </div>
                         </div>
-                        <Link
-                          href={`/chat?ask=${encodeURIComponent("Tell me about " + entry.name)}`}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const query = `Tell me about ${entry.name}`
+                            router.push(`/chat?ask=${encodeURIComponent(query)}&autosubmit=true`)
+                          }}
                           className="mt-auto rounded-lg px-3 py-2 text-center text-sm font-medium transition-opacity hover:opacity-90"
                           style={{
                             background: "var(--bonita-gold)",
@@ -353,7 +359,7 @@ export default function ExplorePage() {
                           }}
                         >
                           Ask Bonita about this
-                        </Link>
+                        </button>
                       </div>
                     )})}
                   </div>

@@ -1,7 +1,13 @@
-import { MapPageClient } from "@/components/MapPageClient"
+"use client"
 
-export const dynamic = "force-dynamic"
+import nextDynamic from "next/dynamic"
+
+const CulturalMap = nextDynamic(() => import("@/components/CulturalMap"), { ssr: false })
 
 export default function MapPage() {
-  return <MapPageClient />
+  return (
+    <div className="h-full w-full">
+      <CulturalMap />
+    </div>
+  )
 }

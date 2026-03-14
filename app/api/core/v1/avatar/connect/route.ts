@@ -1,120 +1,42 @@
-import RunwayML from "@runwayml/sdk"
-import { applyCors, corsPreflight } from "../../_utils/cors"
-
-export const dynamic = "force-dynamic"
-const NO_CACHE = { "Cache-Control": "no-store, no-cache, must-revalidate" }
-
-const AVATAR_ID = process.env.NEXT_PUBLIC_BONITA_AVATAR_ID
-const API_KEY = process.env.RUNWAY_API_KEY || process.env.RUNWAYML_API_SECRET
+import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
-  if (!API_KEY) {
-    return applyCors(
-      req,
-      new Response(
-        JSON.stringify({ ok: false, error: "Runway avatar not configured" }),
-        { status: 503, headers: { "Content-Type": "application/json", ...NO_CACHE } },
-      ),
-      { methods: "POST,OPTIONS" },
-    )
-  }
-  if (!AVATAR_ID) {
-    return applyCors(
-      req,
-      new Response(
-        JSON.stringify({ ok: false, error: "NEXT_PUBLIC_BONITA_AVATAR_ID not set" }),
-        { status: 503, headers: { "Content-Type": "application/json", ...NO_CACHE } },
-      ),
-      { methods: "POST,OPTIONS" },
-    )
-  }
+  const body = await req.json().catch(() => ({}))
+  const message =
+    typeof body?.message === "string" ? body.message : "Hey love, I'm Bonita. Your Bronx auntie with all the wisdom. Ask me anything."
 
-  const client = new RunwayML({ apiKey: API_KEY })
+  if (!process.env.RUNWAY_API_KEY) {
+    return NextResponse.json({ error: "Runway not configured" }, { status: 503 })
+  }
 
   try {
-    const { id: sessionId } = await client.realtimeSessions.create({
-      model: "gwm1_avatars",
-      avatar: { type: "custom", avatarId: AVATAR_ID },
-    })
-
-    let sessionKey: string | undefined
-    for (let i = 0; i < 60; i++) {
-      const session = await client.realtimeSessions.retrieve(sessionId)
-      if (session.status === "READY" && "sessionKey" in session) {
-        sessionKey = session.sessionKey
-        break
-      }
-      if (session.status === "FAILED" && "failure" in session) {
-        return applyCors(
-          req,
-          new Response(
-            JSON.stringify({ ok: false, error: session.failure }),
-            { status: 500, headers: { "Content-Type": "application/json", ...NO_CACHE } },
-          ),
-          { methods: "POST,OPTIONS" },
-        )
-      }
-      await new Promise((r) => setTimeout(r, 1000))
-    }
-
-    if (!sessionKey) {
-      return applyCors(
-        req,
-        new Response(
-          JSON.stringify({ ok: false, error: "Session timed out" }),
-          { status: 504, headers: { "Content-Type": "application/json", ...NO_CACHE } },
-        ),
-        { methods: "POST,OPTIONS" },
-      )
-    }
-
-    const baseUrl = client.baseURL.replace(/\/$/, "")
-    const consumeRes = await fetch(`${baseUrl}/v1/realtime_sessions/${sessionId}/consume`, {
+    const response = await fetch("https://api.runwayml.com/v1/avatar/generate", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${sessionKey}`,
+        Authorization: `Bearer ${process.env.RUNWAY_API_KEY}`,
+        "Content-Type": "application/json",
         "X-Runway-Version": "2024-11-06",
       },
+      body: JSON.stringify({
+        avatarId: process.env.NEXT_PUBLIC_BONITA_AVATAR_ID || "3d6635bd-7048-4aa8-abef-ba653739019d",
+        text: message,
+        voice: { speed: 1.0 },
+      }),
     })
-    if (!consumeRes.ok) {
-      const errText = await consumeRes.text()
-      return applyCors(
-        req,
-        new Response(
-          JSON.stringify({ ok: false, error: "Consume failed", detail: errText }),
-          { status: 502, headers: { "Content-Type": "application/json", ...NO_CACHE } },
-        ),
-        { methods: "POST,OPTIONS" },
+
+    if (!response.ok) {
+      const err = await response.text()
+      console.error("Runway error:", err)
+      return NextResponse.json(
+        { error: "Avatar generation failed", detail: err },
+        { status: response.status },
       )
     }
-    const credentials = await consumeRes.json()
 
-    return applyCors(
-      req,
-      new Response(
-        JSON.stringify({
-          sessionId,
-          serverUrl: credentials.url,
-          token: credentials.token,
-          roomName: credentials.roomName,
-        }),
-        { status: 200, headers: { "Content-Type": "application/json", ...NO_CACHE } },
-      ),
-      { methods: "POST,OPTIONS" },
-    )
-  } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : String(e)
-    return applyCors(
-      req,
-      new Response(
-        JSON.stringify({ ok: false, error: "Avatar session failed", detail: message }),
-        { status: 500, headers: { "Content-Type": "application/json", ...NO_CACHE } },
-      ),
-      { methods: "POST,OPTIONS" },
-    )
+    const data = await response.json()
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("Avatar error:", error)
+    return NextResponse.json({ error: "Avatar generation failed" }, { status: 500 })
   }
-}
-
-export async function OPTIONS(req: Request) {
-  return corsPreflight(req, { methods: "POST,OPTIONS" })
 }
