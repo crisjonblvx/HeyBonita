@@ -6,7 +6,7 @@ const CulturalMap = nextDynamic(() => import("@/components/CulturalMap"), { ssr:
 
 export default function MapPage() {
   return (
-    <div className="h-full w-full">
+    <div style={{ height: "100%", width: "100%" }}>
       <CulturalMap />
     </div>
   )

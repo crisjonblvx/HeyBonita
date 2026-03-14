@@ -25,10 +25,10 @@ export async function POST(req: Request) {
     })
 
     if (!response.ok) {
-      const err = await response.text()
-      console.error("Runway error:", err)
+      const errText = await response.text()
+      console.error("Runway API error:", response.status, errText)
       return NextResponse.json(
-        { error: "Avatar generation failed", detail: err },
+        { error: "Avatar generation failed", detail: errText },
         { status: response.status },
       )
     }

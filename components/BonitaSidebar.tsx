@@ -26,24 +26,21 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    let cancelled = false
-    async function load() {
+    const checkAdmin = async () => {
       const client = getSupabaseClient()
       if (!client) return
-      const { data } = await client.auth.getSession()
-      const user = data.session?.user
-      if (!user) return
-      const { data: profile } = await client
+      const {
+        data: { session },
+      } = await client.auth.getSession()
+      if (!session) return
+      const { data, error } = await client
         .from("profiles")
         .select("is_admin")
-        .eq("id", user.id)
-        .maybeSingle()
-      if (!cancelled && profile?.is_admin) setIsAdmin(true)
+        .eq("id", session.user.id)
+        .single()
+      if (!error && data?.is_admin) setIsAdmin(true)
     }
-    load()
-    return () => {
-      cancelled = true
-    }
+    checkAdmin()
   }, [])
 
   const handleSignOut = async () => {
