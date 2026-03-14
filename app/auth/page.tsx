@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { supabaseBrowserClient } from "@/lib/supabase-browser"
 
 export default function AuthPage() {
@@ -12,6 +12,19 @@ export default function AuthPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showConfirmation, setShowConfirmation] = useState(false)
+
+  useEffect(() => {
+    if (!supabaseBrowserClient) return
+    const {
+      data: { subscription },
+    } = supabaseBrowserClient.auth.onAuthStateChange((event, session) => {
+      if (session && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
+        router.push("/chat")
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,13 +42,17 @@ export default function AuthPage() {
     setLoading(true)
     try {
       if (mode === "signin") {
-        const { error: err } = await supabaseBrowserClient.auth.signInWithPassword({
+        const { data, error: err } = await supabaseBrowserClient.auth.signInWithPassword({
           email: trimmedEmail,
           password: trimmedPassword,
         })
         if (err) {
           setError(err.message)
           return
+        }
+        if (data.session) {
+          router.push("/chat")
+          router.refresh()
         }
       } else {
         const { error: err } = await supabaseBrowserClient.auth.signUp({
@@ -46,13 +63,38 @@ export default function AuthPage() {
           setError(err.message)
           return
         }
+        setShowConfirmation(true)
       }
-      router.push("/chat")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.")
     } finally {
       setLoading(false)
     }
+  }
+
+  if (showConfirmation) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: "#080504" }}>
+        <div className="w-full max-w-sm text-center space-y-4">
+          <div className="text-4xl">✉️</div>
+          <h2 className="text-xl font-semibold text-white" style={{ fontFamily: "var(--font-display)" }}>
+            Check your email
+          </h2>
+          <p className="text-zinc-400 text-sm" style={{ fontFamily: "var(--font-body)" }}>
+            We sent a confirmation link to <span className="text-amber-400">{email}</span>. Click the link to activate
+            your account, then come back here to sign in.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowConfirmation(false)}
+            className="text-sm text-amber-400 hover:underline"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Back to sign in
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
