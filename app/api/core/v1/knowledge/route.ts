@@ -6,6 +6,36 @@ const NO_CACHE = { "Cache-Control": "no-store, no-cache, must-revalidate" }
 const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
 
+const CULTURAL_CATEGORIES = [
+  "musician",
+  "artist",
+  "activist",
+  "scholar",
+  "athlete",
+  "author",
+  "politician",
+  "scientist",
+  "entrepreneur",
+  "educator",
+  "filmmaker",
+  "comedian",
+  "dancer",
+  "poet",
+  "leader",
+  "visual-artist",
+  "historical-event",
+  "cultural-movement",
+  "place",
+  "culinary",
+  "spiritual",
+  "architect",
+  "fashion",
+  "inventor",
+] as const
+
+const CULTURAL_OR_FILTER =
+  "nationality.ilike.%American%,nationality.ilike.%African%,nationality.ilike.%Caribbean%,nationality.ilike.%Brazilian%,nationality.ilike.%Nigerian%,nationality.ilike.%Jamaican%,tags.ov.{hbcu,hip-hop,jazz,blues,soul}"
+
 export async function GET(req: Request) {
   const supabase = getSupabaseBrain()
   if (!supabase) {
@@ -29,6 +59,8 @@ export async function GET(req: Request) {
   let query = supabase
     .from("knowledge_entries")
     .select("id, name, category, subcategory, image_url, biography", { count: "exact" })
+    .in("category", [...CULTURAL_CATEGORIES])
+    .or(CULTURAL_OR_FILTER)
 
   if (category) query = query.eq("category", category)
   if (search) query = query.ilike("name", `%${search}%`)

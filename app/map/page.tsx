@@ -1,16 +1,7 @@
-"use client"
+import { MapPageClient } from "@/components/MapPageClient"
 
-import dynamic from "next/dynamic"
-
-const CulturalMap = dynamic(() => import("@/components/CulturalMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full min-h-[50vh] items-center justify-center text-amber-400">
-      Loading map...
-    </div>
-  ),
-})
+export const dynamic = "force-dynamic"
 
 export default function MapPage() {
-  return <CulturalMap />
+  return <MapPageClient />
 }

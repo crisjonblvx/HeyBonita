@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
 import { useState } from "react"
 
@@ -9,25 +8,28 @@ export default function CommunityPage() {
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg-deep)" }}>
       <BonitaSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
-      <main className="relative z-10 flex flex-1 flex-col pl-0 lg:pl-[280px]">
-        <div className="p-6 md:p-8">
+      <main className="relative z-10 flex flex-1 flex-col items-center justify-center pl-0 lg:pl-[280px]">
+        <div className="flex flex-col items-center justify-center px-8 py-24 text-center">
+          <div className="mb-6 text-5xl">🌍</div>
           <h1
-            className="mb-2 text-2xl font-bold"
+            className="mb-3 text-2xl font-bold"
             style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
           >
-            Community
+            Community is coming
           </h1>
-          <p style={{ color: "var(--text-secondary)", fontFamily: "var(--font-body)" }}>
-            Bonita grows with community input. Submit knowledge, upvote, and contribute — coming
-            soon.
-          </p>
-          <Link
-            href="/"
-            className="mt-4 inline-block text-sm"
-            style={{ color: "var(--bonita-gold)" }}
+          <p
+            className="max-w-md leading-relaxed text-sm"
+            style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}
           >
-            ← Back to Chat
-          </Link>
+            This is where your stories, regional histories, and family knowledge will live. Bonita
+            learns from the community — and the community grows with Bonita.
+          </p>
+          <p
+            className="mt-6 text-xs"
+            style={{ fontFamily: "var(--font-body)", color: "var(--bonita-amber)" }}
+          >
+            Coming soon
+          </p>
         </div>
       </main>
     </div>

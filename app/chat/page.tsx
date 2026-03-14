@@ -34,6 +34,7 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [avatarModalOpen, setAvatarModalOpen] = useState(false)
+  const [avatarImageError, setAvatarImageError] = useState(false)
   const [isPro] = useState(() =>
     typeof window !== "undefined" && localStorage.getItem("bonita_pro") === "true",
   )
@@ -349,22 +350,33 @@ export default function ChatPage() {
       <button
         type="button"
         onClick={() => setAvatarModalOpen(true)}
-        className="fixed bottom-6 right-6 z-20 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 shadow-lg transition-transform hover:scale-105"
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 shadow-lg transition-transform hover:scale-105"
         style={{
           borderColor: "var(--bonita-gold)",
           background: "var(--bg-card)",
           boxShadow: "0 4px 20px var(--bonita-burgundy-glow)",
         }}
-        aria-label="Video call with Bonita"
+        aria-label="Talk to Bonita"
       >
-        <img
-          src="/Real_Bonita.png"
-          alt="Bonita"
-          className="h-full w-full object-cover rounded-full"
-          onError={(e) => {
-            e.currentTarget.style.display = "none"
-          }}
-        />
+        {avatarImageError ? (
+          <span
+            className="flex h-full w-full items-center justify-center text-2xl font-bold italic"
+            style={{
+              color: "var(--bonita-gold)",
+              background: "var(--bg-surface)",
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            B
+          </span>
+        ) : (
+          <img
+            src="/Real_Bonita.png"
+            alt="Talk to Bonita"
+            className="h-full w-full object-cover"
+            onError={() => setAvatarImageError(true)}
+          />
+        )}
       </button>
 
       {avatarModalOpen && (
@@ -395,40 +407,28 @@ export default function ChatPage() {
                 </svg>
               </button>
             </div>
-            <div className="flex-1 min-h-[320px] flex flex-col">
-              {isPro ? (
-                <AvatarCall
-                  avatarId={process.env.NEXT_PUBLIC_BONITA_AVATAR_ID || ""}
-                  connectUrl="/api/core/v1/avatar/connect"
-                  avatarImageUrl="/Real_Bonita.png"
-                  onEnd={() => setAvatarModalOpen(false)}
-                  onError={(err) => console.error("Avatar call error:", err)}
-                  className="flex-1 min-h-[320px] w-full"
-                />
-              ) : (
-                <div
-                  className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  <p style={{ color: "var(--text-primary)", fontSize: "1.125rem" }}>
-                    Video calls with Bonita are for Pro members.
-                  </p>
-                  <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>
-                    Upgrade to talk face-to-face with your cultural oracle.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setAvatarModalOpen(false)}
-                    className="rounded-xl px-5 py-2.5 text-sm font-medium"
-                    style={{
-                      background: "var(--bonita-gold)",
-                      color: "var(--bg-deep)",
-                    }}
-                  >
-                    Maybe later
-                  </button>
-                </div>
-              )}
+            <div className="flex flex-1 min-h-[320px] flex-col items-center justify-center px-6 py-12 text-center">
+              <p
+                className="max-w-sm text-base leading-relaxed"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  color: "var(--text-primary)",
+                }}
+              >
+                Bonita&apos;s video avatar is coming soon. For now, keep chatting below ✨
+              </p>
+              <button
+                type="button"
+                onClick={() => setAvatarModalOpen(false)}
+                className="mt-6 rounded-xl px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
+                style={{
+                  background: "var(--bonita-gold)",
+                  color: "var(--bg-deep)",
+                  fontFamily: "var(--font-body)",
+                }}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

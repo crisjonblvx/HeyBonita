@@ -39,7 +39,12 @@ function categoryLabel(key: string): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key
 }
 
+function hasSymbolPrefix(name: string | null | undefined): boolean {
+  return /^[_\-:.!¡¿]/.test((name || "").trim())
+}
+
 function isCulturallyRelevantName(name: string | null | undefined): boolean {
+  if (hasSymbolPrefix(name)) return false
   const value = (name || "").trim()
   if (!value) return false
   const hasLatin = /[A-Za-z\u00C0-\u024F]/.test(value)
@@ -97,7 +102,9 @@ export default function ExplorePage() {
       const json = await res.json()
       if (json.ok) {
         const raw: Entry[] = json.entries ?? []
-        const filtered = raw.filter((entry) => isCulturallyRelevantName(entry.name))
+        const filtered = raw.filter(
+          (entry) => !hasSymbolPrefix(entry.name) && isCulturallyRelevantName(entry.name),
+        )
         filtered.sort((a, b) => {
           const aImg = !!a.image_url
           const bImg = !!b.image_url
