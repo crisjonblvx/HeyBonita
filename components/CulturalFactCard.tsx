@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { supabaseBrowserClient } from "@/lib/supabase-browser"
+import { getSupabaseClient } from "@/lib/supabase-browser"
 
 type Entry = {
   id?: string
@@ -52,7 +52,7 @@ export function CulturalFactCard() {
 
     async function checkAuth() {
       try {
-        const client = supabaseBrowserClient
+        const client = getSupabaseClient()
         if (!client) {
           if (isMounted) {
             setIsAuthenticated(false)

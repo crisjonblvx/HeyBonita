@@ -1,26 +1,24 @@
 "use client"
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js"
+import { createBrowserClient } from "@supabase/ssr"
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+let client: ReturnType<typeof createBrowserClient> | null = null
 
-let client: SupabaseClient | null = null
-
-if (typeof window !== "undefined") {
-  if (!SUPABASE_URL?.trim() || !SUPABASE_ANON_KEY?.trim()) {
-    console.warn(
-      "[Bonita] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. Supabase client is disabled.",
-    )
-    client = null
-  } else {
-    client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-      },
-    })
+/**
+ * Returns the Supabase browser client (cookie-based session storage for SSR/middleware).
+ * Returns null on server or when env vars are missing.
+ */
+export function getSupabaseClient() {
+  if (typeof window === "undefined") return null
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!url?.trim() || !key?.trim()) {
+    if (typeof console !== "undefined") {
+      console.warn("[Bonita] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. Supabase client is disabled.")
+    }
+    return null
   }
+  if (!client) client = createBrowserClient(url, key)
+  return client
 }
-
-export const supabaseBrowserClient = client
 

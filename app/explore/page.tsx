@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
-import { supabaseBrowserClient } from "@/lib/supabase-browser"
+import { getSupabaseClient } from "@/lib/supabase-browser"
 
 const CATEGORIES = [
   { key: "musician", label: "Musicians", count: 84408, icon: "🎵" },
@@ -81,7 +81,7 @@ export default function ExplorePage() {
   }, [])
 
   const categoryMeta = selectedCategory ? CATEGORIES.find((c) => c.key === selectedCategory) : null
-  const showLibraryLoading = mounted && supabaseBrowserClient === null
+  const showLibraryLoading = mounted && getSupabaseClient() === null
 
   const fetchEntries = useCallback(async () => {
     if (!selectedCategory) return

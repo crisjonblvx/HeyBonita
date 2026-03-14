@@ -2,7 +2,9 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { supabaseBrowserClient } from "@/lib/supabase-browser"
+import { getSupabaseClient } from "@/lib/supabase-browser"
+
+export const dynamic = "force-dynamic"
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin")
@@ -13,12 +15,15 @@ export default function AuthPage() {
   const [showConfirmation, setShowConfirmation] = useState(false)
 
   useEffect(() => {
-    if (!supabaseBrowserClient) return
+    const client = getSupabaseClient()
+    if (!client) return
     const {
       data: { subscription },
-    } = supabaseBrowserClient.auth.onAuthStateChange((event, session) => {
+    } = client.auth.onAuthStateChange((event: string, session: unknown) => {
       if (session && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED")) {
-        window.location.href = "/chat"
+        setTimeout(() => {
+          window.location.href = "/chat"
+        }, 100)
       }
     })
     return () => subscription.unsubscribe()
@@ -27,7 +32,8 @@ export default function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    if (!supabaseBrowserClient) {
+    const client = getSupabaseClient()
+    if (!client) {
       setError("Auth is not configured. Check your environment.")
       return
     }
@@ -40,7 +46,7 @@ export default function AuthPage() {
     setLoading(true)
     try {
       if (mode === "signin") {
-        const { data, error: err } = await supabaseBrowserClient.auth.signInWithPassword({
+        const { data, error: err } = await client.auth.signInWithPassword({
           email: trimmedEmail,
           password: trimmedPassword,
         })
@@ -49,10 +55,12 @@ export default function AuthPage() {
           return
         }
         if (data.session) {
-          window.location.href = "/chat"
+          setTimeout(() => {
+            window.location.href = "/chat"
+          }, 100)
         }
       } else {
-        const { error: err } = await supabaseBrowserClient.auth.signUp({
+        const { error: err } = await client.auth.signUp({
           email: trimmedEmail,
           password: trimmedPassword,
         })

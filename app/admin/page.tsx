@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { supabaseBrowserClient } from "@/lib/supabase-browser"
+import { getSupabaseClient } from "@/lib/supabase-browser"
 
 type Stat = {
   label: string
@@ -38,17 +38,18 @@ export default function AdminPage() {
 
   useEffect(() => {
     async function guardAndLoad() {
-      if (!supabaseBrowserClient) {
+      const client = getSupabaseClient()
+      if (!client) {
         router.replace("/landing")
         return
       }
-      const { data } = await supabaseBrowserClient.auth.getSession()
+      const { data } = await client.auth.getSession()
       const user = data.session?.user
       if (!user) {
         router.replace("/landing")
         return
       }
-      const { data: profile } = await supabaseBrowserClient
+      const { data: profile } = await client
         .from("profiles")
         .select("is_admin")
         .eq("id", user.id)
@@ -63,11 +64,11 @@ export default function AdminPage() {
       try {
         const [{ count: userCount }, { count: knowledgeCount }, { count: convoCount }] =
           await Promise.all([
-            supabaseBrowserClient.from("profiles").select("*", { count: "exact", head: true }),
-            supabaseBrowserClient
+            client.from("profiles").select("*", { count: "exact", head: true }),
+            client
               .from("knowledge_entries")
               .select("*", { count: "exact", head: true }),
-            supabaseBrowserClient
+            client
               .from("conversations")
               .select("*", { count: "exact", head: true }),
           ])
@@ -89,7 +90,7 @@ export default function AdminPage() {
       setStats(newStats)
 
       try {
-        const { data: userRows } = await supabaseBrowserClient
+        const { data: userRows } = await client
           .from("profiles")
           .select("id, email, plan, is_admin, created_at")
           .order("created_at", { ascending: false })
@@ -100,7 +101,7 @@ export default function AdminPage() {
       }
 
       try {
-        const { data: keyRows } = await supabaseBrowserClient
+        const { data: keyRows } = await client
           .from("api_keys")
           .select("id, display_name, app_key, plan, requests_this_month, is_active")
         setApiKeys(keyRows || [])
@@ -117,20 +118,22 @@ export default function AdminPage() {
   const totalUserPages = Math.max(1, Math.ceil(users.length / pageSize))
 
   const toggleUserAdmin = async (id: string, next: boolean) => {
-    if (!supabaseBrowserClient) return
+    const client = getSupabaseClient()
+    if (!client) return
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, is_admin: next } : u)))
     try {
-      await supabaseBrowserClient.from("profiles").update({ is_admin: next }).eq("id", id)
+      await client.from("profiles").update({ is_admin: next }).eq("id", id)
     } catch {
       // ignore
     }
   }
 
   const toggleApiKeyActive = async (id: string, next: boolean) => {
-    if (!supabaseBrowserClient) return
+    const client = getSupabaseClient()
+    if (!client) return
     setApiKeys((prev) => prev.map((k) => (k.id === id ? { ...k, is_active: next } : k)))
     try {
-      await supabaseBrowserClient.from("api_keys").update({ is_active: next }).eq("id", id)
+      await client.from("api_keys").update({ is_active: next }).eq("id", id)
     } catch {
       // ignore
     }

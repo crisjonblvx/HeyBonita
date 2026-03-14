@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { supabaseBrowserClient } from "@/lib/supabase-browser"
+import { getSupabaseClient } from "@/lib/supabase-browser"
 
 export default function RootRedirect() {
   const router = useRouter()
@@ -12,8 +12,9 @@ export default function RootRedirect() {
     if (!decided) {
       const go = async () => {
         try {
-          if (supabaseBrowserClient) {
-            const { data: { session } } = await supabaseBrowserClient.auth.getSession()
+          const client = getSupabaseClient()
+          if (client) {
+            const { data: { session } } = await client.auth.getSession()
             if (session) {
               router.replace("/chat")
               return

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Menu, MessageCircle, BookOpen, Map, Users, Settings } from "lucide-react"
-import { supabaseBrowserClient } from "@/lib/supabase-browser"
+import { getSupabaseClient } from "@/lib/supabase-browser"
 import { BonitaAvatar } from "./BonitaAvatar"
 import { CulturalFactCard } from "./CulturalFactCard"
 
@@ -28,11 +28,12 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
   useEffect(() => {
     let cancelled = false
     async function load() {
-      if (!supabaseBrowserClient) return
-      const { data } = await supabaseBrowserClient.auth.getSession()
+      const client = getSupabaseClient()
+      if (!client) return
+      const { data } = await client.auth.getSession()
       const user = data.session?.user
       if (!user) return
-      const { data: profile } = await supabaseBrowserClient
+      const { data: profile } = await client
         .from("profiles")
         .select("is_admin")
         .eq("id", user.id)
@@ -47,7 +48,7 @@ export function BonitaSidebar({ isOpen, onToggle }: BonitaSidebarProps) {
 
   const handleSignOut = async () => {
     try {
-      await supabaseBrowserClient?.auth.signOut()
+      await getSupabaseClient()?.auth.signOut()
     } catch {
       // ignore
     } finally {

@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { supabaseBrowserClient } from "@/lib/supabase-browser"
+import { getSupabaseClient } from "@/lib/supabase-browser"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -16,7 +16,7 @@ export default function SignupPage() {
     event.preventDefault()
     setError(null)
 
-    const client = supabaseBrowserClient
+    const client = getSupabaseClient()
     if (!client) {
       setError("Authentication is temporarily unavailable. Please try again later.")
       return
@@ -44,7 +44,7 @@ export default function SignupPage() {
         return
       }
 
-      router.push("/")
+      setTimeout(() => { window.location.href = "/chat" }, 100)
     } catch (e) {
       setError("Unexpected error while signing up. Please try again.")
     } finally {
