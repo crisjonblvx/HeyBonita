@@ -1,4 +1,5 @@
 import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 
 type BuildPromptOptions = {
   userMessage: string
@@ -301,7 +302,8 @@ function isMediaOrCultureMomentQuery(text: string): boolean {
 
 export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
   const { userMessage, appOrigin, userId } = options
-  const supabase = getSupabaseAdminClient()
+  const admin = getSupabaseAdminClient()
+  const brain = getSupabaseBrain()
 
   let userContextSection = ""
   let regionalSection = ""
@@ -312,8 +314,8 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
   let knowledgeSection = ""
   let documentsSection = ""
 
-  if (supabase && userId) {
-    const { data } = await supabase
+  if (admin && userId) {
+    const { data } = await admin
       .from("user_context")
       .select("*")
       .eq("user_id", userId)
@@ -321,14 +323,14 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
     userContextSection = formatUserContext(data)
   }
 
-  if (supabase) {
+  if (brain) {
     try {
       // Regional / deep cultural knowledge: try RPC first, then table text search (prioritized in context)
       let regionalResults: any[] = []
       const regionalLimit = 10
       let regionalRpc: any[] | null = null
       try {
-        const { data, error } = await supabase.rpc("search_regional_knowledge", {
+        const { data, error } = await brain.rpc("search_regional_knowledge", {
           query_text: userMessage,
           match_limit: regionalLimit,
         })
@@ -342,7 +344,7 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         const raw = userMessage.trim().slice(0, 120).replace(/'/g, "''")
         const escaped = raw.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_")
         const pat = `'%${escaped}%'`
-        const { data: regionalRows } = await supabase
+        const { data: regionalRows } = await brain
           .from("regional_knowledge")
           .select("id, state, title, content")
           .or(`title.ilike.${pat},content.ilike.${pat},state.ilike.${pat}`)
@@ -352,11 +354,11 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
       regionalSection = formatRegionalContext(regionalResults)
 
       const [{ data: knowledge }, { data: documents }] = await Promise.all([
-        supabase.rpc("match_knowledge", {
+        brain.rpc("match_knowledge", {
           query_text: userMessage,
           match_limit: 8,
         }),
-        supabase.rpc("match_documents", {
+        brain.rpc("match_documents", {
           query_text: userMessage,
           match_limit: 6,
         }),
@@ -368,11 +370,11 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
       // Fallback to text search if vector search returns nothing
       if (!knowledgeResults.length || !documentResults.length) {
         const [{ data: knowledgeText }, { data: documentsText }] = await Promise.all([
-          supabase.rpc("search_knowledge_text", {
+          brain.rpc("search_knowledge_text", {
             query_text: userMessage,
             match_limit: 8,
           }),
-          supabase.rpc("search_documents_text", {
+          brain.rpc("search_documents_text", {
             query_text: userMessage,
             match_limit: 6,
             filter_origin: appOrigin !== "heybonita.ai" ? appOrigin : null,
@@ -394,7 +396,7 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         const pat = `'%${escaped}%'`
 
         if (isLikelyAdviceOrEmotionalQuery(userMessage)) {
-          const { data: wisdomRows } = await supabase
+          const { data: wisdomRows } = await brain
             .from("cultural_wisdom")
             .select("title, proverb, saying, content, explanation, description, meaning, when_used, tags")
             .or(
@@ -407,7 +409,7 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         }
 
         {
-          const { data: connectionRows } = await supabase
+          const { data: connectionRows } = await brain
             .from("cultural_connections")
             .select("source_name, target_name, relation, connection_type, description")
             .or(
@@ -420,7 +422,7 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         }
 
         {
-          const { data: languageRows } = await supabase
+          const { data: languageRows } = await brain
             .from("language_knowledge")
             .select("term, phrase, word, meaning, definition, explanation, notes, register")
             .or(
@@ -433,7 +435,7 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
         }
 
         if (isMediaOrCultureMomentQuery(userMessage)) {
-          const { data: touchstoneRows } = await supabase
+          const { data: touchstoneRows } = await brain
             .from("cultural_touchstones")
             .select("name, title, generation, era, description, content, tags, the_conversation")
             .or(
@@ -457,7 +459,7 @@ export async function buildBonitaSystemPrompt(options: BuildPromptOptions) {
 
   const baseIdentity = getBaseIdentityPrompt()
   const tone = getAppOriginTone(appOrigin)
-  const calendar = await getCulturalCalendarSnippet(supabase)
+  const calendar = await getCulturalCalendarSnippet(brain)
   const counterInstitutional = getCounterInstitutionalKnowledge()
 
   const contextBlocks = [

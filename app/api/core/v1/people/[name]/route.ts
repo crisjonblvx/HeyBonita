@@ -1,8 +1,8 @@
-import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { applyCors, corsPreflight } from "../../_utils/cors"
 
 export async function GET(req: Request, { params }: { params: Promise<{ name: string }> }) {
-  const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseBrain()
   if (!supabase) {
     return applyCors(
       req,

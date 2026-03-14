@@ -1,4 +1,4 @@
-import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { applyCors, corsPreflight } from "../_utils/cors"
 
 export const dynamic = "force-dynamic"
@@ -7,7 +7,7 @@ const DEFAULT_LIMIT = 20
 const MAX_LIMIT = 100
 
 export async function GET(req: Request) {
-  const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseBrain()
   if (!supabase) {
     return applyCors(
       req,

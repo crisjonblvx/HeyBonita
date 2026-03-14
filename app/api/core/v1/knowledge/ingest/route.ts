@@ -1,4 +1,4 @@
-import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { applyCors, corsPreflight } from "../../_utils/cors"
 
 type NMAAHCItem = {
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     )
   }
 
-  const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseBrain()
   if (!supabase) {
     return applyCors(
       req,

@@ -1,4 +1,4 @@
-import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { applyCors, corsPreflight } from "../../_utils/cors"
 
 type SourceRow = {
@@ -54,7 +54,7 @@ export async function OPTIONS(req: Request) {
 async function runFeed(req: Request): Promise<Response> {
   const secret = process.env.BONITA_INGEST_SECRET || ""
 
-  const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseBrain()
   if (!supabase) {
     return new Response(JSON.stringify({ ok: false, error: "Supabase not configured" }), {
       status: 500,

@@ -1,4 +1,4 @@
-import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { applyCors, corsPreflight } from "../_utils/cors"
 
 /**
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     )
   }
 
-  const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseBrain()
   if (supabase) {
     const { data: row } = await supabase
       .from("knowledge_entries")

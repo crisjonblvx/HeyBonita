@@ -1,5 +1,6 @@
 import { checkServiceToken } from "../_utils/auth"
 import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { buildBonitaSystemPrompt } from "@/lib/bonita-prompt-builder"
 import { applyCors, corsHeadersFor, corsPreflight, detectAppOrigin } from "../_utils/cors"
 
@@ -94,26 +95,27 @@ function streamAnthropic(options: StreamAnthropicOptions): Response {
           }
         }
 
-        const supabase = getSupabaseAdminClient()
-        if (supabase && fullContent.trim().length > 0) {
+        const brain = getSupabaseBrain()
+        const admin = getSupabaseAdminClient()
+        if (brain && fullContent.trim().length > 0) {
           const assistantMessage: Msg = { role: "assistant", content: fullContent }
           const fullMessages = [...outgoingMessages, assistantMessage]
           const sessionId =
             (typeof body?.session_id === "string" && body.session_id) ||
             (globalThis.crypto && "randomUUID" in globalThis.crypto ? (crypto.randomUUID() as string) : `session_${Date.now()}`)
-          await supabase.from("conversations").insert({
+          await brain.from("conversations").insert({
             session_id: sessionId,
             user_id: userId ?? null,
             app_origin: appOrigin,
             messages: fullMessages,
           })
-          if (userId) {
-            const { data: existing } = await supabase.from("user_context").select("conversation_count").eq("user_id", userId).maybeSingle()
+          if (userId && admin) {
+            const { data: existing } = await admin.from("user_context").select("conversation_count").eq("user_id", userId).maybeSingle()
             const currentCount = typeof existing?.conversation_count === "number" ? existing.conversation_count : 0
             if (existing) {
-              await supabase.from("user_context").update({ last_active: new Date().toISOString(), conversation_count: currentCount + 1 }).eq("user_id", userId)
+              await admin.from("user_context").update({ last_active: new Date().toISOString(), conversation_count: currentCount + 1 }).eq("user_id", userId)
             } else {
-              await supabase.from("user_context").insert({ user_id: userId, last_active: new Date().toISOString(), conversation_count: 1 })
+              await admin.from("user_context").insert({ user_id: userId, last_active: new Date().toISOString(), conversation_count: 1 })
             }
           }
         }
@@ -348,9 +350,10 @@ export async function POST(req: Request) {
           }
         }
 
-        // Persist conversation + user context updates once streaming is complete
-        const supabase = getSupabaseAdminClient()
-        if (supabase && fullContent.trim().length > 0) {
+        // Persist conversation (brain) + user context (heybonita)
+        const brain = getSupabaseBrain()
+        const admin = getSupabaseAdminClient()
+        if (brain && fullContent.trim().length > 0) {
           const assistantMessage: Msg = {
             role: "assistant",
             content: fullContent,
@@ -363,15 +366,15 @@ export async function POST(req: Request) {
               ? (crypto.randomUUID() as string)
               : `session_${Date.now()}`)
 
-          await supabase.from("conversations").insert({
+          await brain.from("conversations").insert({
             session_id: sessionId,
             user_id: userId || null,
             app_origin: effectiveAppOrigin,
             messages: fullMessages,
           })
 
-          if (userId) {
-            const { data: existing } = await supabase
+          if (userId && admin) {
+            const { data: existing } = await admin
               .from("user_context")
               .select("conversation_count")
               .eq("user_id", userId)
@@ -381,7 +384,7 @@ export async function POST(req: Request) {
               typeof existing?.conversation_count === "number" ? existing.conversation_count : 0
 
             if (existing) {
-              await supabase
+              await admin
                 .from("user_context")
                 .update({
                   last_active: new Date().toISOString(),
@@ -389,7 +392,7 @@ export async function POST(req: Request) {
                 })
                 .eq("user_id", userId)
             } else {
-              await supabase.from("user_context").insert({
+              await admin.from("user_context").insert({
                 user_id: userId,
                 last_active: new Date().toISOString(),
                 conversation_count: 1,

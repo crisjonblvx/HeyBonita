@@ -1,4 +1,4 @@
-import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { applyCors, corsPreflight } from "../_utils/cors"
 
 export async function GET(req: Request) {
@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     (provider === "anthropic" ? "claude-sonnet-4-20250514" : "mistral")
   const bonitaBrainUrl = process.env.BONITA_BRAIN_URL
 
-  const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseBrain()
 
   let knowledgeEntries: number | null = null
   if (supabase) {

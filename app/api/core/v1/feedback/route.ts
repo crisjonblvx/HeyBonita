@@ -1,4 +1,5 @@
 import { getSupabaseAdminClient } from "@/lib/supabase"
+import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { applyCors, corsPreflight, detectAppOrigin } from "../_utils/cors"
 
 type FeedbackRating = "up" | "down" | "helpful" | "missed"
@@ -28,8 +29,9 @@ type FeedbackBody = {
 }
 
 export async function POST(req: Request) {
-  const supabase = getSupabaseAdminClient()
-  if (!supabase) {
+  const admin = getSupabaseAdminClient()
+  const brain = getSupabaseBrain()
+  if (!brain) {
     return applyCors(
       req,
       new Response(JSON.stringify({ ok: false, error: "Supabase not configured" }), {
@@ -90,8 +92,8 @@ export async function POST(req: Request) {
 
   let trustScore = 1
 
-  if (userId) {
-    const { data: userRow } = await supabase
+  if (userId && admin) {
+    const { data: userRow } = await admin
       .from("user_context")
       .select("trust_score,total_helpful_votes,total_missed_votes")
       .eq("user_id", userId)
@@ -108,7 +110,7 @@ export async function POST(req: Request) {
       update.total_missed_votes = (userRow?.total_missed_votes || 0) + 1
     }
     if (Object.keys(update).length > 0) {
-      await supabase
+      await admin
         .from("user_context")
         .update({
           ...update,
@@ -118,7 +120,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const { error } = await supabase.from("response_feedback").insert({
+  const { error } = await brain.from("response_feedback").insert({
     query,
     response,
     rating,
@@ -154,7 +156,7 @@ export async function POST(req: Request) {
     (reason === "did_not_answer" || reason === "missing_cultural_context")
   ) {
     const topic = query.split(/[.!?]/)[0].slice(0, 160)
-    await supabase.from("knowledge_gaps").insert({
+    await brain.from("knowledge_gaps").insert({
       query,
       topic,
       app_origin: appOrigin,
@@ -167,14 +169,14 @@ export async function POST(req: Request) {
   if (userId) {
     const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString()
 
-    const downsRes = await supabase
+    const downsRes = await brain
       .from("response_feedback")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .eq("rating", "down")
       .gte("created_at", windowStart)
 
-    const upsRes = await supabase
+    const upsRes = await brain
       .from("response_feedback")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
@@ -185,7 +187,7 @@ export async function POST(req: Request) {
     const ups = typeof upsRes.count === "number" ? upsRes.count : 0
 
     if (downs >= 10 && ups === 0) {
-      await supabase.from("moderation_log").insert({
+      await brain.from("moderation_log").insert({
         user_id: userId,
         type: "feedback_abuse",
         details: { downs, ups, window_start: windowStart },
