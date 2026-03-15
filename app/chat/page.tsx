@@ -9,6 +9,12 @@ import { BonitaSplash } from "@/components/BonitaSplash"
 import { MessageBubble, type ChatMessage } from "@/components/MessageBubble"
 import { QuickPrompts } from "@/components/QuickPrompts"
 import { TypingIndicator } from "@/components/TypingIndicator"
+import "@runwayml/avatars-react/styles.css"
+
+const AvatarCall = dynamic(
+  () => import("@runwayml/avatars-react").then((m) => m.AvatarCall),
+  { ssr: false },
+)
 
 function AskParamReader({
   onAsk,
@@ -41,9 +47,7 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [avatarModalOpen, setAvatarModalOpen] = useState(false)
-  const [avatarLoading, setAvatarLoading] = useState(false)
-  const [avatarVideoUrl, setAvatarVideoUrl] = useState<string | null>(null)
-  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const [avatarConnectError, setAvatarConnectError] = useState(false)
   const [avatarImageError, setAvatarImageError] = useState(false)
   const [isPro] = useState(() =>
     typeof window !== "undefined" && localStorage.getItem("bonita_pro") === "true",
@@ -166,31 +170,9 @@ export default function ChatPage() {
     setTimeout(() => handleSend(text), 0)
   }
 
-  const handleAvatarOpen = useCallback(async () => {
+  const handleAvatarOpen = useCallback(() => {
+    setAvatarConnectError(false)
     setAvatarModalOpen(true)
-    setAvatarLoading(true)
-    setAvatarVideoUrl(null)
-    setAvatarError(null)
-    try {
-      const res = await fetch("/api/core/v1/avatar/connect", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: "Hey love, I'm Bonita. Ask me anything about our culture.",
-        }),
-      })
-      const data = await res.json()
-      if (data.url || data.videoUrl || data.output?.url) {
-        setAvatarVideoUrl(data.url || data.videoUrl || data.output?.url)
-      } else {
-        setAvatarError("Video not ready yet")
-        if (process.env.NODE_ENV === "development") console.log("Runway response:", data)
-      }
-    } catch {
-      setAvatarError("Could not connect to Bonita")
-    } finally {
-      setAvatarLoading(false)
-    }
   }, [])
 
   const isEmpty = messages.length === 0
@@ -439,8 +421,7 @@ export default function ChatPage() {
                 type="button"
                 onClick={() => {
                   setAvatarModalOpen(false)
-                  setAvatarVideoUrl(null)
-                  setAvatarError(null)
+                  setAvatarConnectError(false)
                 }}
                 className="rounded-lg p-2 transition-opacity hover:opacity-80"
                 style={{ color: "var(--text-secondary)" }}
@@ -452,19 +433,42 @@ export default function ChatPage() {
               </button>
             </div>
             <div className="flex min-h-[320px] flex-1 flex-col">
-              {avatarLoading && (
-                <p className="py-12 text-center text-amber-400">Connecting to Bonita...</p>
-              )}
-              {avatarVideoUrl && !avatarLoading && (
-                <video
-                  src={avatarVideoUrl}
-                  autoPlay
-                  controls
-                  className="w-full rounded-lg"
+              {avatarConnectError ? (
+                <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center">
+                  <p
+                    className="max-w-sm text-base leading-relaxed"
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    Bonita&apos;s video avatar is coming soon. For now, keep chatting below ✨
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setAvatarModalOpen(false)}
+                    className="mt-6 rounded-xl px-5 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
+                    style={{
+                      background: "var(--bonita-gold)",
+                      color: "var(--bg-deep)",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
+              ) : (
+                <AvatarCall
+                  avatarId={
+                    process.env.NEXT_PUBLIC_BONITA_AVATAR_ID ||
+                    "3d6635bd-7048-4aa8-abef-ba653739019d"
+                  }
+                  connectUrl="/api/core/v1/avatar/connect"
+                  avatarImageUrl="/Real_Bonita.png"
+                  onEnd={() => setAvatarModalOpen(false)}
+                  onError={() => setAvatarConnectError(true)}
+                  className="min-h-[320px] w-full flex-1"
                 />
-              )}
-              {avatarError && !avatarLoading && (
-                <p className="py-12 text-center text-sm text-zinc-400">{avatarError}</p>
               )}
             </div>
           </div>

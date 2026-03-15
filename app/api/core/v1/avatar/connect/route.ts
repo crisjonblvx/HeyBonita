@@ -1,42 +1,81 @@
 import { NextResponse } from "next/server"
+import RunwayML from "@runwayml/sdk"
+
+export const dynamic = "force-dynamic"
+
+const AVATAR_ID =
+  process.env.NEXT_PUBLIC_BONITA_AVATAR_ID || "3d6635bd-7048-4aa8-abef-ba653739019d"
+const RUNWAY_BASE = "https://api.dev.runwayml.com"
 
 export async function POST(req: Request) {
-  const body = await req.json().catch(() => ({}))
-  const message =
-    typeof body?.message === "string" ? body.message : "Hey love, I'm Bonita. Your Bronx auntie with all the wisdom. Ask me anything."
-
-  if (!process.env.RUNWAY_API_KEY) {
+  const apiKey = process.env.RUNWAY_API_KEY || process.env.RUNWAYML_API_SECRET
+  if (!apiKey) {
     return NextResponse.json({ error: "Runway not configured" }, { status: 503 })
   }
 
   try {
-    const response = await fetch("https://api.runwayml.com/v1/avatar/generate", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RUNWAY_API_KEY}`,
-        "Content-Type": "application/json",
-        "X-Runway-Version": "2024-11-06",
-      },
-      body: JSON.stringify({
-        avatarId: process.env.NEXT_PUBLIC_BONITA_AVATAR_ID || "3d6635bd-7048-4aa8-abef-ba653739019d",
-        text: message,
-        voice: { speed: 1.0 },
-      }),
+    const client = new RunwayML({ apiKey, baseURL: RUNWAY_BASE })
+
+    const { id: sessionId } = await client.realtimeSessions.create({
+      model: "gwm1_avatars",
+      avatar: { type: "custom", avatarId: AVATAR_ID },
     })
 
-    if (!response.ok) {
-      const errText = await response.text()
-      console.error("Runway API error:", response.status, errText)
+    let sessionKey: string | undefined
+    for (let i = 0; i < 60; i++) {
+      const session = await client.realtimeSessions.retrieve(sessionId)
+      if (session.status === "READY" && "sessionKey" in session) {
+        sessionKey = session.sessionKey
+        break
+      }
+      if (session.status === "FAILED" && "failure" in session) {
+        console.error("Runway session failed:", session.failure)
+        return NextResponse.json(
+          { error: session.failure },
+          { status: 500 },
+        )
+      }
+      await new Promise((r) => setTimeout(r, 1000))
+    }
+
+    if (!sessionKey) {
       return NextResponse.json(
-        { error: "Avatar generation failed", detail: errText },
-        { status: response.status },
+        { error: "Session timed out" },
+        { status: 504 },
       )
     }
 
-    const data = await response.json()
-    return NextResponse.json(data)
+    const consumeRes = await fetch(
+      `${RUNWAY_BASE.replace(/\/$/, "")}/v1/realtime_sessions/${sessionId}/consume`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sessionKey}`,
+          "X-Runway-Version": "2024-11-06",
+        },
+      },
+    )
+    if (!consumeRes.ok) {
+      const errText = await consumeRes.text()
+      console.error("Runway consume error:", consumeRes.status, errText)
+      return NextResponse.json(
+        { error: "Failed to get session credentials", detail: errText },
+        { status: 502 },
+      )
+    }
+    const credentials = await consumeRes.json()
+
+    return NextResponse.json({
+      sessionId,
+      serverUrl: credentials.url,
+      token: credentials.token,
+      roomName: credentials.roomName,
+    })
   } catch (error) {
-    console.error("Avatar error:", error)
-    return NextResponse.json({ error: "Avatar generation failed" }, { status: 500 })
+    console.error("Avatar connect error:", error)
+    return NextResponse.json(
+      { error: "Failed to create avatar session" },
+      { status: 500 },
+    )
   }
 }
