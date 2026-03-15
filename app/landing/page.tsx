@@ -23,19 +23,21 @@ export default function LandingPage() {
       .catch(() => {})
   }, [])
 
-  const handleUpgrade = async (plan: "pro" | "home") => {
-    const variantId =
-      plan === "pro"
-        ? process.env.NEXT_PUBLIC_LS_PRO_VARIANT_ID
-        : process.env.NEXT_PUBLIC_LS_HOME_VARIANT_ID
-    const res = await fetch("/api/core/v1/billing/checkout", {
+  const handleUpgrade = async (plan: "pro" | "gold" | "home") => {
+    const variantMap: Record<string, string | undefined> = {
+      pro: process.env.NEXT_PUBLIC_LS_PRO_VARIANT_ID,
+      gold: process.env.NEXT_PUBLIC_LS_GOLD_VARIANT_ID,
+      home: process.env.NEXT_PUBLIC_LS_HOME_VARIANT_ID,
+    }
+    const variantId = variantMap[plan]
+    const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ variantId, plan }),
+      body: JSON.stringify({ variantId }),
     })
-    const { url, error } = await res.json()
-    if (url) window.location.href = url
-    else console.error("Checkout error:", error)
+    const data = await res.json()
+    if (data.checkoutUrl) window.location.href = data.checkoutUrl
+    else console.error("Checkout error:", data.error)
   }
 
   return (
@@ -205,50 +207,54 @@ export default function LandingPage() {
           >
             Pricing
           </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {/* FREE */}
-            <div
-              className="rounded-2xl border-2 p-6 transition-colors hover:border-[var(--bonita-gold-muted)]"
-              style={{ background: "var(--bg-card)", borderColor: "var(--bg-surface-light)" }}
-            >
+            <div className="rounded-2xl border-2 p-5 transition-colors hover:border-[var(--bonita-gold-muted)]" style={{ background: "var(--bg-card)", borderColor: "var(--bg-surface-light)" }}>
               <h3 className="mb-1 text-lg font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>FREE</h3>
-              <p className="mb-4 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$0/mo</p>
-              <ul className="mb-6 space-y-2 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
-                <li>&#8226; 10 conversations/day</li>
-                <li>&#8226; Text only</li>
+              <p className="mb-3 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$0/mo</p>
+              <ul className="mb-5 space-y-1.5 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                <li>&#8226; 10 queries/month</li>
+                <li>&#8226; East Coast mode</li>
                 <li>&#8226; Cultural fact of the day</li>
               </ul>
               <Link href="/auth" className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium" style={{ borderColor: "var(--bg-surface-light)", color: "var(--text-primary)", fontFamily: "var(--font-body)" }}>Start free</Link>
             </div>
 
             {/* PRO */}
-            <div
-              className="rounded-2xl border-2 p-6"
-              style={{ background: "var(--bg-card)", borderColor: "var(--bonita-gold)" }}
-            >
-              <span className="mb-2 inline-block rounded px-2 py-0.5 text-xs font-medium" style={{ background: "var(--bonita-burgundy)", color: "var(--bonita-gold-crown)", fontFamily: "var(--font-body)" }}>RECOMMENDED</span>
+            <div className="rounded-2xl border-2 p-5" style={{ background: "var(--bg-card)", borderColor: "var(--bonita-gold)" }}>
+              <span className="mb-2 inline-block rounded px-2 py-0.5 text-xs font-medium" style={{ background: "var(--bonita-burgundy)", color: "var(--bonita-gold-crown)", fontFamily: "var(--font-body)" }}>POPULAR</span>
               <h3 className="mb-1 text-lg font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>PRO</h3>
-              <p className="mb-4 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$19.99/mo</p>
-              <ul className="mb-6 space-y-2 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
-                <li>&#8226; Unlimited conversations</li>
-                <li>&#8226; Inline images &amp; portraits</li>
-                <li>&#8226; 30 min video calls with Bonita/mo</li>
+              <p className="mb-3 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$9.99/mo</p>
+              <ul className="mb-5 space-y-1.5 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                <li>&#8226; 100 queries/month</li>
+                <li>&#8226; East Coast + West Coast modes</li>
                 <li>&#8226; Conversation history</li>
               </ul>
               <button type="button" onClick={() => handleUpgrade("pro")} className="block w-full rounded-lg py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90" style={{ background: "var(--bonita-gold)", color: "var(--bg-deep)", fontFamily: "var(--font-body)" }}>Go Pro</button>
             </div>
 
+            {/* GOLD */}
+            <div className="rounded-2xl border-2 p-5 transition-colors hover:border-[var(--bonita-gold-muted)]" style={{ background: "var(--bg-card)", borderColor: "var(--bg-surface-light)" }}>
+              <h3 className="mb-1 text-lg font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>GOLD</h3>
+              <p className="mb-3 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$24.99/mo</p>
+              <ul className="mb-5 space-y-1.5 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                <li>&#8226; 300 queries/month</li>
+                <li>&#8226; All 3 modes unlocked</li>
+                <li>&#8226; Inline images</li>
+                <li>&#8226; Video calls with Bonita</li>
+              </ul>
+              <button type="button" onClick={() => handleUpgrade("gold")} className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90" style={{ borderColor: "var(--bonita-gold)", color: "var(--bonita-gold)", fontFamily: "var(--font-body)" }}>Go Gold</button>
+            </div>
+
             {/* HOME */}
-            <div
-              className="rounded-2xl border-2 p-6 transition-colors hover:border-[var(--bonita-gold-muted)]"
-              style={{ background: "var(--bg-card)", borderColor: "var(--bg-surface-light)" }}
-            >
+            <div className="rounded-2xl border-2 p-5 transition-colors hover:border-[var(--bonita-gold-muted)]" style={{ background: "var(--bg-card)", borderColor: "var(--bg-surface-light)" }}>
               <h3 className="mb-1 text-lg font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>HOME</h3>
-              <p className="mb-4 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$49.99/mo</p>
-              <ul className="mb-6 space-y-2 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
-                <li>&#8226; Everything in Pro</li>
-                <li>&#8226; 2 hours video calls/mo</li>
+              <p className="mb-3 text-2xl font-bold" style={{ color: "var(--bonita-gold)" }}>$49.99/mo</p>
+              <ul className="mb-5 space-y-1.5 text-sm" style={{ fontFamily: "var(--font-body)", color: "var(--text-secondary)" }}>
+                <li>&#8226; Unlimited queries</li>
+                <li>&#8226; All 3 modes unlocked</li>
                 <li>&#8226; Priority responses</li>
+                <li>&#8226; Extended video calls</li>
               </ul>
               <button type="button" onClick={() => handleUpgrade("home")} className="block w-full rounded-lg border-2 py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-90" style={{ borderColor: "var(--bonita-gold)", color: "var(--bonita-gold)", fontFamily: "var(--font-body)" }}>Go Home</button>
             </div>

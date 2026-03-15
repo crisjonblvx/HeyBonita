@@ -6,6 +6,8 @@ import dynamic from "next/dynamic"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
 import { BonitaAvatar } from "@/components/BonitaAvatar"
 import { BonitaSplash } from "@/components/BonitaSplash"
+import { ModeSelector } from "@/components/ModeSelector"
+import type { ModeId } from "@/lib/modes"
 import { MessageBubble, type ChatMessage } from "@/components/MessageBubble"
 import { QuickPrompts } from "@/components/QuickPrompts"
 import { TypingIndicator } from "@/components/TypingIndicator"
@@ -41,6 +43,7 @@ export default function ChatPage() {
     typeof window !== "undefined" && localStorage.getItem("bonita_pro") === "true",
   )
   const [feedbackTargetId, setFeedbackTargetId] = useState<string | null>(null)
+  const [selectedMode, setSelectedMode] = useState<ModeId>("east-coast")
   const [showSplash, setShowSplash] = useState(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search)
@@ -82,6 +85,7 @@ export default function ChatPage() {
             message: trimmed,
             conversationHistory: nextMessages.map((m) => ({ role: m.role, content: m.content })),
             app_origin: "heybonita.ai",
+            mode: selectedMode,
           }),
         })
 
@@ -200,7 +204,7 @@ export default function ChatPage() {
           }}
         >
           <BonitaAvatar size="md" />
-          <div>
+          <div className="flex-1">
             <h1
               className="text-lg font-semibold"
               style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
@@ -218,6 +222,7 @@ export default function ChatPage() {
               Cultural Oracle • Always present
             </p>
           </div>
+          <ModeSelector onModeChange={setSelectedMode} />
         </header>
 
         <div className="flex flex-1 flex-col overflow-hidden">

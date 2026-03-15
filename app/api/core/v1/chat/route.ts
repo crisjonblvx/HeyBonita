@@ -2,6 +2,7 @@ import { checkServiceToken } from "../_utils/auth"
 import { getSupabaseAdminClient } from "@/lib/supabase"
 import { getSupabaseBrain } from "@/lib/supabase-brain"
 import { buildBonitaSystemPrompt } from "@/lib/bonita-prompt-builder"
+import { getModeSystemPrompt } from "@/lib/modes"
 import { applyCors, corsHeadersFor, corsPreflight, detectAppOrigin } from "../_utils/cors"
 
 type Msg = { role: "system" | "user" | "assistant"; content: string }
@@ -139,6 +140,7 @@ type ChatBody = {
   conversationHistory?: Msg[]
   app_origin?: string
   user_id?: string
+  mode?: string
 }
 
 function normalizeBody(body: any): { message: string; history: Msg[]; appOrigin?: string; userId?: string } {
@@ -225,11 +227,14 @@ export async function POST(req: Request) {
     )
   }
 
-  const systemPrompt = await buildBonitaSystemPrompt({
+  const selectedMode = typeof (body as any)?.mode === "string" ? (body as any).mode : "east-coast"
+  const modePrompt = getModeSystemPrompt(selectedMode)
+  const basePrompt = await buildBonitaSystemPrompt({
     userMessage: lastMessage,
     appOrigin: effectiveAppOrigin,
     userId: userId || null,
   })
+  const systemPrompt = `${modePrompt}\n\n${basePrompt}`
 
   const outgoingMessages: Msg[] = [
     { role: "system", content: systemPrompt },
