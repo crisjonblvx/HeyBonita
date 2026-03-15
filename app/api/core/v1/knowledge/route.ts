@@ -37,6 +37,7 @@ export async function GET(req: Request) {
     .not("name", "is", null)
     .neq("name", "")
     .not("name", "like", "%?????%")
+    .filter("name", "gte", "A")
 
   const { data, error, count } = await query
     .order("image_url", { ascending: false, nullsFirst: false })

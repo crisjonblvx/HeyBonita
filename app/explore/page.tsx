@@ -108,7 +108,7 @@ export default function ExplorePage() {
           return (a.name || "").localeCompare(b.name || "")
         })
         setEntries(filtered)
-        setTotal(filtered.length)
+        setTotal(json.total ?? filtered.length)
       } else {
         setEntries([])
         setTotal(0)

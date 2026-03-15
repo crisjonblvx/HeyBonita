@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic"
 
 const AVATAR_ID =
   process.env.NEXT_PUBLIC_BONITA_AVATAR_ID || "3d6635bd-7048-4aa8-abef-ba653739019d"
-const RUNWAY_BASE = process.env.RUNWAY_BASE_URL || "https://api.runwayml.com"
+const RUNWAY_BASE = process.env.RUNWAY_BASE_URL || "https://api.dev.runwayml.com"
 
 export async function POST(req: Request) {
   const apiKey = process.env.RUNWAY_API_KEY || process.env.RUNWAYML_API_SECRET
@@ -51,6 +51,7 @@ export async function POST(req: Request) {
         method: "POST",
         headers: {
           Authorization: `Bearer ${sessionKey}`,
+          "Content-Type": "application/json",
           "X-Runway-Version": "2024-11-06",
         },
       },
@@ -72,9 +73,10 @@ export async function POST(req: Request) {
       roomName: credentials.roomName,
     })
   } catch (error) {
-    console.error("Avatar connect error:", error)
+    const errMsg = error instanceof Error ? error.message : String(error)
+    console.error("Avatar connect error:", errMsg, error)
     return NextResponse.json(
-      { error: "Failed to create avatar session" },
+      { error: "Failed to create avatar session", detail: errMsg },
       { status: 500 },
     )
   }
