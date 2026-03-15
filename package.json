@@ -24,7 +24,10 @@
     "seed:hbcu": "npx tsx scripts/seed-hbcu-deep.ts",
     "seed:media": "npx tsx scripts/seed-media.ts",
     "seed:culture": "npx tsx scripts/seed-events.ts && npx tsx scripts/seed-places.ts && npx tsx scripts/seed-food.ts && npx tsx scripts/seed-dance.ts && npx tsx scripts/seed-spiritual.ts && npx tsx scripts/seed-business.ts && npx tsx scripts/seed-hbcu-deep.ts && npx tsx scripts/seed-media.ts",
-    "seed:verify": "npx tsx scripts/verify-seeds.ts"
+    "seed:verify": "npx tsx scripts/verify-seeds.ts",
+    "seed": "tsx scripts/seed/bonita-seeder.ts",
+    "seed:dry": "DRY_RUN=true tsx scripts/seed/bonita-seeder.ts",
+    "seed:category": "tsx scripts/seed/bonita-seeder.ts --category"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -87,6 +90,7 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@eslint/compat": "^2.0.3",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
