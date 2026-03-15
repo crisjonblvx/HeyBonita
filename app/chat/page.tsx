@@ -16,22 +16,16 @@ const AvatarCall = dynamic(
   { ssr: false },
 )
 
-function AskParamReader({ onAsk }: { onAsk: (value: string) => void }) {
+function AskParamReader({ onAsk }: { onAsk: (q: string) => void }) {
   const searchParams = useSearchParams()
-  const didRead = useRef(false)
-
   useEffect(() => {
-    if (didRead.current) return
     const ask = searchParams.get("ask")
-    if (ask && typeof ask === "string") {
-      didRead.current = true
-      onAsk(ask)
-      const autosubmit = searchParams.get("autosubmit")
-      if (autosubmit !== "true" && typeof window !== "undefined") {
-        window.history.replaceState({}, "", window.location.pathname)
-      }
+    const auto = searchParams.get("autosubmit")
+    if (ask && auto === "true") {
+      setTimeout(() => onAsk(ask), 500)
     }
-  }, [searchParams, onAsk])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return null
 }
 
@@ -134,20 +128,6 @@ export default function ChatPage() {
     [input, loading, messages],
   )
 
-  const autosubmitFired = useRef(false)
-  useEffect(() => {
-    if (autosubmitFired.current) return
-    if (typeof window === "undefined") return
-    const params = new URLSearchParams(window.location.search)
-    const ask = params.get("ask")
-    const autosubmit = params.get("autosubmit")
-    if (ask && autosubmit === "true") {
-      autosubmitFired.current = true
-      window.history.replaceState({}, "", window.location.pathname)
-      handleSend(ask)
-    }
-  }) // intentionally no deps — runs every render until it fires
-
   async function handleFeedback(message: ChatMessage, rating: "up" | "down", reason?: string) {
     try {
       const idx = messages.findIndex((m) => m.id === message.id)
@@ -194,7 +174,7 @@ export default function ChatPage() {
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg-deep)" }}>
       <Suspense fallback={null}>
-        <AskParamReader onAsk={setInput} />
+        <AskParamReader onAsk={handleSend} />
       </Suspense>
       {showSplash && <BonitaSplash onComplete={() => setShowSplash(false)} />}
 

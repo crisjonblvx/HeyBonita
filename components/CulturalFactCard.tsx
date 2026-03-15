@@ -1,7 +1,13 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { getSupabaseClient } from "@/lib/supabase-browser"
+
+function truncateAtWord(text: string, max: number): string {
+  if (!text || text.length <= max) return text
+  return text.slice(0, max).replace(/\s\S*$/, "") + "..."
+}
 
 type Entry = {
   id?: string
@@ -11,6 +17,7 @@ type Entry = {
 }
 
 export function CulturalFactCard() {
+  const router = useRouter()
   const [entry, setEntry] = useState<Entry | null>(null)
   const [loading, setLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -134,15 +141,26 @@ export function CulturalFactCard() {
         </p>
       ) : entry ? (
         <div className="animate-in fade-in duration-300">
-          <p className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
-            {entry.name}
-          </p>
-          <p
-            className="mt-1 line-clamp-3 text-xs leading-relaxed"
-            style={{ color: "var(--text-secondary)" }}
+          <div
+            className="cursor-pointer transition-opacity hover:opacity-80"
+            onClick={() => {
+              if (entry.name) {
+                router.push(
+                  `/chat?ask=${encodeURIComponent("Tell me about " + entry.name)}&autosubmit=true`
+                )
+              }
+            }}
           >
-            {entry.biography || "No summary yet."}
-          </p>
+            <p className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
+              {entry.name}
+            </p>
+            <p
+              className="mt-1 text-xs leading-relaxed"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              {truncateAtWord(entry.biography || "No summary yet.", 140)}
+            </p>
+          </div>
           <button
             type="button"
             onClick={fetchRandom}
