@@ -39,7 +39,6 @@ const LOCATIONS: { name: string; coords: [number, number]; searchName: string }[
   { name: "Central Florida (FL)", coords: [-81.37, 28.54], searchName: "Central Florida" },
   { name: "Newark (NJ)", coords: [-74.17, 40.74], searchName: "Newark" },
   { name: "Boston (MA)", coords: [-71.06, 42.36], searchName: "Boston" },
-  { name: "Loiza (Puerto Rico)", coords: [-65.88, 18.43], searchName: "Loiza" },
 ]
 
 type RegionalEntry = {

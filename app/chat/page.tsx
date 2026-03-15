@@ -25,19 +25,27 @@ function AskParamReader({
 }) {
   const searchParams = useSearchParams()
   const autosubmitDone = useRef(false)
+  const onAutosubmitRef = useRef(onAutosubmit)
+  useEffect(() => {
+    onAutosubmitRef.current = onAutosubmit
+  }, [onAutosubmit])
+
   useEffect(() => {
     const ask = searchParams.get("ask")
     const autosubmit = searchParams.get("autosubmit")
     if (ask && typeof ask === "string") {
       onAsk(ask)
-      if (autosubmit === "true" && onAutosubmit && !autosubmitDone.current) {
+      if (autosubmit === "true" && onAutosubmitRef.current && !autosubmitDone.current) {
         autosubmitDone.current = true
-        const t = setTimeout(() => onAutosubmit(ask), 500)
+        const t = setTimeout(() => {
+          onAutosubmitRef.current?.(ask)
+          if (typeof window !== "undefined") window.history.replaceState({}, "", window.location.pathname)
+        }, 600)
         return () => clearTimeout(t)
       }
       if (typeof window !== "undefined") window.history.replaceState({}, "", window.location.pathname)
     }
-  }, [searchParams, onAsk, onAutosubmit])
+  }, [searchParams, onAsk])
   return null
 }
 
@@ -53,7 +61,13 @@ export default function ChatPage() {
     typeof window !== "undefined" && localStorage.getItem("bonita_pro") === "true",
   )
   const [feedbackTargetId, setFeedbackTargetId] = useState<string | null>(null)
-  const [showSplash, setShowSplash] = useState(true)
+  const [showSplash, setShowSplash] = useState(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get("autosubmit") === "true") return false
+    }
+    return true
+  })
   const [conversationId] = useState<string>(() => {
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
       return crypto.randomUUID()

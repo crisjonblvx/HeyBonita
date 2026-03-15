@@ -40,11 +40,15 @@ function categoryLabel(key: string): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key
 }
 
-/** Only exclude names that are entirely non-Latin (e.g. Japanese, Cyrillic, Arabic with zero Latin chars). */
-function hasAtLeastOneLatin(name: string | null | undefined): boolean {
+/** Exclude names that look like handles, abbreviations, or nonsense. Must start with a letter and be a recognizable name. */
+function isRecognizableName(name: string | null | undefined): boolean {
   const value = (name || "").trim()
-  if (!value) return false
-  return /[A-Za-z\u00C0-\u024F]/.test(value)
+  if (!value || value.length < 2) return false
+  if (!/^[A-Za-z\u00C0-\u024F]/.test(value)) return false
+  if (/^[A-Za-z]$/.test(value)) return false
+  const letterCount = (value.match(/[A-Za-z\u00C0-\u024F]/g) || []).length
+  if (letterCount < value.length * 0.5) return false
+  return true
 }
 
 function InitialAvatar({ name }: { name: string }) {
@@ -96,7 +100,7 @@ export default function ExplorePage() {
       const json = await res.json()
       if (json.ok) {
         const raw: Entry[] = json.entries ?? []
-        const filtered = raw.filter((entry) => hasAtLeastOneLatin(entry.name))
+        const filtered = raw.filter((entry) => isRecognizableName(entry.name))
         filtered.sort((a, b) => {
           const aImg = !!a.image_url
           const bImg = !!b.image_url
@@ -287,7 +291,7 @@ export default function ExplorePage() {
                   </p>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {entries.map((entry) => {
-                      if (!hasAtLeastOneLatin(entry.name)) return null
+                      if (!isRecognizableName(entry.name)) return null
                       return (
                       <div
                         key={entry.id}

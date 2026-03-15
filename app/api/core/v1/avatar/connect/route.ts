@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic"
 
 const AVATAR_ID =
   process.env.NEXT_PUBLIC_BONITA_AVATAR_ID || "3d6635bd-7048-4aa8-abef-ba653739019d"
-const RUNWAY_BASE = "https://api.dev.runwayml.com"
+const RUNWAY_BASE = process.env.RUNWAY_BASE_URL || "https://api.runwayml.com"
 
 export async function POST(req: Request) {
   const apiKey = process.env.RUNWAY_API_KEY || process.env.RUNWAYML_API_SECRET
