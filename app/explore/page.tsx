@@ -40,19 +40,11 @@ function categoryLabel(key: string): string {
   return CATEGORIES.find((c) => c.key === key)?.label ?? key
 }
 
-function hasSymbolPrefix(name: string | null | undefined): boolean {
-  return /^[_\-:.!¡¿]/.test((name || "").trim())
-}
-
-function isCulturallyRelevantName(name: string | null | undefined): boolean {
-  if (hasSymbolPrefix(name)) return false
+/** Only exclude names that are entirely non-Latin (e.g. Japanese, Cyrillic, Arabic with zero Latin chars). */
+function hasAtLeastOneLatin(name: string | null | undefined): boolean {
   const value = (name || "").trim()
   if (!value) return false
-  const hasLatin = /[A-Za-z\u00C0-\u024F]/.test(value)
-  if (!hasLatin) return false
-  const onlySymbols = !/[A-Za-z\u00C0-\u024F0-9]/.test(value)
-  if (onlySymbols) return false
-  return true
+  return /[A-Za-z\u00C0-\u024F]/.test(value)
 }
 
 function InitialAvatar({ name }: { name: string }) {
@@ -104,9 +96,7 @@ export default function ExplorePage() {
       const json = await res.json()
       if (json.ok) {
         const raw: Entry[] = json.entries ?? []
-        const filtered = raw.filter(
-          (entry) => !hasSymbolPrefix(entry.name) && isCulturallyRelevantName(entry.name),
-        )
+        const filtered = raw.filter((entry) => hasAtLeastOneLatin(entry.name))
         filtered.sort((a, b) => {
           const aImg = !!a.image_url
           const bImg = !!b.image_url
@@ -297,8 +287,7 @@ export default function ExplorePage() {
                   </p>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {entries.map((entry) => {
-                      const hasLatinChars = /[a-zA-Z\u00C0-\u024F]/.test(entry.name ?? "")
-                      if (!hasLatinChars) return null
+                      if (!hasAtLeastOneLatin(entry.name)) return null
                       return (
                       <div
                         key={entry.id}

@@ -32,7 +32,7 @@ function AskParamReader({
       onAsk(ask)
       if (autosubmit === "true" && onAutosubmit && !autosubmitDone.current) {
         autosubmitDone.current = true
-        const t = setTimeout(() => onAutosubmit(ask), 400)
+        const t = setTimeout(() => onAutosubmit(ask), 500)
         return () => clearTimeout(t)
       }
       if (typeof window !== "undefined") window.history.replaceState({}, "", window.location.pathname)
