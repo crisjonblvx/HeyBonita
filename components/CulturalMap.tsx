@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps"
-import * as topojson from "topojson-client"
 import { BonitaSidebar } from "@/components/BonitaSidebar"
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json"
@@ -98,37 +97,22 @@ export default function CulturalMap() {
               className="w-full h-full"
               style={{ background: "transparent" }}
             >
-              <Geographies
-                geography={GEO_URL}
-                parseGeographies={(topology: unknown) => {
-                  const t = topology as { objects?: { states?: unknown } }
-                  if (!t?.objects?.states) return []
-                  try {
-                    const fc = topojson.feature(t, t.objects.states)
-                    const features = (fc as { features?: unknown[] })?.features
-                    return Array.isArray(features) ? features : []
-                  } catch {
-                    return []
-                  }
-                }}
-              >
-                {({ geographies }: { geographies: unknown[] }) =>
-                  geographies.map((geo) => {
-                    const g = geo as { rsmKey?: string }
-                    return (
+              <Geographies geography={GEO_URL}>
+                {({ geographies }: { geographies: any[] }) =>
+                  geographies.map((geo) => (
                     <Geography
-                      key={g.rsmKey}
+                      key={geo.rsmKey}
                       geography={geo}
-                      fill="rgba(197, 150, 58, 0.06)"
-                      stroke="rgba(197, 150, 58, 0.4)"
+                      fill="rgba(197, 150, 58, 0.08)"
+                      stroke="rgba(197, 150, 58, 0.45)"
                       strokeWidth={0.75}
                       style={{
                         default: { outline: "none" },
-                        hover: { fill: "rgba(197, 150, 58, 0.12)", outline: "none" },
+                        hover: { fill: "rgba(197, 150, 58, 0.15)", outline: "none" },
                         pressed: { outline: "none" },
                       }}
                     />
-                  )})
+                  ))
                 }
               </Geographies>
               {LOCATIONS.map((loc) => (
