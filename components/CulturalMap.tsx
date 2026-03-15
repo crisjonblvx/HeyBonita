@@ -119,10 +119,14 @@ export default function CulturalMap() {
                     <Geography
                       key={g.rsmKey}
                       geography={geo}
-                      fill="transparent"
-                      stroke="rgba(197, 150, 58, 0.15)"
-                      strokeWidth={0.5}
-                      style={{ outline: "none" }}
+                      fill="rgba(197, 150, 58, 0.06)"
+                      stroke="rgba(197, 150, 58, 0.4)"
+                      strokeWidth={0.75}
+                      style={{
+                        default: { outline: "none" },
+                        hover: { fill: "rgba(197, 150, 58, 0.12)", outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
                     />
                   )})
                 }

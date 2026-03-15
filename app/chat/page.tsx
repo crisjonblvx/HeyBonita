@@ -16,34 +16,20 @@ const AvatarCall = dynamic(
   { ssr: false },
 )
 
-function AskParamReader({
-  onAsk,
-  onAutosubmit,
-}: {
-  onAsk: (value: string) => void
-  onAutosubmit?: (ask: string) => void
-}) {
+function AskParamReader({ onAsk }: { onAsk: (value: string) => void }) {
   const searchParams = useSearchParams()
-  const autosubmitDone = useRef(false)
-  const onAutosubmitRef = useRef(onAutosubmit)
-  useEffect(() => {
-    onAutosubmitRef.current = onAutosubmit
-  }, [onAutosubmit])
+  const didRead = useRef(false)
 
   useEffect(() => {
+    if (didRead.current) return
     const ask = searchParams.get("ask")
-    const autosubmit = searchParams.get("autosubmit")
     if (ask && typeof ask === "string") {
+      didRead.current = true
       onAsk(ask)
-      if (autosubmit === "true" && onAutosubmitRef.current && !autosubmitDone.current) {
-        autosubmitDone.current = true
-        const t = setTimeout(() => {
-          onAutosubmitRef.current?.(ask)
-          if (typeof window !== "undefined") window.history.replaceState({}, "", window.location.pathname)
-        }, 600)
-        return () => clearTimeout(t)
+      const autosubmit = searchParams.get("autosubmit")
+      if (autosubmit !== "true" && typeof window !== "undefined") {
+        window.history.replaceState({}, "", window.location.pathname)
       }
-      if (typeof window !== "undefined") window.history.replaceState({}, "", window.location.pathname)
     }
   }, [searchParams, onAsk])
   return null
@@ -148,6 +134,20 @@ export default function ChatPage() {
     [input, loading, messages],
   )
 
+  const autosubmitFired = useRef(false)
+  useEffect(() => {
+    if (autosubmitFired.current) return
+    if (typeof window === "undefined") return
+    const params = new URLSearchParams(window.location.search)
+    const ask = params.get("ask")
+    const autosubmit = params.get("autosubmit")
+    if (ask && autosubmit === "true") {
+      autosubmitFired.current = true
+      window.history.replaceState({}, "", window.location.pathname)
+      handleSend(ask)
+    }
+  }) // intentionally no deps — runs every render until it fires
+
   async function handleFeedback(message: ChatMessage, rating: "up" | "down", reason?: string) {
     try {
       const idx = messages.findIndex((m) => m.id === message.id)
@@ -194,7 +194,7 @@ export default function ChatPage() {
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg-deep)" }}>
       <Suspense fallback={null}>
-        <AskParamReader onAsk={setInput} onAutosubmit={handleSend} />
+        <AskParamReader onAsk={setInput} />
       </Suspense>
       {showSplash && <BonitaSplash onComplete={() => setShowSplash(false)} />}
 
